@@ -1,0 +1,24 @@
+expiry,status,reason
+2022-01-13,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-10-31,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-11-28,TRADED,Complete entry/adjustment/exit execution
+2024-12-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-01-30,TRADED,Complete entry/adjustment/exit execution
+2025-02-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-03-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-04-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-05-29,TRADED,Complete entry/adjustment/exit execution
+2025-06-26,TRADED,Complete entry/adjustment/exit execution
+2025-07-31,TRADED,Complete entry/adjustment/exit execution
+2025-08-28,TRADED,Complete entry/adjustment/exit execution
+2025-09-30,TRADED,Complete entry/adjustment/exit execution
+2025-10-28,TRADED,Complete entry/adjustment/exit execution
+2025-11-25,TRADED,Complete entry/adjustment/exit execution
+2025-12-30,TRADED,Complete entry/adjustment/exit execution
+2026-01-27,TRADED,Complete entry/adjustment/exit execution
+2026-02-24,TRADED,Complete entry/adjustment/exit execution
+2026-03-30,TRADED,Complete entry/adjustment/exit execution
+2026-04-28,TRADED,Complete entry/adjustment/exit execution
+2026-05-26,TRADED,Complete entry/adjustment/exit execution
+2026-06-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-07-21,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path

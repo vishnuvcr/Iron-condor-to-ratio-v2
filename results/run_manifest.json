@@ -1,17 +1,190 @@
 {
   "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
+  "code_commit_sha": "1fafe68d9c7cefdd410ed9e710f93335a5f56e71",
   "data_repository": "rissin/nse-options-intraday",
+  "dataset_revision": "8f7739cab3f38abdcbc6332a6d0a83e1341326e3",
+  "dataset_card_url": "https://huggingface.co/datasets/rissin/nse-options-intraday",
   "files": [
+    "upstox_intraday/NIFTY/NIFTY_2022.parquet",
+    "upstox_intraday/NIFTY/NIFTY_2023.parquet",
     "upstox_intraday/NIFTY/NIFTY_2024.parquet",
     "upstox_intraday/NIFTY/NIFTY_2025.parquet",
     "upstox_intraday/NIFTY/NIFTY_2026.parquet"
   ],
-  "start": "2025-01-01",
+  "file_sha256": {
+    "/home/runner/.cache/huggingface/datasets--rissin--nse-options-intraday/snapshots/8f7739cab3f38abdcbc6332a6d0a83e1341326e3/upstox_intraday/NIFTY/NIFTY_2022.parquet": "0cec250b65fd09e5b5da838ca554126cedb1b450223a6a256b81bb1c7674ee1e",
+    "/home/runner/.cache/huggingface/datasets--rissin--nse-options-intraday/snapshots/8f7739cab3f38abdcbc6332a6d0a83e1341326e3/upstox_intraday/NIFTY/NIFTY_2023.parquet": "e622a03090de590c1a1e64cf500d2c4fcb84a15f30b0a5730b6be1bb9605d2b2",
+    "/home/runner/.cache/huggingface/datasets--rissin--nse-options-intraday/snapshots/8f7739cab3f38abdcbc6332a6d0a83e1341326e3/upstox_intraday/NIFTY/NIFTY_2024.parquet": "573b6fa788dbe06cbb7f6c4a48ee2fcd259434ad05f70a1cca3e775bb5b9d934",
+    "/home/runner/.cache/huggingface/datasets--rissin--nse-options-intraday/snapshots/8f7739cab3f38abdcbc6332a6d0a83e1341326e3/upstox_intraday/NIFTY/NIFTY_2025.parquet": "33c2525b57ba442cfabeaebfc63ace63d0292e8f69474d5ea1541b75c9546972",
+    "/home/runner/.cache/huggingface/datasets--rissin--nse-options-intraday/snapshots/8f7739cab3f38abdcbc6332a6d0a83e1341326e3/upstox_intraday/NIFTY/NIFTY_2026.parquet": "bae9943b2fa99ee9c1214fb7c695b84f9f661a050a5cd04d9c5c2ffc7bc59f73"
+  },
+  "schema_fields": [
+    "date",
+    "timestamp",
+    "underlying",
+    "expiry",
+    "strike",
+    "option_type",
+    "exercise_style",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "oi",
+    "settle_price",
+    "source",
+    "granularity"
+  ],
+  "schema_hash": "be602436c6b22db2347d7c017d84652d54accde3e932aa61dd92b98acba8d81c",
+  "start": "2022-01-01",
   "end": "2026-09-30",
-  "expiry_count": 19,
+  "expiry_count": 23,
   "rate": 0.0,
   "brokerage": 20.0,
   "slippage_ticks": 1,
   "tick": 0.05,
-  "created_utc": "2026-10-04T15:55:25.813258Z"
+  "created_utc": "2026-10-04T16:51:35.683274Z",
+  "data_coverage": [
+    {
+      "expiry": "2022-01-13",
+      "min_timestamp": "2022-01-01 09:15:00+05:30",
+      "max_timestamp": "2022-01-01 09:19:00+05:30",
+      "rows": 15
+    },
+    {
+      "expiry": "2024-10-31",
+      "min_timestamp": "2024-10-01 09:15:00+05:30",
+      "max_timestamp": "2024-10-30 15:29:00+05:30",
+      "rows": 751512
+    },
+    {
+      "expiry": "2024-11-28",
+      "min_timestamp": "2024-10-24 09:15:00+05:30",
+      "max_timestamp": "2024-11-27 15:29:00+05:30",
+      "rows": 757568
+    },
+    {
+      "expiry": "2024-12-26",
+      "min_timestamp": "2024-11-21 09:15:00+05:30",
+      "max_timestamp": "2024-12-24 15:29:00+05:30",
+      "rows": 11501
+    },
+    {
+      "expiry": "2025-01-30",
+      "min_timestamp": "2024-12-26 09:15:00+05:30",
+      "max_timestamp": "2025-01-29 15:29:00+05:30",
+      "rows": 1014668
+    },
+    {
+      "expiry": "2025-02-27",
+      "min_timestamp": "2025-01-23 09:15:00+05:30",
+      "max_timestamp": "2025-02-25 15:29:00+05:30",
+      "rows": 871059
+    },
+    {
+      "expiry": "2025-03-27",
+      "min_timestamp": "2025-02-20 09:15:00+05:30",
+      "max_timestamp": "2025-03-26 15:29:00+05:30",
+      "rows": 732636
+    },
+    {
+      "expiry": "2025-04-30",
+      "min_timestamp": "2025-03-26 09:15:00+05:30",
+      "max_timestamp": "2025-04-29 15:29:00+05:30",
+      "rows": 550487
+    },
+    {
+      "expiry": "2025-05-29",
+      "min_timestamp": "2025-04-24 09:15:00+05:30",
+      "max_timestamp": "2025-05-28 15:29:00+05:30",
+      "rows": 951287
+    },
+    {
+      "expiry": "2025-06-26",
+      "min_timestamp": "2025-05-22 09:15:00+05:30",
+      "max_timestamp": "2025-06-25 15:29:00+05:30",
+      "rows": 940545
+    },
+    {
+      "expiry": "2025-07-31",
+      "min_timestamp": "2025-06-26 09:15:00+05:30",
+      "max_timestamp": "2025-07-30 15:29:00+05:30",
+      "rows": 813504
+    },
+    {
+      "expiry": "2025-08-28",
+      "min_timestamp": "2025-07-24 09:15:00+05:30",
+      "max_timestamp": "2025-08-26 15:29:00+05:30",
+      "rows": 689108
+    },
+    {
+      "expiry": "2025-09-30",
+      "min_timestamp": "2025-08-26 09:15:00+05:30",
+      "max_timestamp": "2025-09-29 15:29:00+05:30",
+      "rows": 712912
+    },
+    {
+      "expiry": "2025-10-28",
+      "min_timestamp": "2025-09-23 09:15:00+05:30",
+      "max_timestamp": "2025-10-27 15:29:00+05:30",
+      "rows": 724781
+    },
+    {
+      "expiry": "2025-11-25",
+      "min_timestamp": "2025-10-21 13:45:00+05:30",
+      "max_timestamp": "2025-11-24 15:29:00+05:30",
+      "rows": 750344
+    },
+    {
+      "expiry": "2025-12-30",
+      "min_timestamp": "2025-11-25 09:15:00+05:30",
+      "max_timestamp": "2025-12-29 15:29:00+05:30",
+      "rows": 685113
+    },
+    {
+      "expiry": "2026-01-27",
+      "min_timestamp": "2025-12-23 09:15:00+05:30",
+      "max_timestamp": "2026-01-23 15:29:00+05:30",
+      "rows": 714092
+    },
+    {
+      "expiry": "2026-02-24",
+      "min_timestamp": "2026-01-20 09:15:00+05:30",
+      "max_timestamp": "2026-02-23 15:29:00+05:30",
+      "rows": 900018
+    },
+    {
+      "expiry": "2026-03-30",
+      "min_timestamp": "2026-02-23 09:15:00+05:30",
+      "max_timestamp": "2026-03-27 15:29:00+05:30",
+      "rows": 1027122
+    },
+    {
+      "expiry": "2026-04-28",
+      "min_timestamp": "2026-03-24 09:15:00+05:30",
+      "max_timestamp": "2026-04-27 15:29:00+05:30",
+      "rows": 908003
+    },
+    {
+      "expiry": "2026-05-26",
+      "min_timestamp": "2026-04-21 09:15:00+05:30",
+      "max_timestamp": "2026-05-25 15:29:00+05:30",
+      "rows": 926210
+    },
+    {
+      "expiry": "2026-06-30",
+      "min_timestamp": "2026-05-26 09:15:00+05:30",
+      "max_timestamp": "2026-06-29 15:29:00+05:30",
+      "rows": 888122
+    },
+    {
+      "expiry": "2026-07-21",
+      "min_timestamp": "2026-06-17 09:37:00+05:30",
+      "max_timestamp": "2026-07-20 15:29:00+05:30",
+      "rows": 398864
+    }
+  ],
+  "candidate_status_file": "candidate_status.csv",
+  "data_quality_file": "data_quality.csv"
 }
