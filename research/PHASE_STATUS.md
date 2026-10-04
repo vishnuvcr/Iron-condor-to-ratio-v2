@@ -88,3 +88,7 @@ Phase 2 remains IN PROGRESS. Composite construction was resource-unstable under 
 
 ## 2026-10-04 — CI timeout remediation
 Phase 2 remains IN PROGRESS. The sequential composite build is resource-stable but the hosted runner terminated it at about 4m19s. An explicit 30-minute job timeout has been added; Gate 2 remains closed pending a complete composite build.
+
+
+## 2026-10-04 — Gate 2 Review 17 remediation
+Phase 2 remains IN PROGRESS. Composite construction is now partitioned into six bounded year jobs with independent artifacts, followed by a single assembly job. This preserves the data gate while avoiding a monolithic multi-year build. Fresh CI and tester review are required.
