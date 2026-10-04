@@ -1,9 +1,8 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Gate 2 / Phase 2 data engineering in progress; final historical sample not yet accepted.**
+Research status: **Phase 2 — Data engineering in progress; strategy scope reset to the latest user-defined rules only.**
 
-This repository is the reproducible research record for backtesting the YouTube strategy supplied by the user:
-https://youtu.be/T4gvTshMEyA
+**Scope reset (2026-10-05):** the initial transcript is non-authoritative and the 32-DTE constraint is removed. No prior 32-DTE result is a result for the current strategy.
 
 ## Navigation
 - research/RESEARCH_PLAN.md
