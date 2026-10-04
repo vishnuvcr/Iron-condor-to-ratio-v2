@@ -1,6 +1,6 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Phase 3 — YouTube-strategy fidelity validation in progress.**
+Research status: **Phase 8 — final manuscript completed; strategy not promoted.**
 
 **Scope reset (2026-10-05):** the initial transcript is non-authoritative and the 32-DTE constraint is removed. No prior 32-DTE result is a result for the current strategy.
 
@@ -30,13 +30,27 @@ Developer and tester are isolated. Tester approval is required before strategy p
 
 The current composite does not establish complete deterministic lifecycle coverage for all 69 requested months. This is disclosed rather than hidden.
 
-## Current Phase 3
+## Final verified result
 
-The reversal trigger is fixed at **1.30 short-leg delta**. No reversal-threshold sensitivity testing or parameter optimization is authorized.
+The exact user-defined strategy was tested with a **fixed 1.30 short-leg delta reversal trigger**. No reversal-threshold sensitivity testing or parameter optimization was performed.
 
-All current execution uses identical composite data, ₹20/order brokerage, one adverse option tick of slippage, continuation threshold 0.20, and research-use entry mode.
+Verified research-use result (workflow 37237347768):
+- 28 traded cycles
+- gross P&L: **−₹3,821.50**
+- transaction costs: **₹16,633.96**
+- net P&L: **−₹20,455.46**
+- win rate: **46.43%**
+- profit factor: **0.6468**
+- max drawdown: **−₹41,981.20**
+- annualized monthly Sharpe proxy: **−0.5414**
+- 38 continuation resets
+- **0 observed 1.30 reversal events**
 
-Workflow run `37235922082` has passed unit tests, all six data partitions, composite assembly, coverage diagnostics, consolidated CSV export, and CSV-to-Parquet reconciliation. The fixed-1.30 backtest step is currently executing. No performance conclusion has been promoted; independent tester approval remains mandatory.
+The independent tester reproduced the reported metrics exactly from the compact trade/order outputs. The strategy is **not promoted**.
+
+Strict lifecycle coverage remains **0/69 requested months**; the result is therefore a research-use partial-data conclusion, not a fully covered historical validation.
+
+See [manuscript/FINAL_RESEARCH_MANUSCRIPT.md](manuscript/FINAL_RESEARCH_MANUSCRIPT.md) and [research/VERIFIED_RESULTS_2026-10-05.md](research/VERIFIED_RESULTS_2026-10-05.md).
 
 ## Scientific research expansion
 
