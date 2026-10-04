@@ -82,3 +82,30 @@ The Gate 1 acceptance statement says "no hidden assumption" but still leaves sev
 
 ## Tester instruction to developer
 Do not progress to the data/engine gate until this report's FAIL items are resolved and resubmitted for independent review.
+
+
+# Gate 1 Re-review — 2026-10-04
+
+Reviewed developer revision commit 5d4552985024a2551274b3b34e287431282ed65e.
+
+## Result: PASS
+
+The prior blocking items have been closed:
+- entry timing is now fixed at 32 DTE with explicit 09:20 handling;
+- signal detection versus next-bar-open execution removes same-bar look-ahead;
+- the delta model is specified, including Black-76 delta, forward construction, discount factor, and rate sensitivities;
+- the strike selection window is fixed at 15% around estimated forward;
+- the main production window is restricted to 2025 onward, where the documented 75/65 lot regimes are deterministic by monthly expiry;
+- slippage is fixed in ticks for baseline/stress/reference cases.
+
+### Remaining implementation checks
+These are Gate 2 obligations, not Gate 1 blockers:
+1. Verify the forward estimate is numerically stable in the actual dataset.
+2. Verify implied-volatility solver convergence and limiting-delta handling.
+3. Verify contract/expiry uniqueness and absence of duplicate rows.
+4. Verify every order is executed at the specified bar and cannot read future data.
+5. Independently reproduce the ratio net-delta algebra in executable tests.
+6. Verify historical lot size against NSE contract files for each production expiry.
+
+## Tester instruction to developer
+Gate 1 is passed. Proceed to the data-engineering gate only. Do not declare Gate 2 passed until an independent data-quality report is completed.
