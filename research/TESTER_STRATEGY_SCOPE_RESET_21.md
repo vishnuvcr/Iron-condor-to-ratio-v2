@@ -62,3 +62,24 @@ Developer branch reviewed: phase-2-data-developer
 
 ### Tester instruction to developer
 Do not run or publish production strategy performance until this implementation gate is remediated and independently re-reviewed.
+## Review 23 — Re-review after reversal remediation
+Date: 2026-10-05
+Developer branch reviewed: phase-2-data-developer
+
+### Verdict
+**PASS — Gate 1 implementation conditions satisfied, subject to final CI completion.**
+
+### Independent checks
+- Reversal threshold is now an explicit parameter constrained to the stated 0.80–1.30 range.
+- Baseline 1.20 is documented as a modelling convention, not attributed to the user.
+- Required reversal sensitivity points 0.80, 1.00, 1.20 and 1.30 are documented.
+- Continuation remains parameterized at the specified combined-delta 0.20 threshold.
+- Initial entry timing, next-open execution, same-bar trigger tie-break and costs/slippage remain explicitly documented.
+- Current CI unit tests pass on run 37231413691 (36 tests at the unit-test stage).
+- No 32-DTE rule remains in the current strategy specification.
+
+### Gate decision
+Gate 1 strategy implementation may be marked PASS once the full CI run completes successfully. This review does not open Gate 2.
+
+### Tester instruction to developer
+After full CI completion, update Gate 1 status and proceed only to the existing Gate 2 data-coverage checks. Do not publish performance results unless the data gate independently passes.
