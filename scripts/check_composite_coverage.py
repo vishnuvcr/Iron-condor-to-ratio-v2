@@ -143,7 +143,7 @@ def main():
                 "primary_file_available": primary_available,
                 "primary_monthly_candidate": bool(primary_expiry and is_monthly_expiry_candidate(primary_expiry)),
                 "fallback_monthly_candidate": fallback_monthly_ok,
-                "target_32dte": "",
+                "target_entry_month_start": "",
                 "first_available": "",
                 "last_available": "",
                 "entry_date": "",
@@ -174,9 +174,7 @@ def main():
                 "primary_file_available": True,
                 "primary_monthly_candidate": False,
                 "fallback_monthly_candidate": False,
-                "target_32dte": (
-                    raw_primary_expiry - pd.Timedelta(days=32)
-                ).isoformat() if raw_primary_expiry else "",
+                "target_entry_month_start": (date(raw_primary_expiry.year, raw_primary_expiry.month, 1).isoformat() if raw_primary_expiry else ""),
                 "first_available": "",
                 "last_available": "",
                 "entry_date": "",
@@ -206,7 +204,7 @@ def main():
                 "coverage_basis": coverage_basis,
                 "primary_file_available": primary_available,
                 "fallback_monthly_candidate": False,
-                "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
+                "target_entry_month_start": date(expiry.year, expiry.month, 1).isoformat(),
                 "first_available": "",
                 "last_available": "",
                 "entry_date": "",
@@ -237,7 +235,7 @@ def main():
                 "coverage_basis": coverage_basis,
                 "primary_file_available": primary_available,
                 "fallback_monthly_candidate": fallback_monthly_ok,
-                "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
+                "target_entry_month_start": date(expiry.year, expiry.month, 1).isoformat(),
                 "first_available": "",
                 "last_available": "",
                 "entry_date": "",
@@ -302,7 +300,7 @@ def main():
 
         if status != "COMPLETE" and (not entry or not exit_date):
             failures.append(
-                f"{expiry}: does not span deterministic 32-DTE entry to pre-expiry exit"
+                f"{expiry}: does not span deterministic first-session-of-expiry-month entry to pre-expiry exit"
             )
 
         rows.append({
