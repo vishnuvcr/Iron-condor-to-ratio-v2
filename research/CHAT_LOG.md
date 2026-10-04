@@ -31,3 +31,7 @@ User instructed that the most usable real data should be used even if not 100% p
 
 ## 2026-10-05 — Phase 2 code-review cleanup
 Developer reviewed the research-use implementation while CI run 37231842778 was still assembling the composite. Two non-strategy defects were found and corrected: a stale 32-DTE coverage-output field was removed, and the continuation decision now uses the configured 0.20 threshold parameter rather than a duplicate hard-coded literal. Workflow diagnostics were also changed to upload unconditionally so tolerated strict-gate failures remain auditable.
+
+
+## 2026-10-05 — user scope order: YouTube strategy only
+User explicitly ordered: “Do not introduce anything into the strategy testing. Just test what I have given you from the YouTube video.” Developer acknowledged that the reversal-threshold sensitivity grid was an unauthorized methodological addition. The sensitivity workflow and 1.20 threshold convention are being removed/reclassified. Future testing must reproduce only the video-defined rules; ambiguity must be disclosed rather than converted into new strategy parameters.
