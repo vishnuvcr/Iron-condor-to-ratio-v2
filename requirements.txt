@@ -5,7 +5,5 @@ duckdb>=1.0
 pyarrow>=16.0
 matplotlib>=3.8
 huggingface_hub>=0.28
-exchange-calendars>=4.10
-
 gdown>=5.2
 requests>=2.32
