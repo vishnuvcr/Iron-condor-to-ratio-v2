@@ -138,11 +138,6 @@ def implied_vol_black76(
     valid = valid & (residual <= 0.02)
 
     # Return the solved implied volatility; delta from an observed premium is computed separately.
-    limiting_call = np.where(forward > strike, df, np.where(forward < strike, 0.0, 0.5 * df))
-    limiting_put = np.where(forward > strike, 0.0, np.where(forward < strike, -df, -0.5 * df))
-    near_intrinsic = price <= intrinsic + 1e-7
-    limit_delta = np.where(is_call, limiting_call, limiting_put)
-    delta = np.where(near_intrinsic, limit_delta, delta)
     sigma = np.where(valid, sigma, np.nan)
     return sigma
 
@@ -175,7 +170,7 @@ def black76_delta_from_price(
     limiting_call = np.where(forward > strike, df, np.where(forward < strike, 0.0, 0.5 * df))
     limiting_put = np.where(forward > strike, 0.0, np.where(forward < strike, -df, -0.5 * df))
     limit_delta = np.where(is_call, limiting_call, limiting_put)
-    return np.where(near_intrinsic, limit_delta, delta)
+    return np.where(near_intrinsic, limit_delta, np.where(np.isfinite(sigma), delta, np.nan))
 
 
 @dataclass
