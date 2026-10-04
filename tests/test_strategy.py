@@ -3,6 +3,7 @@ from datetime import date
 
 from src.strategy_engine import (
     CostModel,
+    choose_ic_trigger,
     direction_from_trigger,
     lot_size_for_monthly_expiry,
     ratio_net_delta,
@@ -71,3 +72,11 @@ def test_stt_boundary_and_slippage():
     assert post > pre
     assert cm.price_with_slippage(100.0, "BUY") == 100.05
     assert cm.price_with_slippage(100.0, "SELL") == 99.95
+
+
+def test_ic_trigger_rule_and_tie_break():
+    assert choose_ic_trigger(0.09, 0.20) == "CALL"
+    assert choose_ic_trigger(0.20, 0.09) == "PUT"
+    assert choose_ic_trigger(0.07, 0.09) == "CALL"
+    assert choose_ic_trigger(0.09, 0.07) == "PUT"
+    assert choose_ic_trigger(0.09, 0.09, prev_call_abs_delta=0.15, prev_put_abs_delta=0.12) == "CALL"
