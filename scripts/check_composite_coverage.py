@@ -312,7 +312,6 @@ def main():
             "expiry": expiry.isoformat(),
             "coverage_basis": coverage_basis,
             "primary_file_available": primary_available,
-            "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
             "first_available": first.isoformat(),
             "last_available": last.isoformat(),
             "entry_date": entry.isoformat() if entry else "",
