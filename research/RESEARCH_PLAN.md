@@ -15,9 +15,9 @@ Does the video strategy — starting with a monthly NIFTY Iron Condor and switch
 ### Phase 0 — Foundation
 Create repository structure, role separation, logs, and research protocol. Status: COMPLETE.
 ### Phase 1 — Strategy specification
-Translate every rule in the source into deterministic rules, identify ambiguities, and define an executable state machine. Status: IN PROGRESS.
+Translate every rule in the source into deterministic rules, identify ambiguities, and define an executable state machine. Status: COMPLETE; Gate 1 passed.
 ### Phase 2 — Data engineering
-Acquire historical NIFTY monthly option intraday data, validate timestamps/strikes/expiries, cache data, and document provenance. Status: PLANNED.
+Acquire historical NIFTY monthly option intraday data, validate timestamps/strikes/expiries, cache data, and document provenance. Attempt a provenance-aware composite dataset when any source has gaps, but never interpolate or blend option prices. Status: IN PROGRESS.
 ### Phase 3 — Cost/slippage model
 Implement Paytm Money brokerage and applicable exchange/statutory charges by date, plus explicit slippage scenarios. Status: PLANNED.
 ### Phase 4 — Engine implementation
@@ -31,5 +31,6 @@ Compare to benchmarks, bootstrap trade sequences where appropriate, run paramete
 ### Phase 8 — Manuscript
 Produce tables, charts, appendices, limitations, conclusions, and future research directions. Status: PLANNED.
 
-## Stop rule
+### Phase-2 extension: composite-source fallback
+When a free source contains a missing contract-minute observation, attempt exact-key recovery from another validated source. Prefer complete OHLCV rows from the highest-priority validated source; use lower-priority sources only for exact-key fallback. Keep source provenance on every row and require independent overlap checks before promotion. This extension does not change the stop rule.\n\n## Stop rule
 The research stops after Phase 8 or earlier if the data are demonstrably insufficient for a defensible backtest. No unbounded data collection is permitted.
