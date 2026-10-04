@@ -33,3 +33,5 @@
 | 2026-10-04 | 2 | DATA INTEGRITY | Composite timestamp normalization required explicit handling of naïve Date+Time fields as IST. | Production code now localizes naïve timestamps to Asia/Kolkata and converts only already timezone-aware timestamps. |
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 9 found that cycle coverage did not fail CI, interior session gaps were not checked, and CSV/Parquet reconciliation had not yet been enforced. | Developer added an enforcing coverage step, exchange-calendar session continuity checks, a deterministic CSV/Parquet reconciliation script, and workflow reporting. |
 | 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | GitHub connector returned HTTP 404 when retrieving live workflow-job logs while run 37224425114 was in progress. | No research result was inferred from the failed log request; rely on the workflow status/artifacts after completion. |
+
+| 2026-10-04 | 2 | DOC ERROR | README CSV link initially used ../results from a root-level README. | Corrected to results/composite/consolidated_options_data.csv; no research-data effect. |
