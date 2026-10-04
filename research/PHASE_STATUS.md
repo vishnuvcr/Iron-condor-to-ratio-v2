@@ -172,3 +172,7 @@ Phase 3 remains IN PROGRESS. A literature review and formal research-methodology
 
 ## 2026-10-05 — Phase 3 execution status
 The six composite partitions and assembly completed successfully in workflow 37234230420. The 1.30 reversal-threshold sensitivity job completed successfully; 0.80, 1.00 and 1.20 remained in progress at the latest status check. No result has been promoted. Independent tester review remains mandatory after the full sensitivity set is available.
+
+
+## 2026-10-05 — explicit strategy-scope correction
+The user ordered that strategy testing must contain **only the strategy given in the YouTube video**. The previously introduced 0.80/1.00/1.20/1.30 reversal-threshold sensitivity grid was unauthorized and is removed from the research plan. The sensitivity workflow was deleted and its results are non-authoritative. Phase 3 is reset to strategy-fidelity validation only. No strategy parameter may be added, optimized, tuned, or sensitivity-tested unless explicitly supplied by the user/video.
