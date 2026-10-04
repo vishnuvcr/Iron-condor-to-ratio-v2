@@ -50,3 +50,7 @@ No performance result from the current one-trade run is treated as evidence of s
 
 ## Free data-source investigation — 2026-10-04
 The project is actively prioritizing free/public data before any paid source. See [research/FREE_DATA_SOURCE_REVIEW.md](research/FREE_DATA_SOURCE_REVIEW.md). The first empirical target is the free NIFTY 1-minute OHLCV+OI sample exposed by Cloud Trader Pro/Shoonya; Zenodo 2017-2020 is an older-period candidate. No incomplete sample is allowed to generate final performance claims.
+
+
+## Composite free-data recovery — 2026-10-04
+The data pipeline now supports a provenance-aware composite dataset. Missing/invalid contract-minute rows can be recovered from another exact-key source without mixing or averaging option prices. See [research/COMPOSITE_DATA_PROTOCOL.md](research/COMPOSITE_DATA_PROTOCOL.md), [scripts/composite_data.py](../scripts/composite_data.py), and [research/FREE_DATA_SOURCE_REVIEW.md](FREE_DATA_SOURCE_REVIEW.md). Thetrademarkk is the current primary free candidate; Cloud Trader/Shoonya free samples are a fallback source. Zenodo is retained for older-period extension. No composite cycle is promoted until independent tester approval.
