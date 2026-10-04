@@ -46,3 +46,7 @@ A multi-year expansion assessment is recorded in [research/HISTORICAL_DATA_EXPAN
 - Tester Gate 2 reports: [research/TESTER_GATE_2_REVIEW_3.md](research/TESTER_GATE_2_REVIEW_3.md)
 
 No performance result from the current one-trade run is treated as evidence of strategy profitability. The next Gate 2 submission requires a defensible continuous historical source with complete cycle coverage and independent tester approval.
+
+
+## Free data-source investigation — 2026-10-04
+The project is actively prioritizing free/public data before any paid source. See [research/FREE_DATA_SOURCE_REVIEW.md](research/FREE_DATA_SOURCE_REVIEW.md). The first empirical target is the free NIFTY 1-minute OHLCV+OI sample exposed by Cloud Trader Pro/Shoonya; Zenodo 2017-2020 is an older-period candidate. No incomplete sample is allowed to generate final performance claims.
