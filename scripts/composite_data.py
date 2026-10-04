@@ -12,7 +12,7 @@ import pandas as pd
 IST = "Asia/Kolkata"
 
 CANON = [
-    "timestamp", "expiry", "strike", "option_type",
+    "timestamp", "expiry", "expiry_source", "strike", "option_type",
     "open", "high", "low", "close", "volume", "open_interest",
     "price_source", "oi_source", "source_file", "source_revision", "source_row_hash",
 ]
@@ -89,8 +89,10 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
     if expiry_col:
         parsed = pd.to_datetime(df[expiry_col], errors="coerce")
         out["expiry"] = parsed.dt.date
+        out["expiry_source"] = "EXPLICIT_SOURCE_FIELD"
     else:
         out["expiry"] = pd.NaT
+        out["expiry_source"] = "MISSING"
 
     # Some free expired-option CSVs identify the contract in the Symbol field
     # but do not repeat the expiry. For genuinely expired files, infer the
@@ -98,7 +100,9 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
     if symbol_col:
         symbols = df[symbol_col].astype(str)
         max_by_symbol = out.assign(_symbol=symbols).groupby("_symbol")["timestamp"].transform("max").dt.date
-        out.loc[out["expiry"].isna(), "expiry"] = max_by_symbol[out["expiry"].isna()]
+        missing = out["expiry"].isna()
+        out.loc[missing, "expiry"] = max_by_symbol[missing]
+        out.loc[missing & out["expiry"].notna(), "expiry_source"] = "INFERRED_LAST_OBSERVED"
 
 
     for dest, aliases in {
