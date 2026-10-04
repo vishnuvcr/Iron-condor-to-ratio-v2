@@ -69,7 +69,7 @@ The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANS
 See [research/FREE_DATA_SOURCE_REVIEW.md](research/FREE_DATA_SOURCE_REVIEW.md) and [research/COMPOSITE_DATA_PROTOCOL.md](research/COMPOSITE_DATA_PROTOCOL.md). No paid dataset has been assumed.
 
 ### CSV transfer artifact
-The pipeline writes [results/composite/consolidated_options_data.csv](../results/composite/consolidated_options_data.csv) only after a canonical composite has been built. Gate 2 promotion still requires independent tester reconciliation.
+The pipeline writes [results/composite/consolidated_options_data.csv](results/composite/consolidated_options_data.csv) only after a canonical composite has been built. Gate 2 promotion still requires independent tester reconciliation.
 
 ### Gate 2 review trail
 - [Tester Review 8](research/TESTER_GATE_2_REVIEW_8.md)
