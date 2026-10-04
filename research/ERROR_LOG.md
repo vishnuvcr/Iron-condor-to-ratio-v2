@@ -68,3 +68,5 @@
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 19 found that year partitions beginning on January 1 omitted the preceding 32-DTE lead-in, causing 0/69 deterministic cycles to pass coverage. | Partition windows now overlap the preceding year from 20 November; final assembly deduplicates overlapping canonical keys deterministically by source priority. |
 
 | 2026-10-05 | 2 | DATA COVERAGE | Gate 2 Review 19: assembled composite contains monthly expiry files but 0/69 deterministic 32-DTE cycles pass. TradeMarkk coverage is explicitly partial; 2021 Jan-Apr are absent from the staged primary set and later expiry files do not span the required pre-expiry window. | Do not weaken the 32-DTE gate. Investigate alternative reproducible historical acquisition paths and admit data only after independent tester validation. |
+
+| 2026-10-05 | 2 | TESTER REMEDIATION | Tester Review 19 required partition lead-in before first expiry and deterministic deduplication of overlap rows. | Developer added 46-day partition lead-ins (2020-11-15/2021-11-15/.../2025-11-15) and canonical-key deduplication with source-priority ordering in assembly. |
