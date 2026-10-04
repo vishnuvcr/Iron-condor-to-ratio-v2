@@ -77,3 +77,6 @@
 
 | 2026-10-05 | 1/2 | SCOPE RESET | User explicitly instructed that the initial transcript and 32-DTE constraint must be ignored and only the latest strategy be tested. | Rewrote STRATEGY_SPEC.md and research plan to use only the latest user-defined strategy. Existing data pipeline artifacts remain infrastructure validation, not strategy results. |
 | 2026-10-05 | 1 | ERROR | CI test used an incorrect January 2026 month-start assumption; the repository calendar did not classify the asserted session as expected. | Verified against NSE F&O holiday file and corrected the test to use the calendar-defined month-start session. No strategy logic changed. |
+
+
+| 2026-10-05 | 1 | TEST FIX | CI run 37231086646 still failed the month-start regression: the test used expiry 2026-01-27, whose final pre-expiry session is 2026-01-23, not 2026-01-27. The test therefore could not satisfy the production boundary contract. | Replaced the fixture with March 2026: 2026-03-03 is explicitly listed as an NSE F&O holiday, so the expected first session is 2026-03-02 and the pre-expiry session for 2026-03-30 is 2026-03-27. No strategy logic changed. |
