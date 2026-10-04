@@ -105,3 +105,7 @@ Tester Review 17 found the monolithic sequential composite build was too slow fo
 
 ## 2026-10-04 — assembly manifest remediation
 The partitioned build passed all six year jobs, then Gate 2 coverage failed because the assembly job did not preserve the requested start/end window. Tester Review 18 recorded this as a gate-contract defect. Developer updated the assembly manifest and workflow arguments; no coverage criterion was relaxed.
+
+
+## 2026-10-04 — partition lead-in remediation
+The first partitioned coverage run built all six partitions but produced 0/69 complete cycles because each year started on January 1 and therefore lacked the prior 32-DTE observation window. Tester Review 19 recorded the boundary defect. Developer added a 20-November lead-in to 2022–2026 partitions and deterministic cross-partition deduplication. The observed 2026 missing-month issue remains a separate gate condition.
