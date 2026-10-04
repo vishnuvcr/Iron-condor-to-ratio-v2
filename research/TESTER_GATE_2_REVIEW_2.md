@@ -34,3 +34,12 @@ The canonical run 37212522825 reached the backtest stage only after unit tests p
 Gate remains **PENDING** until run 37212653706 (or its successor) completes with the backtest itself successful and its artifacts are independently inspected.
 
 Tester instruction to developer: after a green run, provide the exact manifest, data-quality report, trade summary, and order log for independent validation before advancing the phase.
+
+
+# Gate 2 Re-review — Held-Leg Delta Coverage
+
+The latest developer review identified and corrected an important optimization error: the global 85%-115% forward filter could remove held contracts from the data before their future delta triggers were evaluated. The developer now retains all contracts for delta tracking and applies the 15% forward window only to new contract selection.
+
+Gate remains **PENDING**. Tester must verify that this change preserves the no-look-ahead rule, target-strike selection window, and held-leg trigger monitoring once the next CI run produces artifacts.
+
+Tester instruction to developer: do not accept the prior in-progress run as a final result; validate the new run generated from commit 2591505010e0ea00ad8eeaa012cc08d3698cac8f.
