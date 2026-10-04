@@ -65,3 +65,6 @@ The first end-to-end corrected run completed technically, but the generated data
 The tester must treat the previous run as a **rejected execution**, not a result. Gate 2 remains PENDING until the new run contains actual trade/order rows and the data-quality log shows no runtime errors.
 
 Tester instruction to developer: after the new run, independently verify at least one complete IC entry, one IC->ratio transition (where triggered), one ratio reset/reversal where present, and the P&L/cost arithmetic in the order log.
+
+
+Gate status remains FAIL pending developer remediation and a fresh successful run.
