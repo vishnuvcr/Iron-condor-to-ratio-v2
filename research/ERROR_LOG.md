@@ -114,3 +114,6 @@
 | 2026-10-05 | 4 | USER CORRECTION | Developer incorrectly converted the user's fixed 1.30 reversal trigger into a 0.80–1.30 range. | Corrected implementation and research plan to use a fixed 1.30 short-leg delta reversal trigger; no reversal sensitivity testing is permitted. |
 
 | 2026-10-05 | 3 | CI LOG ACCESS | Attempted to fetch live logs for workflow job `111535265912` while the fixed-1.30 backtest was still running; GitHub returned `404 BlobNotFound`. | Treat as an infrastructure/log-stream access issue only. Continue monitoring via workflow/job status endpoints and do not infer a backtest outcome from missing live logs. |
+
+| 2026-10-05 | 3 | TOOLING | One internal sleep-monitor command was malformed and returned `sleep: missing operand`; no research computation or repository state was affected. | Corrected the command and continued monitoring. |
+| 2026-10-05 | 3 | TOOLING | A direct GitHub Actions job-URL fetch was rejected by the connector allowlist (HTTP 400); the supported workflow-job wrapper was used instead. | No research state was affected; use the supported GitHub workflow job APIs for subsequent monitoring. |
