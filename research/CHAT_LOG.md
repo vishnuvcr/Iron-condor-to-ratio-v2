@@ -5,3 +5,5 @@ The user identified that the prior chat explanation did not faithfully reproduce
 
 ## 2026-10-05 — latest strategy only
 User explicitly instructed: ignore the initial transcript and ignore 32 DTE; test only the latest strategy rules supplied in chat. Developer reset the strategy specification and research plan accordingly. No historical result from the prior 32-DTE protocol is considered a result for this strategy.
+## 2026-10-05
+User instructed: “Proceed”. Developer continued the latest-strategy-only reset. CI exposed one calendar-test assumption error; the NSE holiday calendar was checked and the test was corrected without changing strategy logic. CI remains to be re-run on the corrected commit.
