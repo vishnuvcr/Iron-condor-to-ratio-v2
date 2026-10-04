@@ -17,3 +17,22 @@ def test_validate_rejects_impossible_ohlc():
     out, stats = validate_rows(df)
     assert out.empty
     assert stats['rejected_rows'] == 1
+
+def test_cloudtrader_symbol_date_time_normalization():
+    raw = pd.DataFrame([{
+        "Symbol": "NIFTY25JAN24000CE",
+        "Date": "2025-01-02",
+        "Time": "09:20:00",
+        "Open": 10.0,
+        "High": 11.0,
+        "Low": 9.0,
+        "Close": 10.5,
+        "Volume": 100,
+        "Open Interest": 1000,
+    }])
+    # Normalize the schema names exactly as the public provider documents them.
+    raw = raw.rename(columns={"Open Interest": "Open Interest"})
+    out = normalize_frame(raw, "cloudtrader", "sample.csv")
+    assert out.iloc[0]["strike"] == 24000
+    assert out.iloc[0]["option_type"] == "CE"
+    assert out.iloc[0]["timestamp"].tz is not None
