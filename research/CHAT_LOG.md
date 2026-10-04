@@ -11,14 +11,11 @@ Developer actions recorded in this repo:
 
 This file records user-visible task history and research actions. It does not store private chain-of-thought or hidden reasoning.
 
-
 ## 2026-10-04 — continued execution
 User authorized continued autonomous research. Developer expanded the canonical NIFTY source target from 2024–2026 to 2022–2026, removed the production-date cutoff, corrected historical lot-size regimes, restored immutable provenance fields, and triggered automated CI. Unit tests passed; the expanded backtest is currently running. The prior 19-expiry result remains validation-only.
 
-
 ## 2026-10-04 — source correction
 The expanded rissin run completed with 23 candidate monthly expiries but only 15 complete trades; 2022 had only a 15-row partial expiry and 2023 was absent. Tester Gate 2 therefore remains failed/pending. Developer switched the primary data source to the expiry-partitioned thetrademarkk NIFTY 1-minute dataset (2021–2026), retained rissin for overlap validation, and corrected NIFTY historical lot-size boundaries using NSE contract revisions. This log records actions and outcomes, not private chain-of-thought.
-
 
 ## 2026-10-04 — Proceed / Gate 2 revalidation
 - Developer verified CI run 37219640553 completed successfully.
@@ -28,9 +25,18 @@ The expanded rissin run completed with 23 candidate monthly expiries but only 15
 - External dataset research confirms the current thetrademarkk source describes expiry-partitioned 1-minute option data but also warns option coverage is partial; the exact cycle-span requirement must be demonstrated rather than inferred.
 - Gate 2 remains CLOSED. Next step is source acquisition/validation, followed by independent tester review.
 
-
 ## 2026-10-04 — free-source search
 User authorized continued research using free sources. Developer searched public web, Hugging Face, GitHub, Zenodo and free-data providers. Cloud Trader Pro/Shoonya free NIFTY samples were identified as the first empirical target; Zenodo 2017-2020 was identified as an older-period candidate; thetrademarkk, artist-23, MoneyTicks and OptionVault were assessed as additional candidates with specific limitations. No paid data was purchased or assumed. A formal source-ranking and acceptance test was added in research/FREE_DATA_SOURCE_REVIEW.md. Gate 2 remains closed pending actual data validation and tester approval.
 
 ## 2026-10-04 — composite recovery instruction
-User explicitly authorized composite historical data construction when an individual free source has missing values. Developer implemented a canonical contract-minute composite protocol using exact timestamp + expiry + strike + option type keys, whole-row fallback, source-priority selection, overlap auditing, and row-level provenance. Option prices are never interpolated or averaged. Cloud-style symbol expiry is accepted for production only after cross-source confirmation of the exact expiry date.
+User explicitly authorized composite historical data construction when an individual free source has missing values. Developer implemented a canonical contract-minute composite protocol using exact timestamp + expiry + strike + option-type keys, whole-row fallback, source-priority selection, overlap auditing, and row-level provenance. Option prices are never interpolated or averaged. Cloud-style symbol expiry is accepted for production only after cross-source confirmation of the exact expiry date.
+
+## 2026-10-04 — Gate 2 Review 9 remediation
+- Independent tester identified that the cycle-coverage script was informational rather than blocking: incomplete cycles could still proceed to CSV export and backtest.
+- Tester also required an interior trading-session continuity check, explicit post-export CSV/Parquet reconciliation, and independent provenance verification.
+- Developer applied those findings on the developer branch: coverage now returns a non-zero exit for missing cycle coverage, missing expected sessions, or non-explicit expiry provenance; the exchange calendar dependency is pinned by requirement; a deterministic CSV/Parquet reconciliation script now checks schema, row counts, bounds, and byte-level equivalence to a canonical Parquet-derived CSV.
+- The fresh CI run that was executing before remediation was superseded by the new enforcing workflow. No performance result from the superseded run is promoted.
+- Gate 2 remains CLOSED pending completion of the new CI run and independent tester review.
+
+## 2026-10-04 — research tool limitation
+The GitHub connector returned HTTP 404 when asked for live workflow-job logs while the job was still running. This did not affect the repository or CI runner; it only limited live log retrieval through the connector. The issue is recorded as a tooling limitation rather than a data result.
