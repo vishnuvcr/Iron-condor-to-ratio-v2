@@ -19,6 +19,7 @@ from src.strategy_engine import (
     Order,
     Position,
     TICK,
+    choose_ic_trigger,
     black76_delta_from_forward,
     black76_delta_from_price,
     implied_vol_black76,
@@ -360,6 +361,8 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
 
     state = "IC_ACTIVE"
     direction = None
+    prev_dc = np.nan
+    prev_dp = np.nan
     signal_times = sorted(pd.to_datetime(df["timestamp"].unique()))
     exit_target = pd.Timestamp.combine(exit_date, time(15, 20))
     for ts in signal_times:
@@ -392,15 +395,9 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
                 else:
                     deltas[p.option_type] = abs(float(row.iloc[0]["delta"]))
             dc, dp = deltas.get("CE", np.nan), deltas.get("PE", np.nan)
-            call_hit = np.isfinite(dc) and dc <= 0.10
-            put_hit = np.isfinite(dp) and dp <= 0.10
-            if call_hit or put_hit:
-                if call_hit and not put_hit:
-                    trigger = "CALL"
-                elif put_hit and not call_hit:
-                    trigger = "PUT"
-                else:
-                    trigger = "CALL" if dc < dp else "PUT"
+            trigger = choose_ic_trigger(dc, dp, 0.10, prev_dc, prev_dp)
+            prev_dc, prev_dp = dc, dp
+            if trigger is not None:
                 fill_ts = close_positions(positions, ts, df, cycle, cost_model, lot_size, "IC_to_ratio")
                 if fill_ts is None:
                     return None
