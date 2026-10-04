@@ -473,11 +473,34 @@ def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/composite")
+    ap.add_argument("--start", default=None)
+    ap.add_argument("--end", default=None)
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     files = staged_files()
+    if args.start or args.end:
+        start = pd.Timestamp(args.start or "1900-01-01").date()
+        end = pd.Timestamp(args.end or "2100-12-31").date()
+        selected = []
+        for source, path in files:
+            if source == "thetrademarkk":
+                try:
+                    d = pd.Timestamp(path.stem).date()
+                except Exception:
+                    continue
+                if start <= d <= end:
+                    selected.append((source, path))
+            elif source == "rissin":
+                # Year-partitioned rissin files are retained when their year
+                # overlaps the requested partition.
+                m = re.search(r"(20\\d{2})", path.stem)
+                if m and start.year <= int(m.group(1)) <= end.year:
+                    selected.append((source, path))
+            else:
+                selected.append((source, path))
+        files = selected
     manifest = {
         "created_utc": datetime.utcnow().isoformat() + "Z",
         "protocol": "research/COMPOSITE_DATA_PROTOCOL.md",
