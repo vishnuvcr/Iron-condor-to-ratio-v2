@@ -228,11 +228,37 @@ jobs:
             composite-csv-reconciliation.txt
       - name: Commit compact results
         run: |
+          set -e
           git config user.name "research-bot"
           git config user.email "research-bot@users.noreply.github.com"
+          mkdir -p /tmp/compact-results-backup/results/composite
+          cp results/metrics.json /tmp/compact-results-backup/results/metrics.json
+          cp results/trade_summary.csv /tmp/compact-results-backup/results/trade_summary.csv
+          cp results/order_log.csv /tmp/compact-results-backup/results/order_log.csv
+          cp results/candidate_status.csv /tmp/compact-results-backup/results/candidate_status.csv
+          cp results/data_quality.csv /tmp/compact-results-backup/results/data_quality.csv
+          cp results/data_coverage.csv /tmp/compact-results-backup/results/data_coverage.csv
+          cp results/run_manifest.json /tmp/compact-results-backup/results/run_manifest.json
+          cp results/composite/csv_reconciliation.json /tmp/compact-results-backup/results/composite/csv_reconciliation.json
+          cp results/composite/research_use_data_status.json /tmp/compact-results-backup/results/composite/research_use_data_status.json
+
           git fetch origin "${GITHUB_REF_NAME}"
           git checkout "${GITHUB_REF_NAME}"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git reset --hard
+          git clean -fd
+          git rebase "origin/${GITHUB_REF_NAME}"
+
+          mkdir -p results/composite
+          cp /tmp/compact-results-backup/results/metrics.json results/metrics.json
+          cp /tmp/compact-results-backup/results/trade_summary.csv results/trade_summary.csv
+          cp /tmp/compact-results-backup/results/order_log.csv results/order_log.csv
+          cp /tmp/compact-results-backup/results/candidate_status.csv results/candidate_status.csv
+          cp /tmp/compact-results-backup/results/data_quality.csv results/data_quality.csv
+          cp /tmp/compact-results-backup/results/data_coverage.csv results/data_coverage.csv
+          cp /tmp/compact-results-backup/results/run_manifest.json results/run_manifest.json
+          cp /tmp/compact-results-backup/results/composite/csv_reconciliation.json results/composite/csv_reconciliation.json
+          cp /tmp/compact-results-backup/results/composite/research_use_data_status.json results/composite/research_use_data_status.json
+
           git add results/metrics.json results/trade_summary.csv results/order_log.csv results/candidate_status.csv results/data_quality.csv results/data_coverage.csv results/run_manifest.json results/composite/csv_reconciliation.json results/composite/research_use_data_status.json
           git diff --cached --quiet || git commit -m "Record compact automated backtest results"
           git push origin "HEAD:${GITHUB_REF_NAME}"
