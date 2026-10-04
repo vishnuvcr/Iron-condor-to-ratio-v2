@@ -173,7 +173,7 @@ jobs:
       - name: Assemble composite
         run: |
           set -o pipefail
-          PYTHONPATH=. python scripts/merge_composite_partitions.py 2>&1 | tee composite-merge.txt
+          PYTHONPATH=. python scripts/merge_composite_partitions.py             --start "${{ inputs.start || '2021-01-01' }}"             --end "${{ inputs.end || '2026-09-30' }}" 2>&1 | tee composite-merge.txt
       - name: Check composite coverage
         run: |
           set -o pipefail
