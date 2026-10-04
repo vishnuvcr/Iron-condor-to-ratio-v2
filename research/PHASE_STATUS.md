@@ -72,3 +72,7 @@ Phase 2 remains IN PROGRESS. Unit tests were moved to immediately after dependen
 
 ## 2026-10-04 — Gate 2 Review 14 remediation
 Phase 2 remains IN PROGRESS. Tester Review 14 found that the latest observed expiry in a fallback-only month could be a weekly expiry. Developer now requires every production candidate expiry—primary or fallback—to be a defensible month-end monthly expiry; an invalid primary file can only be rescued by a valid explicit fallback monthly expiry. Regression tests were added. Fresh CI and independent tester review are required.
+
+
+## 2026-10-04 — Gate 2 Review 15 remediation
+Phase 2 remains IN PROGRESS. Review 15 found a dependency-sensitive expiry dtype failure under Pandas 3.x. The developer branch now normalizes composite expiry values to Python dates before source concatenation and includes a regression test. Fresh CI and independent tester review are required.
