@@ -40,3 +40,5 @@
 | 2026-10-04 | 2 | DATA INTEGRITY | Composite normalization initially parsed naive Date+Time fields with utc=True, which would shift local IST source times by 5:30 hours when converted back to IST. | Changed timestamp parsing to localize naive timestamps directly to Asia/Kolkata and added an exact-time regression test. |
 
 | 2026-10-04 | 2 | CI ERROR | Composite coverage checker failed after building the dataset because expiry was a datetime.date and code called .date() on it. | Removed the redundant date() call and added rissin as a free exact-key fallback source after Cloud Trader sample download failed in CI. |
+
+| 2026-10-04 | 2 | DATA INTEGRITY | Composite timestamp normalization required explicit handling of naïve Date+Time fields as IST. | Production code now localizes naïve timestamps to Asia/Kolkata and converts only already timezone-aware timestamps. |
