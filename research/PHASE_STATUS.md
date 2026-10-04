@@ -60,3 +60,7 @@ Phase 2 remains IN PROGRESS. Tester Review 12 found no mismatch between the stor
 
 ## 2026-10-04 — CI infrastructure retry
 Phase 2 remains IN PROGRESS. Hardened CI run 37225146663 was interrupted by a GitHub-hosted runner shutdown during composite construction after source staging succeeded. No research result was promoted; failed jobs were re-run automatically as attempt 2.
+
+
+## 2026-10-04 — Gate 2 Review 13 remediation
+Phase 2 remains IN PROGRESS. The requested 2021-01 to 2026-09 window contains 69 calendar months, but primary staging selected 64 monthly files. The coverage gate now derives expected months from the requested start/end independently of primary-file presence and records whether a complete month is supplied by the primary source or a fallback composite source. Gate 2 remains closed pending fresh CI and tester review.
