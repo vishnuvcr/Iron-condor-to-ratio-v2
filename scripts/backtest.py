@@ -154,6 +154,8 @@ def trading_dates(df: pd.DataFrame) -> List[date]:
 
 def entry_and_exit_dates(expiry: date, available_dates: List[date]) -> Tuple[Optional[date], Optional[date]]:
     target = expiry - timedelta(days=32)
+    if not available_dates or min(available_dates) > target:
+        return None, None
     entries = [d for d in available_dates if d >= target and d < expiry]
     if not entries:
         return None, None
