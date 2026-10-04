@@ -306,7 +306,7 @@ def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
                 'thetrademarkk' AS oi_source,
                 filename AS source_file,
                 ? AS source_revision,
-                md5(concat_ws('|',
+                sha256(concat_ws('|',
                     CAST(timestamp AS VARCHAR), CAST(expiry AS VARCHAR),
                     CAST(strike AS VARCHAR), CAST(option_type AS VARCHAR),
                     CAST(open AS VARCHAR), CAST(high AS VARCHAR),
