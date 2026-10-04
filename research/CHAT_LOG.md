@@ -61,3 +61,7 @@ Developer replaced the old fixed three-day pre-expiry tolerance with explicit NS
 
 ## 2026-10-04 — provenance hash standardization
 Developer standardized the primary DuckDB composite source_row_hash to SHA-256 so all composite rows use one hash algorithm. No strategy logic changed.
+
+
+## 2026-10-04 — CI infrastructure retry
+Hardened CI run 37225146663 completed source staging, then the GitHub-hosted runner shut down during composite construction and exited 143. No research output was accepted. Failed jobs were automatically re-run as attempt 2.
