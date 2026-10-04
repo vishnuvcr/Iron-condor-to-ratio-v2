@@ -30,22 +30,27 @@ from src.strategy_engine import (
 )
 
 
-REPO_ID = "rissin/nse-options-intraday"
-REMOTE_FILES = [
-    "upstox_intraday/NIFTY/NIFTY_2022.parquet",
-    "upstox_intraday/NIFTY/NIFTY_2023.parquet",
-    "upstox_intraday/NIFTY/NIFTY_2024.parquet",
-    "upstox_intraday/NIFTY/NIFTY_2025.parquet",
-    "upstox_intraday/NIFTY/NIFTY_2026.parquet",
-]
-DATASET_CARD_URL = "https://huggingface.co/datasets/rissin/nse-options-intraday"
+REPO_ID = "thetrademarkk/india-index-options-1m"
+DATASET_CARD_URL = "https://huggingface.co/datasets/thetrademarkk/india-index-options-1m"
 
 
-
-def download_data(cache_root: Path) -> List[Path]:
+def download_data(cache_root: Path, start: date, end: date) -> Tuple[List[Path], List[str]]:
     token = os.getenv("HF_TOKEN")
+    api = HfApi(token=token or None)
+    files = api.list_repo_files(repo_id=REPO_ID, repo_type="dataset", revision="main")
+    remote_files = []
+    for filename in files:
+        if not filename.startswith("options/NIFTY/") or not filename.endswith(".parquet"):
+            continue
+        try:
+            expiry = date.fromisoformat(Path(filename).stem)
+        except ValueError:
+            continue
+        if start <= expiry <= end:
+            remote_files.append(filename)
+    remote_files.sort()
     paths = []
-    for filename in REMOTE_FILES:
+    for filename in remote_files:
         p = hf_hub_download(
             repo_id=REPO_ID,
             filename=filename,
@@ -54,7 +59,7 @@ def download_data(cache_root: Path) -> List[Path]:
             cache_dir=str(cache_root),
         )
         paths.append(Path(p))
-    return paths
+    return paths, remote_files
 
 
 def sha256_file(path: Path) -> str:
@@ -77,30 +82,27 @@ def qpaths(paths: List[Path]) -> str:
     return "[" + vals + "]"
 
 
-def load_expiry_list(paths: List[Path], start: date, end: date) -> List[date]:
-    con = duckdb.connect()
-    sql = f"""
-    SELECT DISTINCT CAST(expiry AS DATE) AS expiry
-    FROM read_parquet({qpaths(paths)})
-    WHERE underlying='NIFTY' AND granularity='1min'
-      AND CAST(date AS DATE) BETWEEN DATE '{start}' AND DATE '{end}'
-      AND CAST(expiry AS DATE) BETWEEN DATE '{start}' AND DATE '{end}'
-    ORDER BY 1
-    """
-    df = con.execute(sql).df()
-    con.close()
-    raw = [x.date() if hasattr(x, "date") else x for x in pd.to_datetime(df["expiry"])]
-    return monthly_expiries(raw)
+def load_expiry_list(remote_files: List[str], start: date, end: date) -> List[date]:
+    expiries = []
+    for filename in remote_files:
+        try:
+            expiry = date.fromisoformat(Path(filename).stem)
+        except ValueError:
+            continue
+        if start <= expiry <= end:
+            expiries.append(expiry)
+    return monthly_expiries(expiries)
 
 
 def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date: date) -> pd.DataFrame:
+    matching = [p for p in paths if p.stem == expiry.isoformat()]
+    if not matching:
+        return pd.DataFrame()
     con = duckdb.connect()
     sql = f"""
-    SELECT date, timestamp, expiry, strike, option_type, open, high, low, close, volume
-    FROM read_parquet({qpaths(paths)})
-    WHERE underlying='NIFTY' AND granularity='1min'
-      AND CAST(expiry AS DATE)=DATE '{expiry}'
-      AND CAST(date AS DATE) BETWEEN DATE '{start_date}' AND DATE '{end_date}'
+    SELECT timestamp, strike, option_type, open, high, low, close, volume
+    FROM read_parquet({qpaths(matching)})
+    WHERE CAST(timestamp AS DATE) BETWEEN DATE '{start_date}' AND DATE '{end_date}'
       AND timestamp IS NOT NULL
     """
     df = con.execute(sql).df()
@@ -108,8 +110,8 @@ def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date:
     if df.empty:
         return df
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True, errors="coerce").dt.tz_convert("Asia/Kolkata")
-    df["date"] = pd.to_datetime(df["date"]).dt.date
-    df["expiry"] = pd.to_datetime(df["expiry"]).dt.date
+    df["date"] = df["timestamp"].dt.date
+    df["expiry"] = expiry
     for c in ["strike", "open", "high", "low", "close", "volume"]:
         df[c] = pd.to_numeric(df[c], errors="coerce")
     df = df.dropna(subset=["timestamp", "strike", "close", "open"])
@@ -118,7 +120,6 @@ def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date:
         ["timestamp", "strike", "option_type"], keep="last"
     )
     return df
-
 
 def add_forward(df: pd.DataFrame, expiry: date, rate: float) -> pd.DataFrame:
     if df.empty:
@@ -552,8 +553,8 @@ def main():
     cache_root.mkdir(parents=True, exist_ok=True)
 
     start, end = date.fromisoformat(args.start), date.fromisoformat(args.end)
-    paths = download_data(cache_root)
-    expiry_list = load_expiry_list(paths, start, end)
+    paths, remote_files = download_data(cache_root, start, end)
+    expiry_list = load_expiry_list(remote_files, start, end)
     expiry_list = [e for e in expiry_list if start <= e <= end]
 
     all_cycles = []
@@ -651,9 +652,8 @@ def main():
         except Exception as exc:
             file_hashes[str(path)] = f"ERROR:{exc!r}"
     schema_fields = [
-        "date", "timestamp", "underlying", "expiry", "strike", "option_type",
-        "exercise_style", "open", "high", "low", "close", "volume", "oi",
-        "settle_price", "source", "granularity"
+        "timestamp", "open", "high", "low", "close", "volume",
+        "open_interest", "trading_day", "symbol", "strike", "option_type", "expiry"
     ]
     schema_hash = hashlib.sha256("|".join(schema_fields).encode("utf-8")).hexdigest()
     manifest = {
@@ -662,7 +662,7 @@ def main():
         "data_repository": REPO_ID,
         "dataset_revision": dataset_revision(),
         "dataset_card_url": DATASET_CARD_URL,
-        "files": REMOTE_FILES,
+        "files": remote_files,
         "file_sha256": file_hashes,
         "schema_fields": schema_fields,
         "schema_hash": schema_hash,
