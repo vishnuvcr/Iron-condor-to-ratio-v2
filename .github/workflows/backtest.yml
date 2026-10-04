@@ -87,6 +87,11 @@ jobs:
           set -o pipefail
           PYTHONPATH=. python scripts/export_composite_csv.py 2>&1 | tee composite-csv-export.txt
 
+      - name: Reconcile CSV against Parquet
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python scripts/reconcile_composite_csv.py 2>&1 | tee composite-csv-reconciliation.txt
+
       - name: Unit tests
         run: |
           set -o pipefail
@@ -97,7 +102,7 @@ jobs:
         run: |
           git config user.name "research-bot"
           git config user.email "research-bot@users.noreply.github.com"
-          git add free-source-staging.txt composite-build.txt composite-coverage.txt ci-test-output.txt 2>/dev/null || true
+          git add free-source-staging.txt composite-build.txt composite-coverage.txt composite-csv-export.txt composite-csv-reconciliation.txt ci-test-output.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Record data-engineering diagnostic output"
           git push
 
@@ -135,6 +140,7 @@ jobs:
           path: |
             results/
             composite-csv-export.txt
+            composite-csv-reconciliation.txt
 
       - name: Commit results
         run: |
