@@ -12,7 +12,7 @@ import pandas as pd
 IST = "Asia/Kolkata"
 
 CANON = [
-    "timestamp", "expiry", "expiry_source", "strike", "option_type",
+    "timestamp", "expiry", "expiry_source", "expiry_month_key", "strike", "option_type",
     "open", "high", "low", "close", "volume", "open_interest",
     "price_source", "oi_source", "source_file", "source_revision", "source_row_hash",
 ]
@@ -43,6 +43,20 @@ def normalize_option_type(value):
     if s in {"PE", "PUT"}:
         return "PE"
     return None
+
+def symbol_month_key(symbols: pd.Series) -> pd.Series:
+    months = {m: i for i, m in enumerate(
+        ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+         "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"], 1
+    )}
+    extracted = symbols.str.upper().str.extract(r"NIFTY(?P<yy>\d{2})(?P<mon>[A-Z]{3})")
+    values = []
+    for yy, mon in extracted.itertuples(index=False):
+        if pd.isna(yy) or mon not in months:
+            values.append(pd.NA)
+        else:
+            values.append(f"{2000 + int(yy):04d}-{months[mon]:02d}")
+    return pd.Series(values, index=symbols.index, dtype="string")
 
 def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revision: str = "unknown") -> pd.DataFrame:
     cols = {str(c).strip().lower().replace(" ", "_"): c for c in df.columns}
@@ -94,15 +108,13 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
         out["expiry"] = pd.NaT
         out["expiry_source"] = "MISSING"
 
-    # Some free expired-option CSVs identify the contract in the Symbol field
-    # but do not repeat the expiry. For genuinely expired files, infer the
-    # contract expiry from the last observed timestamp for that exact symbol.
+    out["expiry_month_key"] = pd.Series(pd.NA, index=out.index, dtype="string")
     if symbol_col:
         symbols = df[symbol_col].astype(str)
-        max_by_symbol = out.assign(_symbol=symbols).groupby("_symbol")["timestamp"].transform("max").dt.date
+        month_key = symbol_month_key(symbols)
         missing = out["expiry"].isna()
-        out.loc[missing, "expiry"] = max_by_symbol[missing]
-        out.loc[missing & out["expiry"].notna(), "expiry_source"] = "INFERRED_LAST_OBSERVED"
+        out.loc[missing, "expiry_month_key"] = month_key[missing]
+        out.loc[missing & month_key.notna(), "expiry_source"] = "SYMBOL_MONTH_HINT_UNRESOLVED"
 
 
     for dest, aliases in {
@@ -145,10 +157,34 @@ def validate_rows(df: pd.DataFrame):
     x = x.drop_duplicates(["timestamp", "expiry", "strike", "option_type"], keep="last")
     return x, {"input_rows": int(before), "valid_rows": int(len(x)), "rejected_rows": int(before - len(x))}
 
+def resolve_cross_source_expiry(frames: list[pd.DataFrame]) -> list[pd.DataFrame]:
+    explicit_calendar = {}
+    for frame in frames:
+        if frame.empty:
+            continue
+        explicit = frame[frame["expiry_source"] == "EXPLICIT_SOURCE_FIELD"]
+        for e in explicit["expiry"].dropna().unique():
+            ts = pd.Timestamp(e)
+            explicit_calendar[f"{ts.year:04d}-{ts.month:02d}"] = ts.date()
+
+    resolved = []
+    for frame in frames:
+        x = frame.copy()
+        mask = x["expiry"].isna() & x["expiry_month_key"].notna()
+        if mask.any():
+            mapped = x.loc[mask, "expiry_month_key"].map(explicit_calendar)
+            ok = mapped.notna()
+            idx = mapped.index[ok]
+            x.loc[idx, "expiry"] = mapped.loc[idx]
+            x.loc[idx, "expiry_source"] = "RESOLVED_FROM_EXPLICIT_SOURCE"
+        resolved.append(x)
+    return resolved
+
 def compose(frames: list[pd.DataFrame]):
     if not frames:
         return pd.DataFrame(columns=CANON), {"rows": 0}
 
+    frames = resolve_cross_source_expiry(frames)
     cleaned = []
     for f in frames:
         c, _ = validate_rows(f)
