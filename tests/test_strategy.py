@@ -121,3 +121,24 @@ def test_iv_matches_independent_brentq():
         np.array([F]), np.array([K]), np.array([T]), np.array([price]), np.array([True]), r
     )[0]
     assert abs(actual - expected) < 1e-4
+
+
+def test_incomplete_expiry_partition_is_rejected():
+    from datetime import date
+    from scripts.backtest import entry_and_exit_dates
+
+    # Data ending weeks before expiry must not be converted into an early exit.
+    assert entry_and_exit_dates(
+        date(2026, 7, 28),
+        [date(2026, 6, 23), date(2026, 6, 24), date(2026, 7, 2)],
+    ) == (None, None)
+
+
+def test_complete_expiry_partition_uses_pre_expiry_session():
+    from datetime import date
+    from scripts.backtest import entry_and_exit_dates
+
+    dates = [date(2026, 6, 26), date(2026, 6, 29), date(2026, 7, 24), date(2026, 7, 27)]
+    entry, exit_date = entry_and_exit_dates(date(2026, 7, 28), dates)
+    assert entry == date(2026, 6, 29)
+    assert exit_date == date(2026, 7, 27)
