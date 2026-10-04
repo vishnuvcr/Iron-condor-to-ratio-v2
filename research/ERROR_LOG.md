@@ -34,3 +34,5 @@
 
 | 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | Container could not resolve github.com for a local clone, so local pytest could not be executed outside GitHub Actions. | Use the repository's automated GitHub Actions environment as the executable test runner; keep the limitation documented. |
 | 2026-10-04 | 2 | CI ERROR | Workflow run 37221737875 failed during Install because requirements.txt temporarily contained literal escape characters instead of real newlines. | Corrected requirements.txt and added subsequent CI validation; no production result was accepted from the failed run. |
+
+| 2026-10-04 | 2 | TEST ERROR | Composite unit tests failed in source_row_hash generation because Pandas row-wise join still encountered numeric objects despite an astype(str) conversion. | Replaced hashing with explicit per-cell map(str) conversion and added a mixed-type regression test. |
