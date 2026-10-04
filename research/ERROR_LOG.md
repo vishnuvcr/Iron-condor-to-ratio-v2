@@ -31,3 +31,6 @@
 | 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | Zenodo exposes the 311.9 MB NIFTY options ZIP publicly, but the web/file tooling could not download the large binary directly; this is an access limitation, not evidence that the dataset is unavailable. | Record the public DOI/MD5 metadata and validate the archive through a GitHub Actions download/cache step when implementing the free-source harness. |
 
 | 2026-10-04 | 2 | TESTER FINDING | Composite fallback initially allowed expiry to be inferred from the last observed timestamp without explicit provenance. | Added expiry_source tracking and blocked inferred-only composite cycles from production expiry discovery. Added source-contribution coverage and composite loader tests. |
+
+| 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | Container could not resolve github.com for a local clone, so local pytest could not be executed outside GitHub Actions. | Use the repository's automated GitHub Actions environment as the executable test runner; keep the limitation documented. |
+| 2026-10-04 | 2 | CI ERROR | Workflow run 37221737875 failed during Install because requirements.txt temporarily contained literal escape characters instead of real newlines. | Corrected requirements.txt and added subsequent CI validation; no production result was accepted from the failed run. |
