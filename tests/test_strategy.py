@@ -195,3 +195,10 @@ def test_ratio_cycle_threshold_conventions_are_explicit():
     # function default; execution itself is covered by the backtest integration.
     import inspect
     assert inspect.signature(run_cycle).parameters["reversal_delta_threshold"].default == 1.20
+
+
+def test_partial_data_entry_mode_is_explicit():
+    import inspect
+    from scripts.backtest import run_cycle
+    assert "entry_mode" in inspect.signature(run_cycle).parameters
+    assert inspect.signature(run_cycle).parameters["entry_mode"].default == "strategy"
