@@ -5,4 +5,6 @@ duckdb>=1.0
 pyarrow>=16.0
 matplotlib>=3.8
 huggingface_hub>=0.28
-\ngdown>=5.2\nrequests>=2.32\n
+
+gdown>=5.2
+requests>=2.32
