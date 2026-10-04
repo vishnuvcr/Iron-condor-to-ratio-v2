@@ -45,7 +45,7 @@ def normalize_option_type(value):
     return None
 
 def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revision: str = "unknown") -> pd.DataFrame:
-    cols = {str(c).lower(): c for c in df.columns}
+    cols = {str(c).strip().lower().replace(" ", "_"): c for c in df.columns}
     def pick(*names):
         for name in names:
             if name in cols:
