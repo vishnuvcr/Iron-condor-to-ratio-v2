@@ -40,3 +40,7 @@
 
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 11 found that the continuity checker used the XBSE BSE calendar for an NSE F&O study. | Replaced the BSE proxy with a versioned NSE F&O holiday calendar from annual NSE F&O trading-holiday circulars for 2021–2026; added calendar unit tests and removed the unused exchange-calendars dependency. |
 | 2026-10-04 | 2 | TEST TOOLING | Local synthetic testing initially could not import duckdb in the analysis sandbox; no repository code or files were modified by that failed attempt. | Retried the independent expected-expiry logic without duckdb and verified that a deliberately missing monthly expiry is detected; full repository tests remain delegated to GitHub Actions. |
+
+| 2026-10-04 | 2 | TESTER CONFIRMATION | Gate 2 Review 12 independently matched the versioned 2021–2026 NSE F&O holiday file to the annual NSE F&O circulars; no calendar-date mismatch found. | Keep Gate 2 pending until CI and final artifact checks pass. |
+| 2026-10-04 | 2 | DATA INTEGRITY | The cycle boundary helper used a fixed three-calendar-day tolerance and could reject a valid Friday-to-Tuesday cycle when Monday was an NSE holiday; it also rejected a 32-DTE target that itself fell on a holiday. | Reworked cycle boundaries to use the versioned NSE F&O session calendar and added boundary regression tests. |
+| 2026-10-04 | 2 | PROVENANCE | Primary DuckDB composite rows used MD5 while normalized fallback rows used SHA-256 for source_row_hash. | Standardized the primary DuckDB path to SHA-256; fallback rows already used SHA-256. |
