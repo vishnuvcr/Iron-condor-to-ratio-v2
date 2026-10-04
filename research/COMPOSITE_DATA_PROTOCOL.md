@@ -52,3 +52,7 @@ No performance result is final before that gate.
 
 ## 2026-10-04 implementation update
 The production composite builder is now disk-backed using DuckDB and merges source files sequentially. This avoids holding the complete multi-year chain in a single in-memory Pandas object. The overlap audit is stored as a compact CSV summary to keep the CI artifact bounded while retaining conflict statistics.
+
+
+## 2026-10-04 exchange-calendar update
+Continuity validation now uses a versioned NSE Futures & Options holiday calendar stored at `research/NSE_FNO_HOLIDAYS_2021_2026.csv`, sourced from the annual NSE F&O trading-holiday circulars for 2021–2026. The prior BSE calendar proxy has been removed from the production coverage gate.
