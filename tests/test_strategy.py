@@ -38,3 +38,34 @@ def test_cost_model_side_logic():
     assert sell["stamp"] == 0
     assert buy["total"] > 0
     assert sell["total"] > 0
+
+
+from scipy.special import ndtr
+from scipy.stats import norm
+import numpy as np
+from src.strategy_engine import black76_delta_from_forward, implied_vol_black76
+
+
+def test_black76_delta_and_iv_roundtrip():
+    F = np.array([100.0])
+    K = np.array([100.0])
+    T = np.array([30.0 / 365.0])
+    sigma = np.array([0.20])
+    d1 = 0.5 * sigma * np.sqrt(T)
+    d2 = d1 - sigma * np.sqrt(T)
+    call_price = F * ndtr(d1) - K * ndtr(d2)
+    call_delta = black76_delta_from_forward(F, K, T, sigma, 0.0, np.array([True]))[0]
+    put_delta = black76_delta_from_forward(F, K, T, sigma, 0.0, np.array([False]))[0]
+    assert abs(call_delta - ndtr(d1)[0]) < 1e-10
+    assert abs(put_delta + ndtr(-d1)[0]) < 1e-10
+    recovered = implied_vol_black76(F, K, T, call_price, np.array([True]), 0.0)[0]
+    assert abs(recovered - 0.20) < 1e-5
+
+
+def test_stt_boundary_and_slippage():
+    cm = CostModel(brokerage_per_order=20.0, slippage_ticks=1)
+    pre = cm.costs(100.0, 1, 75, "SELL", date(2026, 3, 31))["stt"]
+    post = cm.costs(100.0, 1, 65, "SELL", date(2026, 4, 1))["stt"]
+    assert post > pre
+    assert cm.price_with_slippage(100.0, "BUY") == 100.05
+    assert cm.price_with_slippage(100.0, "SELL") == 99.95
