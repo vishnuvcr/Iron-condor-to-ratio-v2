@@ -40,3 +40,6 @@ User explicitly authorized composite historical data construction when an indivi
 
 ## 2026-10-04 — research tool limitation
 The GitHub connector returned HTTP 404 when asked for live workflow-job logs while the job was still running. This did not affect the repository or CI runner; it only limited live log retrieval through the connector. The issue is recorded as a tooling limitation rather than a data result.
+
+## 2026-10-04 — documentation correction
+The README CSV transfer link was found to use an incorrect root-relative path. Developer corrected it to the repository-relative results/composite/consolidated_options_data.csv path. This was documentation-only and did not affect data or calculations.
