@@ -56,3 +56,9 @@ The production composite builder is now disk-backed using DuckDB and merges sour
 
 ## 2026-10-04 exchange-calendar update
 Continuity validation now uses a versioned NSE Futures & Options holiday calendar stored at `research/NSE_FNO_HOLIDAYS_2021_2026.csv`, sourced from the annual NSE F&O trading-holiday circulars for 2021–2026. The prior BSE calendar proxy has been removed from the production coverage gate.
+
+
+## 2026-10-04 provenance/calendar hardening
+- Exchange-session continuity uses `research/NSE_FNO_HOLIDAYS_2021_2026.csv` for normal NSE F&O weekdays; weekend-only holiday entries are unnecessary because Saturdays/Sundays are excluded by the session generator, while special Muhurat dates are not treated as normal 09:20 sessions.
+- Composite `source_row_hash` uses SHA-256 for both primary and normalized sources.
+- Cycle entry/exit boundary validation uses the same NSE F&O normal-session calendar rather than a fixed calendar-day tolerance.
