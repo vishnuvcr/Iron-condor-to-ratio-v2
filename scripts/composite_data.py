@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass
 
+import duckdb
 import pandas as pd
 
 IST = "Asia/Kolkata"
@@ -17,17 +18,23 @@ CANON = [
     "price_source", "oi_source", "source_file", "source_revision", "source_row_hash",
 ]
 
+KEY = ["timestamp", "expiry", "strike", "option_type"]
+
+
 @dataclass(frozen=True)
 class SourceSpec:
     name: str
     priority: int
 
+
 SOURCES = [
     SourceSpec("thetrademarkk", 1),
-    SourceSpec("cloudtrader", 2),
-    SourceSpec("artist23", 3),
-    SourceSpec("zenodo", 4),
+    SourceSpec("rissin", 2),
+    SourceSpec("cloudtrader", 3),
+    SourceSpec("artist23", 4),
+    SourceSpec("zenodo", 5),
 ]
+
 
 def sha256_file(path: Path) -> str:
     h = hashlib.sha256()
@@ -36,6 +43,7 @@ def sha256_file(path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def normalize_option_type(value):
     s = str(value).strip().upper()
     if s in {"CE", "CALL"}:
@@ -43,6 +51,7 @@ def normalize_option_type(value):
     if s in {"PE", "PUT"}:
         return "PE"
     return None
+
 
 def symbol_month_key(symbols: pd.Series) -> pd.Series:
     months = {m: i for i, m in enumerate(
@@ -58,8 +67,15 @@ def symbol_month_key(symbols: pd.Series) -> pd.Series:
             values.append(f"{2000 + int(yy):04d}-{months[mon]:02d}")
     return pd.Series(values, index=symbols.index, dtype="string")
 
-def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revision: str = "unknown") -> pd.DataFrame:
+
+def normalize_frame(
+    df: pd.DataFrame,
+    source: str,
+    source_file: str,
+    source_revision: str = "unknown",
+) -> pd.DataFrame:
     cols = {str(c).strip().lower().replace(" ", "_"): c for c in df.columns}
+
     def pick(*names):
         for name in names:
             if name in cols:
@@ -73,6 +89,7 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
     type_col = pick("option_type", "opt_type", "type", "right")
     expiry_col = pick("expiry", "expiry_date", "expiry_dt")
     symbol_col = pick("symbol", "contract_symbol", "instrument")
+
     if not ts_col and date_col and time_col:
         ts_values = df[date_col].astype(str).str.strip() + " " + df[time_col].astype(str).str.strip()
     elif ts_col:
@@ -81,14 +98,14 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
         raise ValueError(f"{source}: missing timestamp or date/time in {source_file}")
 
     out = pd.DataFrame()
-    ts = pd.to_datetime(ts_values, errors="coerce", utc=True)
-    out["timestamp"] = ts.dt.tz_convert(IST)
+    out["timestamp"] = pd.to_datetime(ts_values, errors="coerce", utc=True).dt.tz_convert(IST)
 
     symbol_series = df[symbol_col].astype(str) if symbol_col else None
+
     if strike_col:
         out["strike"] = pd.to_numeric(df[strike_col], errors="coerce")
     elif symbol_series is not None:
-        parsed_strike = symbol_series.str.extract(r"(\\d+(?:\\.\\d+)?)(?:CE|PE)$", expand=False)
+        parsed_strike = symbol_series.str.extract(r"(\d+(?:\.\d+)?)(?:CE|PE)$", expand=False)
         out["strike"] = pd.to_numeric(parsed_strike, errors="coerce")
     else:
         raise ValueError(f"{source}: missing strike and symbol in {source_file}")
@@ -101,8 +118,7 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
         raise ValueError(f"{source}: missing option type and symbol in {source_file}")
 
     if expiry_col:
-        parsed = pd.to_datetime(df[expiry_col], errors="coerce")
-        out["expiry"] = parsed.dt.date
+        out["expiry"] = pd.to_datetime(df[expiry_col], errors="coerce").dt.date
         out["expiry_source"] = "EXPLICIT_SOURCE_FIELD"
     else:
         out["expiry"] = pd.NaT
@@ -110,12 +126,10 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
 
     out["expiry_month_key"] = pd.Series(pd.NA, index=out.index, dtype="string")
     if symbol_col:
-        symbols = df[symbol_col].astype(str)
-        month_key = symbol_month_key(symbols)
+        month_key = symbol_month_key(symbol_series)
         missing = out["expiry"].isna()
         out.loc[missing, "expiry_month_key"] = month_key[missing]
         out.loc[missing & month_key.notna(), "expiry_source"] = "SYMBOL_MONTH_HINT_UNRESOLVED"
-
 
     for dest, aliases in {
         "open": ("open",),
@@ -139,6 +153,7 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
     )
     return out[CANON]
 
+
 def validate_rows(df: pd.DataFrame):
     x = df.copy()
     before = len(x)
@@ -154,8 +169,9 @@ def validate_rows(df: pd.DataFrame):
         & x["low"].le(x[["open", "close"]].min(axis=1))
     )
     x = x[price_ok]
-    x = x.drop_duplicates(["timestamp", "expiry", "strike", "option_type"], keep="last")
+    x = x.drop_duplicates(KEY, keep="last")
     return x, {"input_rows": int(before), "valid_rows": int(len(x)), "rejected_rows": int(before - len(x))}
+
 
 def resolve_cross_source_expiry(frames: list[pd.DataFrame]) -> list[pd.DataFrame]:
     explicit_calendar = {}
@@ -165,7 +181,8 @@ def resolve_cross_source_expiry(frames: list[pd.DataFrame]) -> list[pd.DataFrame
         explicit = frame[frame["expiry_source"] == "EXPLICIT_SOURCE_FIELD"]
         for e in explicit["expiry"].dropna().unique():
             ts = pd.Timestamp(e)
-            explicit_calendar[f"{ts.year:04d}-{ts.month:02d}"] = ts.date()
+            ym = f"{ts.year:04d}-{ts.month:02d}"
+            explicit_calendar[ym] = max(explicit_calendar.get(ym, ts.date()), ts.date())
 
     resolved = []
     for frame in frames:
@@ -180,11 +197,12 @@ def resolve_cross_source_expiry(frames: list[pd.DataFrame]) -> list[pd.DataFrame
         resolved.append(x)
     return resolved
 
+
 def compose(frames: list[pd.DataFrame]):
+    frames = resolve_cross_source_expiry(frames)
     if not frames:
         return pd.DataFrame(columns=CANON), {"rows": 0}
 
-    frames = resolve_cross_source_expiry(frames)
     cleaned = []
     for f in frames:
         c, _ = validate_rows(f)
@@ -196,23 +214,18 @@ def compose(frames: list[pd.DataFrame]):
 
     rank = {s.name: s.priority for s in SOURCES}
     base = pd.concat(cleaned, ignore_index=True, sort=False)
-    key = ["timestamp", "expiry", "strike", "option_type"]
     base["_rank"] = base["price_source"].map(rank).fillna(999)
-    base = base.sort_values(key + ["_rank"])
+    base = base.sort_values(KEY + ["_rank"])
+    chosen = base.drop_duplicates(KEY, keep="first").copy()
 
-    chosen = base.drop_duplicates(key, keep="first").copy()
-
-    oi_candidates = base[base["open_interest"].notna()].sort_values(key + ["_rank"])
-    oi_candidates = oi_candidates.drop_duplicates(key, keep="first")[key + ["open_interest", "price_source"]]
-    oi_candidates = oi_candidates.rename(
-        columns={"open_interest": "_oi_fill", "price_source": "oi_source_fill"}
-    )
-    chosen = chosen.merge(oi_candidates, on=key, how="left")
+    oi_candidates = base[base["open_interest"].notna()].sort_values(KEY + ["_rank"])
+    oi_candidates = oi_candidates.drop_duplicates(KEY, keep="first")[KEY + ["open_interest", "price_source"]]
+    oi_candidates = oi_candidates.rename(columns={"open_interest": "_oi_fill", "price_source": "oi_source_fill"})
+    chosen = chosen.merge(oi_candidates, on=KEY, how="left")
     fill_mask = chosen["open_interest"].isna() & chosen["_oi_fill"].notna()
     chosen.loc[fill_mask, "open_interest"] = chosen.loc[fill_mask, "_oi_fill"]
     chosen.loc[fill_mask, "oi_source"] = chosen.loc[fill_mask, "oi_source_fill"]
-    chosen = chosen.drop(columns=["_oi_fill", "oi_source_fill", "_rank"])
-    chosen = chosen.sort_values(key).reset_index(drop=True)
+    chosen = chosen.drop(columns=["_oi_fill", "oi_source_fill", "_rank"]).sort_values(KEY).reset_index(drop=True)
 
     return chosen, {
         "rows": int(len(chosen)),
@@ -220,27 +233,142 @@ def compose(frames: list[pd.DataFrame]):
         "oi_supplement_rows": int(fill_mask.sum()),
     }
 
-def overlap_audit(frames: list[pd.DataFrame]) -> pd.DataFrame:
-    cleaned = [validate_rows(f)[0] for f in frames]
-    key = ["timestamp", "expiry", "strike", "option_type"]
-    parts = []
-    for i in range(len(cleaned)):
-        for j in range(i + 1, len(cleaned)):
-            if cleaned[i].empty or cleaned[j].empty:
-                continue
-            a = cleaned[i].merge(cleaned[j], on=key, suffixes=("_a", "_b"))
-            if a.empty:
-                continue
-            src_a = frames[i]["price_source"].iloc[0]
-            src_b = frames[j]["price_source"].iloc[0]
-            a["source_a"] = src_a
-            a["source_b"] = src_b
-            for fld in ["open", "high", "low", "close"]:
-                a[f"{fld}_abs_diff"] = (a[f"{fld}_a"] - a[f"{fld}_b"]).abs()
-                denom = a[[f"{fld}_a", f"{fld}_b"]].abs().max(axis=1).replace(0, pd.NA)
-                a[f"{fld}_rel_diff"] = a[f"{fld}_abs_diff"] / denom
-            parts.append(a)
-    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+def staged_files():
+    root = Path("data/cache")
+    groups = {
+        "thetrademarkk": sorted((root / "thetrademarkk").glob("*.parquet")),
+        "rissin": sorted((root / "rissin").glob("*.parquet")),
+        "cloudtrader": sorted((root / "cloudtrader").glob("**/*.csv")),
+        "artist23": sorted((root / "artist23").glob("**/*.parquet")),
+        "zenodo": sorted((root / "zenodo").glob("**/*.parquet")),
+    }
+    order = {s.name: s.priority for s in SOURCES}
+    return [(name, p) for name, files in groups.items() for p in files if name in order]
+
+
+def explicit_calendar_from_staged(files):
+    calendar = {}
+    for source, path in files:
+        if source != "thetrademarkk":
+            continue
+        try:
+            e = pd.Timestamp(path.stem).date()
+        except Exception:
+            continue
+        ym = f"{e.year:04d}-{e.month:02d}"
+        calendar[ym] = max(calendar.get(ym, e), e)
+    return calendar
+
+
+def _read_source_file(path: Path):
+    return pd.read_parquet(path) if path.suffix.lower() == ".parquet" else pd.read_csv(path)
+
+
+def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
+    con = duckdb.connect()
+    con.execute("SET memory_limit='6GB'")
+    con.execute("SET threads=2")
+
+    created = False
+    overlap_rows = []
+    source_stats = []
+    calendar = explicit_calendar_from_staged(files)
+
+    for source, path in sorted(files, key=lambda x: (next(s.priority for s in SOURCES if s.name == x[0]), str(x[1]))):
+        raw = _read_source_file(path)
+        frame = normalize_frame(raw, source, str(path), revision_by_file.get(str(path), "unknown"))
+        if calendar:
+            mask = frame["expiry"].isna() & frame["expiry_month_key"].notna()
+            if mask.any():
+                mapped = frame.loc[mask, "expiry_month_key"].map(calendar)
+                ok = mapped.notna()
+                idx = mapped.index[ok]
+                frame.loc[idx, "expiry"] = mapped.loc[idx]
+                frame.loc[idx, "expiry_source"] = "RESOLVED_FROM_EXPLICIT_SOURCE"
+
+        clean, stats = validate_rows(frame)
+        stats.update({"source": source, "file": str(path), "sha256": sha256_file(path)})
+        source_stats.append(stats)
+        if clean.empty:
+            continue
+
+        con.register("stage_df", clean)
+
+        if not created:
+            con.execute("CREATE TABLE composite AS SELECT * FROM stage_df")
+            created = True
+        else:
+            row = con.execute(
+                """SELECT
+                     COUNT(*) AS overlap_rows,
+                     AVG(ABS(c.close - s.close) / NULLIF(GREATEST(ABS(c.close), ABS(s.close)), 0)) AS close_rel_diff_mean,
+                     MAX(ABS(c.close - s.close) / NULLIF(GREATEST(ABS(c.close), ABS(s.close)), 0)) AS close_rel_diff_max
+                   FROM composite c
+                   JOIN stage_df s
+                     ON c.timestamp = s.timestamp
+                    AND c.expiry = s.expiry
+                    AND c.strike = s.strike
+                    AND c.option_type = s.option_type
+                  WHERE c.price_source <> s.price_source""").fetchone()
+            overlap_rows.append({
+                "source": source,
+                "file": str(path),
+                "overlap_rows": int(row[0] or 0),
+                "close_rel_diff_mean": float(row[1]) if row[1] is not None else None,
+                "close_rel_diff_max": float(row[2]) if row[2] is not None else None,
+            })
+
+            con.execute(
+                """UPDATE composite AS c
+                   SET open_interest = s.open_interest,
+                       oi_source = s.price_source
+                   FROM stage_df AS s
+                   WHERE c.timestamp = s.timestamp
+                     AND c.expiry = s.expiry
+                     AND c.strike = s.strike
+                     AND c.option_type = s.option_type
+                     AND c.open_interest IS NULL
+                     AND s.open_interest IS NOT NULL"""
+            )
+            con.execute(
+                """INSERT INTO composite
+                   SELECT s.*
+                   FROM stage_df s
+                   ANTI JOIN composite c
+                     ON c.timestamp = s.timestamp
+                    AND c.expiry = s.expiry
+                    AND c.strike = s.strike
+                    AND c.option_type = s.option_type"""
+            )
+
+        con.unregister("stage_df")
+
+    if not created:
+        con.close()
+        manifest["status"] = "NO_VALID_STAGED_DATA"
+        (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
+        return
+
+    con.execute("COPY (SELECT * FROM composite ORDER BY expiry, timestamp, strike, option_type) TO ? (FORMAT PARQUET, COMPRESSION ZSTD)", [str(out / "nifty_options_composite.parquet")])
+    counts = con.execute("SELECT price_source, COUNT(*) FROM composite GROUP BY 1 ORDER BY 1").fetchall()
+    oi_sources = con.execute("SELECT oi_source, COUNT(*) FROM composite GROUP BY 1 ORDER BY 1").fetchall()
+    total = con.execute("SELECT COUNT(*) FROM composite").fetchone()[0]
+    con.close()
+
+    overlap_df = pd.DataFrame(overlap_rows)
+    overlap_df.to_csv(out / "source_overlap.csv", index=False)
+    manifest["status"] = "BUILT"
+    manifest["source_stats"] = source_stats
+    manifest["composition_stats"] = {
+        "rows": int(total),
+        "price_rows_by_source": {str(k): int(v) for k, v in counts},
+        "oi_rows_by_source": {str(k): int(v) for k, v in oi_sources},
+    }
+    manifest["composite_sha256"] = sha256_file(out / "nifty_options_composite.parquet")
+    manifest["overlap_file"] = "source_overlap.csv"
+    (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -249,50 +377,23 @@ def main():
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
+    files = staged_files()
     manifest = {
         "created_utc": datetime.utcnow().isoformat() + "Z",
         "protocol": "research/COMPOSITE_DATA_PROTOCOL.md",
-        "sources_attempted": [s.name for s in SOURCES],
+        "sources_attempted": sorted({s for s, _ in files}),
+        "production_expiry_sources": ["EXPLICIT_SOURCE_FIELD", "RESOLVED_FROM_EXPLICIT_SOURCE"],
+        "staged_file_count": len(files),
         "notes": [],
     }
 
-    staged = sorted(Path("data/cache/thetrademarkk").glob("*.parquet")) + sorted(Path("data/cache/cloudtrader").glob("**/*.csv")) + sorted(Path("data/cache/artist23").glob("**/*.parquet"))
-    frames = []
-    source_stats = []
+    revision_by_file = {}
+    for _, path in files:
+        rev = path.with_suffix(path.suffix + ".revision")
+        revision_by_file[str(path)] = rev.read_text().strip() if rev.exists() else "unknown"
 
-    for path in staged:
-        source = next((s.name for s in SOURCES if s.name in str(path).lower()), None)
-        if not source:
-            manifest["notes"].append(f"unclassified_file:{path}")
-            continue
-        try:
-            raw = pd.read_parquet(path) if path.suffix.lower() == ".parquet" else pd.read_csv(path)
-            revision_file = path.with_suffix(path.suffix + ".revision")
-            revision = revision_file.read_text().strip() if revision_file.exists() else "unknown"
-            nf = normalize_frame(raw, source, str(path), revision)
-            cleaned, stats = validate_rows(nf)
-            frames.append(cleaned)
-            stats.update({"source": source, "file": str(path), "sha256": sha256_file(path)})
-            source_stats.append(stats)
-        except Exception as exc:
-            manifest["notes"].append(f"load_failed:{path}:{type(exc).__name__}:{exc}")
+    build_disk_backed(files, out, manifest, revision_by_file)
 
-    if not frames:
-        manifest["status"] = "NO_STAGED_DATA"
-        (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
-        return
-
-    composite, stats = compose(frames)
-    composite.to_parquet(out / "nifty_options_composite.parquet", index=False)
-    overlap = overlap_audit(frames)
-    overlap.to_parquet(out / "source_overlap.parquet", index=False)
-
-    manifest["status"] = "BUILT"
-    manifest["source_stats"] = source_stats
-    manifest["composition_stats"] = stats
-    manifest["composite_sha256"] = sha256_file(out / "nifty_options_composite.parquet")
-    manifest["overlap_rows"] = int(len(overlap))
-    (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
 
 if __name__ == "__main__":
     main()
