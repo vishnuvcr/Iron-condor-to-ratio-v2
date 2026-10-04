@@ -44,3 +44,7 @@ Phase 2 remains IN PROGRESS. Independent tester Review 9 identified that coverag
 2. uses an explicit exchange-calendar dependency for continuity checks;
 3. runs a deterministic Parquet-to-CSV reconciliation that verifies schema, row counts, date bounds, and byte-level equivalence to a canonical Parquet-derived CSV;
 4. keeps Gate 2 CLOSED until fresh CI succeeds and the tester independently reviews the generated artifacts.
+
+
+## 2026-10-04 — Gate 2 Review 10 remediation
+Phase 2 remains IN PROGRESS. Tester Review 10 found that an entirely missing monthly expiry could escape coverage because the expected set came from observed composite rows. The coverage gate now reads the staged primary-source manifest to derive the expected monthly expiry set and fails any missing cycle. Fresh CI and independent tester re-review are required before Gate 2 promotion.
