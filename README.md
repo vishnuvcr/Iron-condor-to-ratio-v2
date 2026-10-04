@@ -100,3 +100,6 @@ The research will stop at the predefined phases. The final deliverable will be a
 12. tables, figures, appendices and reproducibility supplements.
 
 No endless parameter search is permitted.
+
+
+**Fixed reversal trigger:** 1.30 short-leg delta. No reversal-threshold sensitivity testing is authorized.
