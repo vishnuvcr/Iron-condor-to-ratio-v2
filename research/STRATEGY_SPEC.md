@@ -46,7 +46,7 @@ If the trend continues and the **combined absolute delta of the two short ratio 
    - Buy 1 × 0.08-delta hedge.
 
 ### Ratio reversal / stop-loss
-If the market reverses and the short-leg delta reaches the stated 0.80–1.30 range:
+If the market reverses and the relevant short-leg delta reaches **1.30**:
 1. Exit the current Ratio Spread.
 2. Reverse direction.
 3. Build the opposite-direction initial Ratio Spread:
@@ -63,7 +63,7 @@ If the market reverses and the short-leg delta reaches the stated 0.80–1.30 ra
 ## Deterministic implementation conventions requiring validation
 The supplied strategy does not specify an exact clock time for initial deployment, order-fill timing, or the exact treatment when both IC short legs trigger simultaneously. These are modelling conventions only and must not alter the strategy rules.
 
-For the reversal rule, the video/user specification is tested with a **fixed short-leg delta reversal trigger of 1.30**. No alternative threshold or combined-delta threshold is substituted, and no reversal-threshold sensitivity grid is introduced.
+For the reversal rule, the video/user specification is tested with a **fixed short-leg delta reversal trigger of 1.30**. No alternative threshold, range, combined-delta threshold, optimization, or sensitivity grid is substituted.
 
 Where the data cannot distinguish an exact discretionary action described by the video, the implementation must record the ambiguity and use the least-assumptive deterministic interpretation without creating a new trading rule.
 
