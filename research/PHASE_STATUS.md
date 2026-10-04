@@ -165,3 +165,10 @@ Per user instruction, Phase 2 now has two clearly separated outcomes: (1) strict
 - Tester Review 27 did not pass strategy promotion; it required only the predefined reversal sensitivity grid.
 - Phase 3 workflow `.github/workflows/sensitivity.yml` is running thresholds 0.80, 1.00, 1.20 and 1.30 with identical research-use data/cost/slippage assumptions.
 - Phase 2 baseline remains frozen and unchanged.
+
+
+## 2026-10-05 — scientific research expansion
+Phase 3 remains IN PROGRESS. A literature review and formal research-methodology document were added. The review identifies volatility/skew, variance-risk-premium, FII positioning, transaction costs and Indian derivatives-market structural changes as explanatory dimensions that must be analysed around the fixed strategy rather than converted into unapproved trading parameters. Research questions and hypotheses are now explicitly recorded. Official NSE sources confirm that option-chain data expose OI, volume, IV, bid/ask and LTP fields and that F&O reports include participant/FII statistics. NSE also documents expiry conventions and tick-size rules, while SEBI reports major index-derivatives framework changes beginning November 2024. These will be treated as regime/structural-break context, not hidden strategy optimization.
+
+## 2026-10-05 — Phase 3 execution status
+The six composite partitions and assembly completed successfully in workflow 37234230420. The 1.30 reversal-threshold sensitivity job completed successfully; 0.80, 1.00 and 1.20 remained in progress at the latest status check. No result has been promoted. Independent tester review remains mandatory after the full sensitivity set is available.
