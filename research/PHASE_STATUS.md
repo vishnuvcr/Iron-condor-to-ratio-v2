@@ -176,3 +176,10 @@ The six composite partitions and assembly completed successfully in workflow 372
 
 ## 2026-10-05 — explicit strategy-scope correction
 The user ordered that strategy testing must contain **only the strategy given in the YouTube video**. The previously introduced 0.80/1.00/1.20/1.30 reversal-threshold sensitivity grid was unauthorized and is removed from the research plan. The sensitivity workflow was deleted and its results are non-authoritative. Phase 3 is reset to strategy-fidelity validation only. No strategy parameter may be added, optimized, tuned, or sensitivity-tested unless explicitly supplied by the user/video.
+
+
+## 2026-10-05 — fixed-1.30 execution status
+Phase 3 remains IN PROGRESS. The developer branch now treats the reversal as a fixed **1.30 short-leg delta trigger** only. Workflow run `37235922082` has passed unit tests, all six composite partitions, composite assembly, coverage diagnostic execution, consolidated CSV export, and CSV-to-Parquet reconciliation; the fixed-1.30 backtest step is currently executing. No performance conclusion has been promoted and independent tester review remains mandatory.
+
+## 2026-10-05 — workflow-log access error
+An attempt to retrieve live logs for workflow job `111535265912` returned GitHub `404 BlobNotFound` while the job was still running. This is an infrastructure/log-access issue, not a strategy or data result. The run remains monitored through workflow/job status APIs; no conclusion is based on unavailable live logs.
