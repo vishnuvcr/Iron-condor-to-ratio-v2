@@ -183,3 +183,6 @@ Phase 3 remains IN PROGRESS. The developer branch now treats the reversal as a f
 
 ## 2026-10-05 — workflow-log access error
 An attempt to retrieve live logs for workflow job `111535265912` returned GitHub `404 BlobNotFound` while the job was still running. This is an infrastructure/log-access issue, not a strategy or data result. The run remains monitored through workflow/job status APIs; no conclusion is based on unavailable live logs.
+
+## 2026-10-05 — Phase 3 research-use performance conclusion
+Tester Review 29 independently verified the fixed-1.30 research-use result from workflow 37237347768. Phase 3 strategy-fidelity and numerical verification are **COMPLETE WITH RESTRICTIONS**. The result is negative: 28 traded cycles, net P&L -₹20,455.46, profit factor 0.6468, max drawdown -₹41,981.20, Sharpe proxy -0.5414. Gross P&L is already negative before costs. Zero 1.30 reversal events occurred; 38 continuation resets occurred. Strategy promotion is rejected. Strict Gate 2 remains CLOSED at 0/69 months. Phase 8 manuscript has been produced and the research stop rule is satisfied.
