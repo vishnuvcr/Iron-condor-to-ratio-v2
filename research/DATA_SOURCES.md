@@ -28,3 +28,7 @@ A dataset that only presents rolling moneyness buckets without persistent contra
 
 ## 2026-10-04 free-source expansion
 A dedicated free-source review was added at [research/FREE_DATA_SOURCE_REVIEW.md](FREE_DATA_SOURCE_REVIEW.md). Cloud Trader Pro/Shoonya exposes free NIFTY expired-option samples with 1-minute OHLCV+OI, making it the next empirical validation target. Zenodo provides a public 2017-2020 NIFTY one-minute options archive without OI and is therefore an older-period validation/extension source, not a drop-in replacement. Additional public candidates include thetrademarkk, artist-23, MoneyTicks, OptionVault samples, and broker/API reconstruction projects. No source is accepted until actual contract-cycle coverage is verified.
+
+
+## 2026-10-04 composite-source rule
+The data pipeline now permits exact-key fallback across free sources. Fallback is row-level and provenance-preserving; no price interpolation/averaging is allowed. Expiry dates inferred from a sample's last observed timestamp are provisional and cannot independently promote a cycle. See [research/COMPOSITE_DATA_PROTOCOL.md](COMPOSITE_DATA_PROTOCOL.md).
