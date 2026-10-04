@@ -43,3 +43,16 @@ The latest developer review identified and corrected an important optimization e
 Gate remains **PENDING**. Tester must verify that this change preserves the no-look-ahead rule, target-strike selection window, and held-leg trigger monitoring once the next CI run produces artifacts.
 
 Tester instruction to developer: do not accept the prior in-progress run as a final result; validate the new run generated from commit 2591505010e0ea00ad8eeaa012cc08d3698cac8f.
+
+
+# Gate 2 Re-review — Contract-level Delta Refactor
+
+Developer commit 93c7d5f0abe2bf699dae91445bccab8d8ea2d1c5 changes the engine so forward is computed for each minute while implied-volatility/delta is solved only for candidate strikes and held legs. This is preferable to the earlier all-chain delta calculation, provided the tester verifies:
+- the target-strike 15% window is still enforced only at selection time;
+- held contracts outside that window still receive valid deltas;
+- the same historical close/forward timestamp is used for every delta calculation;
+- no current/future bar leaks into selection or trigger logic.
+
+Gate remains **PENDING** until the new CI run completes and its artifacts are independently reviewed.
+
+Tester instruction to developer: do not advance to the next phase until the new contract-level delta run is checked independently.
