@@ -64,10 +64,37 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt pytest
 
+      - name: Stage free sources
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python scripts/stage_free_sources.py \
+            --start "${{ inputs.start || '2021-01-01' }}" \
+            --end "${{ inputs.end || '2026-09-30' }}" \
+            --cache-root data/cache 2>&1 | tee free-source-staging.txt
+
+      - name: Build composite dataset
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python scripts/composite_data.py 2>&1 | tee composite-build.txt
+
+      - name: Check composite coverage
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python scripts/check_composite_coverage.py 2>&1 | tee composite-coverage.txt
+
       - name: Unit tests
         run: |
           set -o pipefail
           PYTHONPATH=. python -m pytest -q 2>&1 | tee ci-test-output.txt
+
+      - name: Record diagnostic output
+        if: failure()
+        run: |
+          git config user.name "research-bot"
+          git config user.email "research-bot@users.noreply.github.com"
+          git add free-source-staging.txt composite-build.txt composite-coverage.txt ci-test-output.txt 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Record data-engineering diagnostic output"
+          git push
 
       - name: Record CI test output
         if: failure()
