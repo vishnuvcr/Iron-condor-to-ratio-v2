@@ -32,17 +32,11 @@ The current composite does not establish complete deterministic lifecycle covera
 
 ## Current Phase 3
 
-The predefined reversal-threshold sensitivity grid is:
-- 0.80
-- 1.00
-- 1.20
-- 1.30
+The reversal trigger is fixed at **1.30 short-leg delta**. No reversal-threshold sensitivity testing or parameter optimization is authorized.
 
-All runs use identical composite data, ₹20/order brokerage, one adverse option tick of slippage, continuation threshold 0.20, and research-use entry mode.
+All current execution uses identical composite data, ₹20/order brokerage, one adverse option tick of slippage, continuation threshold 0.20, and research-use entry mode.
 
-Six data partitions and composite assembly have passed. The 1.30 threshold run has completed successfully; the other threshold runs are still executing.
-
-No strategy is promoted based on the highest P&L alone.
+Workflow run `37235922082` has passed unit tests, all six data partitions, composite assembly, coverage diagnostics, consolidated CSV export, and CSV-to-Parquet reconciliation. The fixed-1.30 backtest step is currently executing. No performance conclusion has been promoted; independent tester approval remains mandatory.
 
 ## Scientific research expansion
 
@@ -73,7 +67,7 @@ The pipeline never interpolates, forward-fills, averages or theoretically recons
 
 ## Baseline research-use result
 
-The first research-use baseline produced:
+The first research-use baseline (from the earlier pre-correction run) produced:
 - 28 traded cycles
 - net P&L: **−₹20,455.46**
 - profit factor: **0.647**
@@ -81,7 +75,7 @@ The first research-use baseline produced:
 - max drawdown: **−₹41,981.20**
 - monthly-Sharpe proxy: **−0.541**
 
-This result is exploratory and **does not support strategy promotion**. Strict lifecycle coverage remains 0/69.
+This result is exploratory and **not authoritative for the corrected fixed-1.30 implementation**. Strict lifecycle coverage remains 0/69.
 
 ## Final research objective
 
