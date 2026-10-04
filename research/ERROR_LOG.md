@@ -20,3 +20,6 @@
 
 | 2026-10-04 | 2 | ERROR | Historical sample was only 19 monthly expiries because the current pipeline was limited to 2024–2026 source partitions; this is inadequate as a final research sample. | Added multi-source historical expansion assessment; final backtest will use the longest independently validated continuous window. |
 | 2026-10-04 | 2 | ERROR | Provenance helper references hashlib while the current script snapshot lacks the import; CI must validate this before Gate 2. | Flagged for automated verification and correction before tester approval. |
+
+| 2026-10-04 | 2 | ERROR | Expanded rissin source declared 2022-2026 partitions but the actual run produced only one 2022 expiry with 15 rows and no 2023 expiries; continuity was not demonstrated. | Replaced the primary Phase-2 source with the expiry-partitioned thetrademarkk NIFTY 1-minute dataset covering 2021-2026; retain rissin for independent overlap validation. |
+| 2026-10-04 | 2 | ERROR | Historical NIFTY lot-size function incorrectly treated all expiries through Nov-2024 as 25, which is inconsistent with NSE's 50-lot regime before the May-2024 revision. | Added 2021-2026 expiry-boundary regimes and regression tests. |
