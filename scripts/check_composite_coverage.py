@@ -12,13 +12,18 @@ import pandas as pd
 from scripts.backtest import entry_and_exit_dates
 
 
-def expected_monthly_expiries(manifest_path: Path = Path("results/composite/source_staging_manifest.json")) -> list[date]:
+def expected_monthly_candidates(
+    manifest_path: Path = Path("results/composite/source_staging_manifest.json"),
+) -> list[dict]:
     if not manifest_path.exists():
         return []
+
     manifest = json.loads(manifest_path.read_text())
-    files = manifest.get("thetrademarkk", {}).get("files", [])
-    by_month: dict[tuple[int, int], date] = {}
-    for value in files:
+    start = date.fromisoformat(manifest["start"])
+    end = date.fromisoformat(manifest["end"])
+
+    primary_by_month: dict[tuple[int, int], date] = {}
+    for value in manifest.get("thetrademarkk", {}).get("files", []):
         stem = Path(str(value)).stem
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", stem):
             continue
@@ -27,8 +32,26 @@ def expected_monthly_expiries(manifest_path: Path = Path("results/composite/sour
         except ValueError:
             continue
         key = (expiry.year, expiry.month)
-        by_month[key] = max(by_month.get(key, expiry), expiry)
-    return sorted(by_month.values())
+        primary_by_month[key] = max(primary_by_month.get(key, expiry), expiry)
+
+    months = []
+    cursor = date(start.year, start.month, 1)
+    last_month = date(end.year, end.month, 1)
+    while cursor <= last_month:
+        key = (cursor.year, cursor.month)
+        months.append(
+            {
+                "month": key,
+                "primary_expiry": primary_by_month.get(key),
+                "primary_file_available": key in primary_by_month,
+            }
+        )
+        if cursor.month == 12:
+            cursor = date(cursor.year + 1, 1, 1)
+        else:
+            cursor = date(cursor.year, cursor.month + 1, 1)
+
+    return months
 
 
 def main():
@@ -41,12 +64,12 @@ def main():
         print("NO_COMPOSITE", file=sys.stderr)
         return 2
 
-    expected_expiries = expected_monthly_expiries()
-    if not expected_expiries:
+    expected_months = expected_monthly_candidates()
+    if not expected_months:
         Path("results/composite/cycle_coverage.json").write_text(
-            json.dumps({"status": "NO_EXPECTED_EXPIRIES"})
+            json.dumps({"status": "NO_EXPECTED_MONTHS"})
         )
-        print("No expected monthly expiries found in staging manifest", file=sys.stderr)
+        print("No requested months found in staging manifest", file=sys.stderr)
         return 2
 
     con = duckdb.connect()
@@ -72,15 +95,61 @@ def main():
     con.close()
 
     by_expiry = {pd.Timestamp(row["expiry"]).date(): row for _, row in summary.iterrows()}
+    observed_expiry_by_month: dict[tuple[int, int], date] = {}
+    for expiry in by_expiry:
+        key = (expiry.year, expiry.month)
+        observed_expiry_by_month[key] = max(observed_expiry_by_month.get(key, expiry), expiry)
+
     rows = []
     failures = []
 
-    for expiry in expected_expiries:
+    for expected in expected_months:
+        key = expected["month"]
+        primary_expiry = expected["primary_expiry"]
+        expiry = primary_expiry or observed_expiry_by_month.get(key)
+        primary_available = bool(expected["primary_file_available"])
+        coverage_basis = "PRIMARY_MANIFEST" if primary_expiry else (
+            "FALLBACK_COMPOSITE_MAX_EXPIRY" if expiry else "MISSING"
+        )
+
+        if expiry is None:
+            month_label = f"{key[0]:04d}-{key[1]:02d}"
+            failures.append(f"{month_label}: requested calendar month missing from composite")
+            rows.append({
+                "calendar_month": month_label,
+                "expiry": "",
+                "coverage_basis": coverage_basis,
+                "primary_file_available": primary_available,
+                "target_32dte": "",
+                "first_available": "",
+                "last_available": "",
+                "entry_date": "",
+                "exit_date": "",
+                "status": "INCOMPLETE",
+                "rows": 0,
+                "price_rows_primary": 0,
+                "price_rows_cloudtrader": 0,
+                "price_rows_rissin": 0,
+                "price_rows_artist23": 0,
+                "uses_fallback_price_rows": False,
+                "non_explicit_expiry_rows": 0,
+                "expected_sessions": 0,
+                "observed_sessions": 0,
+                "missing_sessions": 0,
+            })
+            continue
+
         row = by_expiry.get(expiry)
         if row is None:
-            failures.append(f"{expiry}: expected monthly expiry missing from composite")
+            month_label = f"{key[0]:04d}-{key[1]:02d}"
+            failures.append(
+                f"{month_label}: expected monthly expiry {expiry} is missing from composite"
+            )
             rows.append({
+                "calendar_month": month_label,
                 "expiry": expiry.isoformat(),
+                "coverage_basis": coverage_basis,
+                "primary_file_available": primary_available,
                 "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
                 "first_available": "",
                 "last_available": "",
@@ -150,7 +219,10 @@ def main():
             )
 
         rows.append({
+            "calendar_month": f"{key[0]:04d}-{key[1]:02d}",
             "expiry": expiry.isoformat(),
+            "coverage_basis": coverage_basis,
+            "primary_file_available": primary_available,
             "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
             "first_available": first.isoformat(),
             "last_available": last.isoformat(),
@@ -173,8 +245,12 @@ def main():
     result.to_csv(out, index=False)
     complete = int((result["status"] == "COMPLETE").sum())
     total = len(result)
-    print(f"cycle_coverage: {complete}/{total} expected monthly expiries complete")
-    unexpected = sorted(set(by_expiry) - set(expected_expiries))
+    fallback_months = int(((result["status"] == "COMPLETE") & (~result["primary_file_available"])).sum())
+    print(f"cycle_coverage: {complete}/{total} requested calendar months complete")
+    print(f"cycle_coverage: {fallback_months} complete months supplied without a primary monthly file")
+    unexpected = sorted(
+        set(by_expiry) - {expected["primary_expiry"] for expected in expected_months if expected["primary_expiry"] is not None}
+    )
     if unexpected:
         print(
             f"Non-monthly/unexpected composite expiries retained for audit: {len(unexpected)}"
