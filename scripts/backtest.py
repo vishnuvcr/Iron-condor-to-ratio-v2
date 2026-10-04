@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 from huggingface_hub import HfApi, hf_hub_download
 
+from src.nse_calendar import nse_fno_sessions
 from src.strategy_engine import (
     CostModel,
     CycleResult,
@@ -212,37 +213,43 @@ def trading_dates(df: pd.DataFrame) -> List[date]:
 
 def entry_and_exit_dates(expiry: date, available_dates: List[date]) -> Tuple[Optional[date], Optional[date]]:
     """
-    Require the source to span the full deterministic cycle.
+    Require the source to span the full deterministic cycle using the
+    versioned NSE F&O normal-session calendar.
 
-    The strategy enters on the first available trading date on/after
-    expiry-32 calendar days and exits on the last available trading date
-    before expiry.  A source partition that ends materially before expiry
-    is incomplete and MUST be rejected rather than treated as an early exit.
+    The strategy enters on the first observed trading date on or after
+    expiry-32 calendar days. The source must already contain data by that
+    first eligible NSE session and must contain the final normal NSE F&O
+    session before expiry. This avoids a fixed calendar-day tolerance that
+    can reject valid Friday-to-Tuesday cycles when Monday is an NSE holiday.
     """
     if not available_dates:
         return None, None
+
     dates = sorted(set(available_dates))
     target = expiry - timedelta(days=32)
-    if dates[0] > target:
+    expected_sessions = nse_fno_sessions(target, expiry - timedelta(days=1))
+    if not expected_sessions:
         return None, None
 
-    entries = [d for d in dates if d >= target and d < expiry]
+    first_expected = expected_sessions[0]
+    final_expected = expected_sessions[-1]
+
+    # The source must begin no later than the first eligible normal NSE
+    # session on/after the 32-DTE target.
+    if dates[0] > first_expected:
+        return None, None
+
+    entries = [d for d in dates if target <= d < expiry]
     if not entries:
         return None, None
 
-    # Require observations through the final trading session immediately
-    # preceding expiry.  A gap of more than three calendar days indicates
-    # that the expiry partition is incomplete (the exact holiday calendar
-    # is not assumed here; the tolerance only permits weekends/holidays).
-    pre_expiry = [d for d in dates if d < expiry]
-    if not pre_expiry:
-        return None, None
-    exit_date = pre_expiry[-1]
-    if (expiry - exit_date).days > 3:
+    # The source must extend through the final expected normal NSE F&O
+    # session before expiry. Interior session continuity is checked by the
+    # dedicated data gate before production promotion.
+    if final_expected not in dates:
         return None, None
 
-    return entries[0], exit_date
-
+    return entries[0], final_expected
 
 def nearest_bar(df: pd.DataFrame, target_dt: pd.Timestamp) -> Optional[pd.Timestamp]:
     if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names:
