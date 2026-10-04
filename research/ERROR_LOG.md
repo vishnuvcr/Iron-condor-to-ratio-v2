@@ -35,3 +35,5 @@
 | 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | GitHub connector returned HTTP 404 when retrieving live workflow-job logs while run 37224425114 was in progress. | No research result was inferred from the failed log request; rely on the workflow status/artifacts after completion. |
 
 | 2026-10-04 | 2 | DOC ERROR | README CSV link initially used ../results from a root-level README. | Corrected to results/composite/consolidated_options_data.csv; no research-data effect. |
+
+| 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 10 found that deriving expected expiries from observed composite rows allowed an entirely missing monthly expiry to escape the coverage gate. | Coverage checker now derives expected monthly expiries from the staged primary-source manifest and fails any missing expected cycle. |
