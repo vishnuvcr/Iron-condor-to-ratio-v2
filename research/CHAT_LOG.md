@@ -117,3 +117,7 @@ The latest partitioned run passed unit tests and all six partition builds, but t
 
 ## 2026-10-05 — Review 19 remediation
 Tester Review 19 required lead-in windows and cross-partition deduplication. Developer updated the six partition windows with a pre-year lead-in and updated assembly to retain one canonical row per timestamp/expiry/strike/option_type using explicit source priority and provenance tie-breakers. The 32-DTE coverage rule remains unchanged.
+
+
+## 2026-10-05 — Tester Review 20
+The lead-in/dedup remediation was executed. All six partitions passed, but coverage remained 0/69. Tester therefore rejected the partition-boundary hypothesis as the principal cause. Gate 2 is closed pending a source that supports the full deterministic lifecycle.
