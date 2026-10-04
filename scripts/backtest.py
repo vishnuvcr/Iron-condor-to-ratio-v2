@@ -109,7 +109,7 @@ def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date:
     return df
 
 
-def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.DataFrame:
+def add_forward(df: pd.DataFrame, expiry: date, rate: float) -> pd.DataFrame:
     if df.empty:
         return df
     calls = df[df["option_type"] == "CE"][["timestamp", "strike", "close", "volume"]].rename(
@@ -119,39 +119,58 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
         columns={"close": "put_close", "volume": "put_volume"}
     )
     pairs = calls.merge(puts, on=["timestamp", "strike"], how="inner")
-    pairs = pairs[(pairs["call_close"] > 0) & (pairs["put_close"] > 0) & (pairs["call_volume"] > 0) & (pairs["put_volume"] > 0)]
+    pairs = pairs[
+        (pairs["call_close"] > 0)
+        & (pairs["put_close"] > 0)
+        & (pairs["call_volume"] > 0)
+        & (pairs["put_volume"] > 0)
+    ]
     if pairs.empty:
-        return df.assign(forward=np.nan, delta=np.nan)
+        return df.assign(forward=np.nan)
 
-    expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
-    t_pairs = (expiry_close - pairs["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
-    t_pairs = np.maximum(t_pairs.values, 1e-6)
-    df_disc = np.exp(-rate * t_pairs)
     kmed = pairs.groupby("timestamp")["strike"].median().rename("kmed")
     pairs = pairs.join(kmed, on="timestamp")
-    pairs = pairs[(pairs["strike"] >= 0.90 * pairs["kmed"]) & (pairs["strike"] <= 1.10 * pairs["kmed"])]
+    pairs = pairs[
+        (pairs["strike"] >= 0.90 * pairs["kmed"])
+        & (pairs["strike"] <= 1.10 * pairs["kmed"])
+    ]
     expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
     t = (expiry_close - pairs["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     df_disc = np.exp(-rate * np.maximum(t.values, 1e-6))
-    pairs["forward_i"] = pairs["strike"].values + (pairs["call_close"].values - pairs["put_close"].values) / df_disc
+    pairs["forward_i"] = pairs["strike"].values + (
+        pairs["call_close"].values - pairs["put_close"].values
+    ) / df_disc
     pairs.loc[pairs["forward_i"] <= 0, "forward_i"] = np.nan
     forward = pairs.groupby("timestamp")["forward_i"].median().rename("forward")
-    df = df.join(forward, on="timestamp")
+    return df.join(forward, on="timestamp")
+
+
+def option_delta_for_rows(rows: pd.DataFrame, expiry: date, rate: float) -> np.ndarray:
+    if rows.empty:
+        return np.array([], dtype=float)
     expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
-    t = (expiry_close - df["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
-    t = np.maximum(t.values, 1e-6)
-    is_call = df["option_type"].values == "CE"
-    delta = black76_delta_from_price(
-        df["forward"].values,
-        df["strike"].values,
+    t = (expiry_close - rows["timestamp"]).dt.total_seconds().to_numpy() / (365.0 * 86400.0)
+    t = np.maximum(t, 1e-6)
+    return black76_delta_from_price(
+        rows["forward"].to_numpy(dtype=float),
+        rows["strike"].to_numpy(dtype=float),
         t,
-        df["close"].values,
-        is_call,
+        rows["close"].to_numpy(dtype=float),
+        (rows["option_type"].to_numpy() == "CE"),
         rate,
     )
-    df["delta"] = delta
-    return df
 
+
+def position_abs_delta(snapshot: pd.DataFrame, position: Position, expiry: date, rate: float) -> float:
+    rows = snapshot[
+        (snapshot["strike"] == float(position.strike))
+        & (snapshot["option_type"] == position.option_type)
+        & (snapshot["close"] > 0)
+        & snapshot["forward"].notna()
+    ]
+    if rows.empty:
+        return float("nan")
+    return float(abs(option_delta_for_rows(rows.iloc[[0]], expiry, rate)[0]))
 
 def trading_dates(df: pd.DataFrame) -> List[date]:
     return sorted(df["date"].unique())
@@ -189,24 +208,31 @@ def snapshot_at(df: pd.DataFrame, ts: pd.Timestamp) -> pd.DataFrame:
     return df[df["timestamp"] == ts].copy()
 
 
-def select_contract(snapshot: pd.DataFrame, option_type: str, target_abs_delta: float) -> Optional[pd.Series]:
-    x = snapshot[(snapshot["option_type"] == option_type) & snapshot["delta"].notna() & (snapshot["close"] > 0) & (snapshot["volume"] > 0)]
+def select_contract(
+    snapshot: pd.DataFrame,
+    option_type: str,
+    target_abs_delta: float,
+    expiry: date,
+    rate: float,
+) -> Optional[pd.Series]:
+    x = snapshot[
+        (snapshot["option_type"] == option_type)
+        & (snapshot["close"] > 0)
+        & (snapshot["volume"] > 0)
+        & snapshot["forward"].notna()
+    ].copy()
     if x.empty:
         return None
-    x = x[(x["delta"].abs() >= 0.01) & (x["delta"].abs() <= 0.99)]
+    fwd = float(x["forward"].iloc[0])
+    x = x[(x["strike"] >= 0.85 * fwd) & (x["strike"] <= 1.15 * fwd)]
     if x.empty:
         return None
-    if "forward" in x.columns:
-        x = x[x["forward"].notna()]
-        if not x.empty:
-            fwd = float(x["forward"].iloc[0])
-            x = x[(x["strike"] >= 0.85 * fwd) & (x["strike"] <= 1.15 * fwd)]
+    x["delta"] = option_delta_for_rows(x, expiry, rate)
+    x = x[x["delta"].notna() & (x["delta"].abs() >= 0.01) & (x["delta"].abs() <= 0.99)]
     if x.empty:
         return None
-    x = x.copy()
     x["dist"] = (x["delta"].abs() - target_abs_delta).abs()
     return x.sort_values(["dist", "volume"], ascending=[True, False]).iloc[0]
-
 
 def add_order(
     cycle: CycleResult,
@@ -299,7 +325,7 @@ def build_ratio(
         (short_target, 2, "SELL", f"{target_set}_short"),
         (hedge_target, 1, "BUY", f"{target_set}_hedge"),
     ]:
-        r = select_contract(snapshot, opt, target)
+        r = select_contract(snapshot, opt, target, expiry, rate)
         if r is None:
             return None
         selections.append((float(r["strike"]), opt, lots, action, reason))
@@ -354,10 +380,10 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
     if entry_signal is None:
         return None
     entry_snapshot = snapshot_at(df, entry_signal)
-    sc = select_contract(entry_snapshot, "CE", 0.30)
-    sp = select_contract(entry_snapshot, "PE", 0.30)
-    hc = select_contract(entry_snapshot, "CE", 0.10)
-    hp = select_contract(entry_snapshot, "PE", 0.10)
+    sc = select_contract(entry_snapshot, "CE", 0.30, expiry, rate)
+    sp = select_contract(entry_snapshot, "PE", 0.30, expiry, rate)
+    hc = select_contract(entry_snapshot, "CE", 0.10, expiry, rate)
+    hp = select_contract(entry_snapshot, "PE", 0.10, expiry, rate)
     if any(x is None for x in [sc, sp, hc, hp]):
         return None
     selections = [
@@ -410,13 +436,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
 
         if state == "IC_ACTIVE":
             short_positions = [p for p in positions if p.lots < 0]
-            deltas = {}
-            for p in short_positions:
-                row = snap[(snap["strike"] == p.strike) & (snap["option_type"] == p.option_type)]
-                if row.empty or pd.isna(row.iloc[0]["delta"]):
-                    deltas[p.option_type] = np.nan
-                else:
-                    deltas[p.option_type] = abs(float(row.iloc[0]["delta"]))
+            deltas = {p.option_type: position_abs_delta(snap, p, expiry, rate) for p in short_positions}
             dc, dp = deltas.get("CE", np.nan), deltas.get("PE", np.nan)
             trigger = choose_ic_trigger(dc, dp, 0.10, prev_dc, prev_dp)
             prev_dc, prev_dp = dc, dp
@@ -437,13 +457,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
 
         if state == "RATIO_ACTIVE" and len(positions) == 3:
             short_positions = [p for p in positions if p.lots < 0]
-            short_deltas = []
-            for p in short_positions:
-                row = snap[(snap["strike"] == p.strike) & (snap["option_type"] == p.option_type)]
-                if row.empty or pd.isna(row.iloc[0]["delta"]):
-                    short_deltas.append(np.nan)
-                else:
-                    short_deltas.append(abs(float(row.iloc[0]["delta"])))
+            short_deltas = [position_abs_delta(snap, p, expiry, rate) for p in short_positions]
             if all(np.isfinite(short_deltas)):
                 s = float(sum(short_deltas))
                 if s <= 0.20 or s >= 1.20:
@@ -546,19 +560,17 @@ def main():
         for _, g in df.sort_values(["strike", "option_type", "timestamp"]).groupby(["strike", "option_type"], sort=False):
             if not g["timestamp"].is_monotonic_increasing:
                 non_monotonic_contracts += 1
-        df = add_forward_and_delta(df, expiry, args.rate)
+        df = add_forward(df, expiry, args.rate)
         if df.empty:
             quality.append({"expiry": str(expiry), "status": "EMPTY_AFTER_DELTA_FILTER"})
             continue
         df = df.set_index(["timestamp", "strike", "option_type"], drop=False).sort_index()
         forward_coverage = float(df["forward"].notna().mean()) if "forward" in df else 0.0
-        delta_coverage = float(df["delta"].notna().mean()) if "delta" in df else 0.0
         quality.append({
             "expiry": str(expiry), "rows": len(df),
             "duplicates_after_filter": dup, "negative_volume_rows": neg_volume,
             "non_monotonic_contracts": non_monotonic_contracts,
-            "forward_coverage": forward_coverage, "delta_coverage": delta_coverage,
-        })
+            "forward_coverage": forward_coverage,         })
         cm = CostModel(brokerage_per_order=args.brokerage, slippage_ticks=args.slippage_ticks)
         try:
             cycle = run_cycle(df, expiry, args.rate, cm)
