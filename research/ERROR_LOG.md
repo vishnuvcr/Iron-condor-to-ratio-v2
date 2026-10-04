@@ -66,3 +66,5 @@
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 18 found the partitioned assembly produced the Parquet but omitted the requested start/end contract required by the coverage gate. | Assembly now accepts start/end and writes both `composite_manifest.json` and `source_staging_manifest.json`; the workflow passes the requested window explicitly. |
 
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 19 found that year partitions beginning on January 1 omitted the preceding 32-DTE lead-in, causing 0/69 deterministic cycles to pass coverage. | Partition windows now overlap the preceding year from 20 November; final assembly deduplicates overlapping canonical keys deterministically by source priority. |
+
+| 2026-10-05 | 2 | DATA COVERAGE | Gate 2 Review 19: assembled composite contains monthly expiry files but 0/69 deterministic 32-DTE cycles pass. TradeMarkk coverage is explicitly partial; 2021 Jan-Apr are absent from the staged primary set and later expiry files do not span the required pre-expiry window. | Do not weaken the 32-DTE gate. Investigate alternative reproducible historical acquisition paths and admit data only after independent tester validation. |
