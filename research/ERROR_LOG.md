@@ -46,3 +46,5 @@
 | 2026-10-04 | 2 | PROVENANCE | Primary DuckDB composite rows used MD5 while normalized fallback rows used SHA-256 for source_row_hash. | Standardized the primary DuckDB path to SHA-256; fallback rows already used SHA-256. |
 
 | 2026-10-04 | 2 | CI INFRASTRUCTURE | Hardened CI run 37225146663 staged all 64 primary monthly files and began the composite build, then the GitHub-hosted runner received a shutdown signal and exited 143. | No research output from that run was promoted. Failed jobs were automatically re-run as attempt 2. |
+
+| 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 13 found the requested 2021-01 to 2026-09 window contains 69 calendar months while primary staging selected only 64 monthly files. | Coverage gate now derives requested months independently from the staging start/end range; a month may pass only if a defensible composite monthly-expiry candidate is present. |
