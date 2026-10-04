@@ -1,114 +1,155 @@
-# Strategy Specification — Gate 1 Draft
+# Strategy Specification — Gate 1 Revision
 
 ## Source-derived rules
 
-The source transcript states that the initial position is a monthly-expiry Iron Condor with short call/put around 0.30 delta and long call/put around 0.10 delta.
+The supplied transcript states that the initial position is a monthly-expiry Iron Condor with short call/put around 0.30 delta and long call/put around 0.10 delta.
 
-The transition rule is: when either Iron Condor short leg reaches approximately 0.10 delta, exit the entire Iron Condor and transition to a directional ratio spread.
+Transition: when either IC short leg reaches/about 0.10 delta, exit the entire Iron Condor and transition to a directional ratio spread.
 
-Direction mapping:
-- Market moving down -> call-side ratio spread.
-- Market moving up -> put-side ratio spread.
+Direction:
+- Market moving down -> call-side ratio.
+- Market moving up -> put-side ratio.
 
-Initial ratio construction:
-- Down / call-side: long 1 call at about 0.50 delta; short 2 calls at about 0.40 delta; long 1 call at about 0.10 delta.
-- Up / put-side: long 1 put at about 0.50 delta; short 2 puts at about 0.40 delta; long 1 put at about 0.10 delta.
+Initial ratio:
+- Down/call side: long 1 call at about 0.50 delta; short 2 calls at about 0.40 delta; long 1 call at about 0.10 delta.
+- Up/put side: long 1 put at about 0.50 delta; short 2 puts at about 0.40 delta; long 1 put at about 0.10 delta.
 
-Trend-continuation reset:
+Continuation:
 - Track the combined absolute delta of the two short ratio legs.
-- The source describes the initial combined short-leg delta as about 0.80.
-- If it falls to about 0.20, exit the whole ratio spread and rebuild in the same direction with:
-  - long 1 option at about 0.40 delta;
-  - short 2 options at about 0.30 delta;
+- When it falls to about 0.20, exit the whole ratio and rebuild in the same direction:
+  - long 1 at about 0.40 delta;
+  - short 2 at about 0.30 delta;
   - long 1 hedge at about 0.08 delta.
 
-Reversal reset:
-- If the combined absolute delta of the two short ratio legs rises from about 0.80 to roughly 1.20–1.30, exit the entire ratio spread and switch to the opposite directional side.
-- The source then uses the initial ratio construction on the opposite side.
+Reversal:
+- When the combined absolute delta of the two short ratio legs rises to about 1.20–1.30, exit the whole ratio and reverse direction.
+- The source uses the initial 0.50/0.40/0.10 construction on the new direction.
 
-The source also discusses taking profits early and sometimes delaying a delta-triggered adjustment, but does not define a single numeric rule. Those are therefore not allowed in the deterministic baseline.
+The source also discusses discretionary profit-taking and delayed adjustments. Those are excluded from the rules-only baseline and tested as separate variants.
 
-## Deterministic baseline
+## Deterministic rules-only baseline
 
-### Contract cycle
-1. Use NIFTY monthly expiries.
-2. For each monthly expiry, enter the Iron Condor on the first available trading session approximately 30–32 calendar days before expiry, using the first executable timestamp after the chosen entry time.
-3. Never use future information to select the expiry or strikes.
-4. Close all remaining positions before expiry in the baseline. A separate expiry-day variant may be tested only after the baseline is validated.
+### Date and entry
+1. Use NIFTY monthly expiries defined as the latest NIFTY option expiry date in each calendar month present in the validated dataset.
+2. Select each monthly expiry E.
+3. The baseline entry date is the first available trading date on or after E minus 32 calendar days.
+4. Initial IC decision time is 09:20 IST on that entry date. If 09:20 is absent, use the first available minute at or after 09:20.
+5. The baseline has no discretionary entry-date shifting. 30-DTE and 31-DTE versions are sensitivity runs, not baseline.
 
-### Delta convention
-Use absolute option delta for strike selection:
-- call delta is positive;
-- put delta is negative;
-- selection targets are absolute delta values.
+### Delta model
+Delta is a historical-model estimate, never a future/current-data lookup.
 
-Delta must be computed from historical option data using a documented pricing model or a validated supplied IV/Greeks field. No current/future chain data may be used.
+Primary baseline model:
+- Black-76 with continuously compounded risk-free rate r = 0 for delta selection.
+- Forward price F at each timestamp is estimated from call-put parity:
+  F_i = K + C_i - P_i
+  for strikes with simultaneously positive call and put prices.
+- Use the median F_i across liquid near-ATM strikes at that timestamp.
+- Implied volatility is solved numerically from the observed option close and the estimated forward.
+- Call delta = N(d1).
+- Put delta = -N(-d1).
+- If the observed premium is at/below intrinsic value within a small numerical tolerance, use the limiting delta rather than an unstable IV.
+- If IV cannot be solved, that contract is ineligible for delta targeting on that timestamp.
 
-### Strike selection
-At a decision timestamp, select the listed contract for the relevant monthly expiry whose absolute delta is closest to the target, subject to:
-- positive/valid premium;
-- valid timestamp;
-- sufficient liquidity/volume if a liquidity filter is enabled;
-- no look-ahead.
+Sensitivity models:
+- r = 5% and r = 6% with the same parity framework.
+- Where a validated source supplies IV/Greeks directly, it may be used as a cross-check, not as a silent replacement.
 
-The implementation must record both target and achieved delta.
+### Delta target selection
+At a decision timestamp, select among valid monthly-expiry contracts:
+- positive premium;
+- positive volume on the signal bar;
+- valid model delta;
+- strike within a broad liquidity window around estimated forward;
+- closest absolute delta to the target.
 
-### Entry and adjustment prices
-Use the nearest available 1-minute bar at or immediately after the decision timestamp. Baseline fill is the close/mid proxy available in the dataset, plus the configured slippage model. Stress variants add adverse slippage by trade direction.
+The engine records target delta, achieved delta, strike, and selection timestamp.
+
+### Signal detection and execution
+To prevent look-ahead:
+- Signals are evaluated from the fully formed 1-minute bar at time t.
+- Entry/replacement/closing orders caused by that signal execute at the next available 1-minute bar OPEN.
+- Contract selection for the replacement is based on information available at time t, not time t+1.
+- Planned end-of-trade exits do not depend on the bar price and may execute at the scheduled bar CLOSE.
 
 ### State machine
-States:
-- IC_ACTIVE
-- RATIO_ACTIVE
+States: IC_ACTIVE and RATIO_ACTIVE.
 
 IC_ACTIVE:
-- If neither short leg crosses the transition threshold, maintain positions.
-- If a short leg crosses 0.10 absolute delta, close all IC legs and enter the ratio on the corresponding directional side.
+- Track the held short call and short put absolute deltas.
+- If neither <= 0.10, hold.
+- If exactly one crosses <= 0.10, exit all four IC legs at t+1 open and build:
+  - call ratio if short call is the trigger;
+  - put ratio if short put is the trigger.
+- If both cross <= 0.10 on the same signal bar, choose the leg with the smaller absolute delta; if tied within tolerance, record a tie and choose the direction indicated by the larger absolute change from the previous signal bar.
 
 RATIO_ACTIVE:
-- If the combined absolute delta of the two short legs <= 0.20, close all ratio legs and rebuild the same direction with 0.40/0.30/0.08 targets.
-- Else if combined absolute short-leg delta >= 1.20, close all ratio legs and reverse using 0.50/0.40/0.10 targets.
-- Else hold.
-- Evaluate continuation before reversal only if a timestamp could satisfy both; this tie case must be recorded as a deterministic engine event and tested. The baseline uses the first condition met in timestamp order, not a hindsight choice.
+- Let S be the sum of absolute deltas of the two short ratio legs.
+- If S <= 0.20, exit all ratio legs at t+1 open and rebuild in the same direction using 0.40/0.30/0.08.
+- Else if S >= 1.20, exit all ratio legs at t+1 open and reverse using 0.50/0.40/0.10.
+- Otherwise hold.
+- Only one replacement can be generated from a signal bar.
 
-### Exit
-Baseline exit:
-- close all open positions at the end of the last non-expiry trading session if a position remains open;
-- no automatic profit target;
-- no discretionary early exit;
-- no expiry-day trading.
+### End-of-cycle exit
+Rules-only baseline:
+- Exit any remaining position at 15:20 IST on the last non-expiry trading session for the monthly cycle.
+- This is an explicit modelling assumption because the source demonstrates both pre-expiry profit-taking and occasional expiry-day continuation.
+- Expiry-day carry is a separate sensitivity variant.
 
-This isolates the strategy's numeric mechanics from the video's discretionary profit-taking language.
+### Costs
+Every executed order incurs:
+- brokerage;
+- NSE transaction charge;
+- SEBI turnover fee;
+- GST on brokerage/exchange/SEBI charges where applicable;
+- stamp duty on the buyer;
+- STT on option sales at the historical rate applicable on the trade date;
+- slippage.
 
-## Important ambiguities to test separately
-1. Entry timing: 30 DTE vs 32 DTE.
-2. Entry session time.
-3. Transition trigger: 0.10 exact crossing vs <= 0.10.
-4. Continuation trigger: 0.20 vs 0.18/0.22.
-5. Reversal trigger: 1.20 vs 1.25 vs 1.30.
-6. Initial ratio targets around 0.50/0.40/0.10.
-7. Continuation ratio targets around 0.40/0.30/0.08.
-8. Profit-taking at fixed portfolio returns (e.g. 8%, 10%, 12%, 15% of a declared capital base).
-9. Delayed adjustment policy.
-10. Carrying to expiry vs last non-expiry day.
+Modern Paytm Money baseline brokerage is Rs 20 per executed F&O order; Rs 10 and Rs 15 are sensitivity cases because public Paytm Money pages contain legacy account cohorts with lower brokerage.
 
-## Non-negotiable accounting rules
-- One option lot per long leg.
-- Two option lots on each short ratio leg.
-- Lot size is date-dependent and must be sourced from NSE. NIFTY moved to 75 for new index-derivative contracts from 2024-11-20, and to 65 for revised contracts from 2025-10-03; the exact effective contract series must be mapped by expiry/introduction date.
-- Every opening and closing order incurs brokerage and applicable charges.
-- STT is charged according to the historical rules on the relevant side.
-- No physical settlement is assumed for this baseline because positions are closed before expiry.
+### Slippage
+Baseline: adverse 1 NIFTY option tick on every fill, with tick = Rs 0.05 and no fill below zero.
+Stress: adverse 2 ticks.
+Reference: zero slippage.
 
-## Benchmarks
+For a buy, fill = max(0, reference price + slippage_ticks*0.05).
+For a sell, fill = max(0, reference price - slippage_ticks*0.05).
+
+### Lot sizes
+Lot size is mapped by the actual contract/expiry regime, not by a simple trade-date constant.
+For the main production window:
+- NIFTY monthly expiries through 2025-12-30 use the then-existing 75-lot regime for the post-Nov-2024 production window.
+- NIFTY monthly expiries from 2026-01-27 use 65.
+A separate pre-75-lot historical segment is reported by points or with an explicit lot-size mapping from NSE contract files.
+
+### Benchmarks
 At minimum:
-1. Static monthly Iron Condor with the same 0.30/0.10 construction and no ratio conversion.
-2. The strategy with zero slippage.
-3. The strategy with baseline and stress slippage.
-4. Where data supports it, a simple market benchmark reported separately rather than mixed with option P&L.
+1. Static monthly 0.30/0.10 Iron Condor using the same entry and exit convention, with no ratio conversion.
+2. Rules-only strategy with zero slippage.
+3. Rules-only strategy with 1-tick baseline and 2-tick stress slippage.
+4. Brokerage sensitivity Rs 10/Rs 15/Rs 20.
+5. Delta-model sensitivity r = 0%/5%/6%.
 
-## Acceptance criteria for Gate 1
-- Every source-derived numeric rule is mapped to code.
-- Every discretionary sentence is explicitly classified as deterministic, excluded, or sensitivity-tested.
-- No hidden assumption about entry timing, expiry-day behaviour, or profit-taking.
-- Unit tests cover delta sign convention, direction mapping, ratio net delta, trigger ordering, lot counts, and position closing.
+## Discretionary variants
+The following are never mixed into the baseline:
+- early profit-taking thresholds;
+- delayed adjustment after a trigger;
+- expiry-day carry;
+- discretionary hedge shifting beyond the numeric target.
+
+Each variant must be a separate run manifest and separately labeled.
+
+## Data-quality and no-look-ahead requirements
+- A trade cannot use a bar before it is available.
+- A replacement contract cannot be selected using t+1 prices.
+- A missing signal-bar delta invalidates that signal rather than being forward-filled.
+- Contract prices cannot be forward-filled across trading gaps for execution.
+- Every skipped, unfilled, or anomalous order must be logged.
+
+## Gate 1 acceptance criteria
+1. Every source-derived numeric rule is mapped to an explicit deterministic rule.
+2. Entry timing, signal timing, execution timing, exit timing, delta model, slippage, and cost model are deterministic.
+3. Discretionary statements are separated from the baseline.
+4. Mathematical direction and lot counts are unit-testable.
+5. No future information enters contract selection or trigger detection.
