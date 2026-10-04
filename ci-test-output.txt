@@ -1,114 +1,235 @@
-..FF...FF............                                                    [100%]
+.......F.........................                                        [100%]
 =================================== FAILURES ===================================
-_______________ test_cloudtrader_symbol_date_time_normalization ________________
-
-    def test_cloudtrader_symbol_date_time_normalization():
-        raw = pd.DataFrame([{
-            "Symbol": "NIFTY25JAN24000CE",
-            "Date": "2025-01-02",
-            "Time": "09:20:00",
-            "Open": 10.0,
-            "High": 11.0,
-            "Low": 9.0,
-            "Close": 10.5,
-            "Volume": 100,
-            "Open Interest": 1000,
-        }])
-        # Normalize the schema names exactly as the public provider documents them.
-        raw = raw.rename(columns={"Open Interest": "Open Interest"})
->       out = normalize_frame(raw, "cloudtrader", "sample.csv")
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-tests/test_composite.py:35: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-scripts/composite_data.py:151: in normalize_frame
-    .astype(str).agg("|".join, axis=1)
-                 ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
-    result = op.agg()
-             ^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
-    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
-    return op.apply().__finalize__(self, method="apply")
-           ^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
-    return self.apply_standard()
-           ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
-    results, res_index = self.apply_series_generator()
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <pandas.core.apply.FrameColumnApply object at 0x7f8a0af19640>
-
-    def apply_series_generator(self) -> tuple[ResType, Index]:
-        assert callable(self.func)
-    
-        series_gen = self.series_generator
-        res_index = self.result_index
-    
-        results = {}
-    
-        for i, v in enumerate(series_gen):
->           results[i] = self.func(v, *self.args, **self.kwargs)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E           TypeError: sequence item 1: expected str instance, float found
-
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
-__________________ test_cloudtrader_expiry_is_marked_inferred __________________
-
-    def test_cloudtrader_expiry_is_marked_inferred():
-        raw = pd.DataFrame([{
-            "Symbol": "NIFTY25JAN24000CE",
-            "Date": "2025-01-02",
-            "Time": "09:20:00",
-            "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
-            "Volume": 100, "OI": 1000,
-        }])
->       out = normalize_frame(raw, "cloudtrader", "sample.csv")
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-tests/test_composite.py:49: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-scripts/composite_data.py:151: in normalize_frame
-    .astype(str).agg("|".join, axis=1)
-                 ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
-    result = op.agg()
-             ^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
-    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
-    return op.apply().__finalize__(self, method="apply")
-           ^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
-    return self.apply_standard()
-           ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
-    results, res_index = self.apply_series_generator()
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <pandas.core.apply.FrameColumnApply object at 0x7f8a0af47380>
-
-    def apply_series_generator(self) -> tuple[ResType, Index]:
-        assert callable(self.func)
-    
-        series_gen = self.series_generator
-        res_index = self.result_index
-    
-        results = {}
-    
-        for i, v in enumerate(series_gen):
->           results[i] = self.func(v, *self.args, **self.kwargs)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E           TypeError: sequence item 1: expected str instance, float found
-
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
 ______________ test_symbol_month_resolves_against_explicit_source ______________
+
+values = array([datetime.date(2025, 1, 30), Timestamp('2025-01-30 00:00:00')],
+      dtype=object)
+codes = array([0, 1]), use_na_sentinel = True, assume_unique = True
+verify = False
+
+    def safe_sort(
+        values: Index | ArrayLike,
+        codes: npt.NDArray[np.intp] | None = None,
+        use_na_sentinel: bool = True,
+        assume_unique: bool = False,
+        verify: bool = True,
+    ) -> AnyArrayLike | tuple[AnyArrayLike, np.ndarray]:
+        """
+        Sort ``values`` and reorder corresponding ``codes``.
+    
+        ``values`` should be unique if ``codes`` is not None.
+        Safe for use with mixed types (int, str), orders ints before strs.
+    
+        Parameters
+        ----------
+        values : list-like
+            Sequence; must be unique if ``codes`` is not None.
+        codes : np.ndarray[intp] or None, default None
+            Indices to ``values``. All out of bound indices are treated as
+            "not found" and will be masked with ``-1``.
+        use_na_sentinel : bool, default True
+            If True, the sentinel -1 will be used for NaN values. If False,
+            NaN values will be encoded as non-negative integers and will not drop the
+            NaN from the uniques of the values.
+        assume_unique : bool, default False
+            When True, ``values`` are assumed to be unique, which can speed up
+            the calculation. Ignored when ``codes`` is None.
+        verify : bool, default True
+            Check if codes are out of bound for the values and put out of bound
+            codes equal to ``-1``. If ``verify=False``, it is assumed there
+            are no out of bound codes. Ignored when ``codes`` is None.
+    
+        Returns
+        -------
+        ordered : AnyArrayLike
+            Sorted ``values``
+        new_codes : ndarray
+            Reordered ``codes``; returned when ``codes`` is not None.
+    
+        Raises
+        ------
+        TypeError
+            * If ``values`` is not list-like or if ``codes`` is neither None
+            nor list-like
+            * If ``values`` cannot be sorted
+        ValueError
+            * If ``codes`` is not None and ``values`` contain duplicates.
+        """
+        if not isinstance(values, (np.ndarray, ABCExtensionArray, ABCIndex)):
+            raise TypeError(
+                "Only np.ndarray, ExtensionArray, and Index objects are allowed to "
+                "be passed to safe_sort as values"
+            )
+    
+        sorter = None
+        ordered: AnyArrayLike
+    
+        if (
+            not isinstance(values.dtype, ExtensionDtype)
+            and lib.infer_dtype(values, skipna=False) == "mixed-integer"
+        ):
+            ordered = _sort_mixed(values)
+        else:
+            try:
+>               sorter = values.argsort()
+                         ^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/algorithms.py:1502: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   TypeError: Cannot compare Timestamp with datetime.date. Use ts == pd.Timestamp(date) or ts.date() == date instead.
+
+pandas/_libs/tslibs/timestamps.pyx:492: TypeError
+
+During handling of the above exception, another exception occurred:
+
+obj = array([datetime.date(2025, 1, 30), Timestamp('2025-01-30 00:00:00')],
+      dtype=object)
+method = 'argsort', args = ()
+kwds = {'axis': -1, 'kind': None, 'order': None, 'stable': None}
+
+    def _wrapfunc(obj, method, *args, **kwds):
+        bound = getattr(obj, method, None)
+        if bound is None:
+            return _wrapit(obj, method, *args, **kwds)
+    
+        try:
+>           return bound(*args, **kwds)
+                   ^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   TypeError: Cannot compare Timestamp with datetime.date. Use ts == pd.Timestamp(date) or ts.date() == date instead.
+
+pandas/_libs/tslibs/timestamps.pyx:492: TypeError
+
+During handling of the above exception, another exception occurred:
+
+self = <[AttributeError("'NoneType' object has no attribute 'categories'") raised in repr()] Categorical object at 0x7fd21a320370>
+values = array([datetime.date(2025, 1, 30), Timestamp('2025-01-30 00:00:00')],
+      dtype=object)
+categories = array([datetime.date(2025, 1, 30), Timestamp('2025-01-30 00:00:00')],
+      dtype=object)
+ordered = True
+dtype = CategoricalDtype(categories=None, ordered=True, categories_dtype=None)
+copy = True
+
+    def __init__(
+        self,
+        values,
+        categories=None,
+        ordered=None,
+        dtype: Dtype | None = None,
+        copy: bool = True,
+    ) -> None:
+        dtype = CategoricalDtype._from_values_or_dtype(
+            values, categories, ordered, dtype
+        )
+        # At this point, dtype is always a CategoricalDtype, but
+        # we may have dtype.categories be None, and we need to
+        # infer categories in a factorization step further below
+    
+        if not is_list_like(values):
+            # GH#38433
+            raise TypeError("Categorical input must be list-like")
+    
+        # null_mask indicates missing values we want to exclude from inference.
+        # This means: only missing values in list-likes (not arrays/ndframes).
+        null_mask = np.array(False)
+    
+        # sanitize input
+        vdtype = getattr(values, "dtype", None)
+        if isinstance(vdtype, CategoricalDtype):
+            if dtype.categories is None:
+                dtype = CategoricalDtype(values.categories, dtype.ordered)
+        elif isinstance(values, range):
+            from pandas.core.indexes.range import RangeIndex
+    
+            values = RangeIndex(values)
+        elif not isinstance(values, (ABCIndex, ABCSeries, ExtensionArray)):
+            values = com.convert_to_list_like(values)
+            if isinstance(values, list) and len(values) == 0:
+                # By convention, empty lists result in object dtype:
+                values = np.array([], dtype=object)
+            elif isinstance(values, np.ndarray):
+                if values.ndim > 1:
+                    # preempt sanitize_array from raising ValueError
+                    raise NotImplementedError(
+                        "> 1 ndim Categorical are not supported at this time"
+                    )
+                values = sanitize_array(values, None)
+            else:
+                # i.e. must be a list
+                arr = sanitize_array(values, None)
+                null_mask = isna(arr)
+                if null_mask.any():
+                    # We remove null values here, then below will re-insert
+                    #  them, grep "full_codes"
+                    arr_list = [values[idx] for idx in np.where(~null_mask)[0]]
+    
+                    # GH#44900 Do not cast to float if we have only missing values
+                    if arr_list or arr.dtype == "object":
+                        sanitize_dtype = None
+                    else:
+                        sanitize_dtype = arr.dtype
+    
+                    arr = sanitize_array(arr_list, None, dtype=sanitize_dtype)
+                values = arr
+    
+        if dtype.categories is None:
+            if isinstance(values.dtype, ArrowDtype) and issubclass(
+                values.dtype.type, CategoricalDtypeType
+            ):
+                from pandas import Index
+    
+                if isinstance(values, Index):
+                    arr = values._data._pa_array.combine_chunks()
+                else:
+                    arr = extract_array(values)._pa_array.combine_chunks()
+                categories = arr.dictionary.to_pandas(types_mapper=ArrowDtype)
+                codes = arr.indices.to_numpy()
+                dtype = CategoricalDtype(categories, values.dtype.pyarrow_dtype.ordered)
+            else:
+                preserve_object = False
+                if isinstance(values, (ABCIndex, ABCSeries)) and values.dtype == object:
+                    # GH#61778
+                    preserve_object = True
+                if not isinstance(values, ABCIndex):
+                    # in particular RangeIndex xref test_index_equal_range_categories
+                    values = sanitize_array(values, None)
+                try:
+>                   codes, categories = factorize(values, sort=True)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/arrays/categorical.py:471: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/algorithms.py:828: in factorize
+    uniques, codes = safe_sort(
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/algorithms.py:1514: in safe_sort
+    ordered = _sort_mixed(values)
+              ^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/algorithms.py:1566: in _sort_mixed
+    num_argsort = np.argsort(values[num_pos])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:1246: in argsort
+    return _wrapfunc(
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:63: in _wrapfunc
+    return _wrapit(obj, method, *args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:43: in _wrapit
+    result = getattr(arr, method)(*args, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   TypeError: Cannot compare Timestamp with datetime.date. Use ts == pd.Timestamp(date) or ts.date() == date instead.
+
+pandas/_libs/tslibs/timestamps.pyx:492: TypeError
+
+The above exception was the direct cause of the following exception:
 
     def test_symbol_month_resolves_against_explicit_source():
         cloud = pd.DataFrame([{
@@ -127,102 +248,130 @@ ______________ test_symbol_month_resolves_against_explicit_source ______________
             "volume": 100, "open_interest": 1000,
         }])
         from scripts.composite_data import normalize_frame, compose
->       cloud_n = normalize_frame(cloud, "cloudtrader", "cloud.csv")
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        cloud_n = normalize_frame(cloud, "cloudtrader", "cloud.csv")
+        explicit_n = normalize_frame(explicit, "thetrademarkk", "explicit.parquet")
+>       out, _ = compose([explicit_n, cloud_n])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/test_composite.py:113: 
+tests/test_composite.py:115: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-scripts/composite_data.py:151: in normalize_frame
-    .astype(str).agg("|".join, axis=1)
-                 ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
-    result = op.agg()
-             ^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
-    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
-    return op.apply().__finalize__(self, method="apply")
-           ^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
-    return self.apply_standard()
-           ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
-    results, res_index = self.apply_series_generator()
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/composite_data.py:222: in compose
+    base = base.sort_values(KEY + ["_rank"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:8355: in sort_values
+    indexer = lexsort_indexer(
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/sorting.py:354: in lexsort_indexer
+    cat = Categorical(k, ordered=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <pandas.core.apply.FrameColumnApply object at 0x7f8a09269640>
+self = <[AttributeError("'NoneType' object has no attribute 'categories'") raised in repr()] Categorical object at 0x7fd21a320370>
+values = array([datetime.date(2025, 1, 30), Timestamp('2025-01-30 00:00:00')],
+      dtype=object)
+categories = array([datetime.date(2025, 1, 30), Timestamp('2025-01-30 00:00:00')],
+      dtype=object)
+ordered = True
+dtype = CategoricalDtype(categories=None, ordered=True, categories_dtype=None)
+copy = True
 
-    def apply_series_generator(self) -> tuple[ResType, Index]:
-        assert callable(self.func)
+    def __init__(
+        self,
+        values,
+        categories=None,
+        ordered=None,
+        dtype: Dtype | None = None,
+        copy: bool = True,
+    ) -> None:
+        dtype = CategoricalDtype._from_values_or_dtype(
+            values, categories, ordered, dtype
+        )
+        # At this point, dtype is always a CategoricalDtype, but
+        # we may have dtype.categories be None, and we need to
+        # infer categories in a factorization step further below
     
-        series_gen = self.series_generator
-        res_index = self.result_index
+        if not is_list_like(values):
+            # GH#38433
+            raise TypeError("Categorical input must be list-like")
     
-        results = {}
+        # null_mask indicates missing values we want to exclude from inference.
+        # This means: only missing values in list-likes (not arrays/ndframes).
+        null_mask = np.array(False)
     
-        for i, v in enumerate(series_gen):
->           results[i] = self.func(v, *self.args, **self.kwargs)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E           TypeError: sequence item 1: expected str instance, float found
-
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
-__ test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle ___
-
-    def test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle():
-        from scripts.composite_data import normalize_frame, compose
-        cloud = pd.DataFrame([{
-            "Symbol": "NIFTY25JAN24000CE",
-            "Date": "2025-01-02",
-            "Time": "09:20:00",
-            "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
-            "Volume": 100, "OI": 1000,
-        }])
->       out, _ = compose([normalize_frame(cloud, "cloudtrader", "cloud.csv")])
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-tests/test_composite.py:130: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-scripts/composite_data.py:151: in normalize_frame
-    .astype(str).agg("|".join, axis=1)
-                 ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
-    result = op.agg()
-             ^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
-    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
-    return op.apply().__finalize__(self, method="apply")
-           ^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
-    return self.apply_standard()
-           ^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
-    results, res_index = self.apply_series_generator()
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <pandas.core.apply.FrameColumnApply object at 0x7f8a08dd8230>
-
-    def apply_series_generator(self) -> tuple[ResType, Index]:
-        assert callable(self.func)
+        # sanitize input
+        vdtype = getattr(values, "dtype", None)
+        if isinstance(vdtype, CategoricalDtype):
+            if dtype.categories is None:
+                dtype = CategoricalDtype(values.categories, dtype.ordered)
+        elif isinstance(values, range):
+            from pandas.core.indexes.range import RangeIndex
     
-        series_gen = self.series_generator
-        res_index = self.result_index
+            values = RangeIndex(values)
+        elif not isinstance(values, (ABCIndex, ABCSeries, ExtensionArray)):
+            values = com.convert_to_list_like(values)
+            if isinstance(values, list) and len(values) == 0:
+                # By convention, empty lists result in object dtype:
+                values = np.array([], dtype=object)
+            elif isinstance(values, np.ndarray):
+                if values.ndim > 1:
+                    # preempt sanitize_array from raising ValueError
+                    raise NotImplementedError(
+                        "> 1 ndim Categorical are not supported at this time"
+                    )
+                values = sanitize_array(values, None)
+            else:
+                # i.e. must be a list
+                arr = sanitize_array(values, None)
+                null_mask = isna(arr)
+                if null_mask.any():
+                    # We remove null values here, then below will re-insert
+                    #  them, grep "full_codes"
+                    arr_list = [values[idx] for idx in np.where(~null_mask)[0]]
     
-        results = {}
+                    # GH#44900 Do not cast to float if we have only missing values
+                    if arr_list or arr.dtype == "object":
+                        sanitize_dtype = None
+                    else:
+                        sanitize_dtype = arr.dtype
     
-        for i, v in enumerate(series_gen):
->           results[i] = self.func(v, *self.args, **self.kwargs)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E           TypeError: sequence item 1: expected str instance, float found
+                    arr = sanitize_array(arr_list, None, dtype=sanitize_dtype)
+                values = arr
+    
+        if dtype.categories is None:
+            if isinstance(values.dtype, ArrowDtype) and issubclass(
+                values.dtype.type, CategoricalDtypeType
+            ):
+                from pandas import Index
+    
+                if isinstance(values, Index):
+                    arr = values._data._pa_array.combine_chunks()
+                else:
+                    arr = extract_array(values)._pa_array.combine_chunks()
+                categories = arr.dictionary.to_pandas(types_mapper=ArrowDtype)
+                codes = arr.indices.to_numpy()
+                dtype = CategoricalDtype(categories, values.dtype.pyarrow_dtype.ordered)
+            else:
+                preserve_object = False
+                if isinstance(values, (ABCIndex, ABCSeries)) and values.dtype == object:
+                    # GH#61778
+                    preserve_object = True
+                if not isinstance(values, ABCIndex):
+                    # in particular RangeIndex xref test_index_equal_range_categories
+                    values = sanitize_array(values, None)
+                try:
+                    codes, categories = factorize(values, sort=True)
+                except TypeError as err:
+                    codes, categories = factorize(values, sort=False)
+                    if dtype.ordered:
+                        # raise, as we don't have a sortable data structure and so
+                        # the user should give us one by specifying categories
+>                       raise TypeError(
+                            "'values' is not ordered, please "
+                            "explicitly specify the categories order "
+                            "by passing in a categories argument."
+                        ) from err
+E                       TypeError: 'values' is not ordered, please explicitly specify the categories order by passing in a categories argument.
 
-/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/arrays/categorical.py:477: TypeError
 =========================== short test summary info ============================
-FAILED tests/test_composite.py::test_cloudtrader_symbol_date_time_normalization - TypeError: sequence item 1: expected str instance, float found
-FAILED tests/test_composite.py::test_cloudtrader_expiry_is_marked_inferred - TypeError: sequence item 1: expected str instance, float found
-FAILED tests/test_composite.py::test_symbol_month_resolves_against_explicit_source - TypeError: sequence item 1: expected str instance, float found
-FAILED tests/test_composite.py::test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle - TypeError: sequence item 1: expected str instance, float found
-4 failed, 17 passed in 2.15s
+FAILED tests/test_composite.py::test_symbol_month_resolves_against_explicit_source - TypeError: 'values' is not ordered, please explicitly specify the categories order by passing in a categories argument.
+1 failed, 32 passed in 3.15s
