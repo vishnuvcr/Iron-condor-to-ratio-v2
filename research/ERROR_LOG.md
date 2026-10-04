@@ -95,3 +95,6 @@
 
 
 | 2026-10-05 | 2 | RESEARCH-USE BUG | Initial partial-data implementation still called the strict cycle-boundary function before selecting `entry_mode=available`, so missing the deterministic first session could cause every partial cycle to be rejected before execution. | Refactored `run_cycle` so research-use mode independently requires the final pre-expiry session and selects the first observed session within the expiry month; strict mode is unchanged. Added a regression test that verifies execution reaches the partial-entry path. |
+
+
+| 2026-10-05 | 2 | TEST FIX | CI run 37232180287 failed 1/38 tests because the new partial-entry regression fixture returned an empty DataFrame without the option columns required by `select_contract`. | Added the expected empty-schema columns; production code was unchanged. |
