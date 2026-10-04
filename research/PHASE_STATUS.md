@@ -48,3 +48,7 @@ Phase 2 remains IN PROGRESS. Independent tester Review 9 identified that coverag
 
 ## 2026-10-04 — Gate 2 Review 10 remediation
 Phase 2 remains IN PROGRESS. Tester Review 10 found that an entirely missing monthly expiry could escape coverage because the expected set came from observed composite rows. The coverage gate now reads the staged primary-source manifest to derive the expected monthly expiry set and fails any missing cycle. Fresh CI and independent tester re-review are required before Gate 2 promotion.
+
+
+## 2026-10-04 — Gate 2 Review 11 remediation
+Phase 2 remains IN PROGRESS. Tester Review 11 required an NSE-specific session calendar rather than the BSE proxy. Developer added `research/NSE_FNO_HOLIDAYS_2021_2026.csv`, switched continuity validation to that calendar, added tests, and removed the unused exchange-calendars dependency. Fresh CI and independent tester re-review are required before Gate 2 promotion.
