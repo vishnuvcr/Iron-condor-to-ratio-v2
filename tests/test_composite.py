@@ -101,12 +101,14 @@ def test_symbol_month_resolves_against_explicit_source():
         "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
         "Volume": 100, "OI": 1000,
     }])
+    # The explicit frame supplies expiry provenance but is intentionally
+    # invalid on price so the resolved cloud row can be retained.
     explicit = pd.DataFrame([{
         "timestamp": "2025-01-02T09:20:00+05:30",
         "expiry": "2025-01-30",
         "strike": 24000,
         "option_type": "CE",
-        "open": 10.0, "high": 11.0, "low": 9.0, "close": 10.5,
+        "open": 0.0, "high": 0.0, "low": 0.0, "close": 0.0,
         "volume": 100, "open_interest": 1000,
     }])
     from scripts.composite_data import normalize_frame, compose
