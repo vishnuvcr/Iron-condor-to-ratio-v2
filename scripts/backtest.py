@@ -35,6 +35,14 @@ DATASET_CARD_URL = "https://huggingface.co/datasets/thetrademarkk/india-index-op
 
 
 def download_data(cache_root: Path, start: date, end: date) -> Tuple[List[Path], List[str]]:
+    composite = Path("results/composite/nifty_options_composite.parquet")
+    if composite.exists():
+        con = duckdb.connect()
+        exps = con.execute("SELECT DISTINCT CAST(expiry AS DATE) FROM read_parquet(?) WHERE expiry IS NOT NULL ORDER BY 1", [str(composite)]).fetchdf()
+        con.close()
+        remote_files = [f"COMPOSITE::{pd.Timestamp(e.iloc[0]).date().isoformat()}" for _, e in exps.iterrows()]
+        return [composite], remote_files
+
     token = os.getenv("HF_TOKEN")
     api = HfApi(token=token or None)
     files = api.list_repo_files(repo_id=REPO_ID, repo_type="dataset", revision="main")
@@ -86,7 +94,10 @@ def load_expiry_list(remote_files: List[str], start: date, end: date) -> List[da
     expiries = []
     for filename in remote_files:
         try:
-            expiry = date.fromisoformat(Path(filename).stem)
+            if filename.startswith("COMPOSITE::"):
+                expiry = date.fromisoformat(filename.split("::", 1)[1])
+            else:
+                expiry = date.fromisoformat(Path(filename).stem)
         except ValueError:
             continue
         if start <= expiry <= end:
@@ -95,16 +106,27 @@ def load_expiry_list(remote_files: List[str], start: date, end: date) -> List[da
 
 
 def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date: date) -> pd.DataFrame:
-    matching = [p for p in paths if p.stem == expiry.isoformat()]
-    if not matching:
-        return pd.DataFrame()
-    con = duckdb.connect()
-    sql = f"""
-    SELECT timestamp, strike, option_type, open, high, low, close, volume
-    FROM read_parquet({qpaths(matching)})
-    WHERE CAST(timestamp AS DATE) BETWEEN DATE '{start_date}' AND DATE '{end_date}'
-      AND timestamp IS NOT NULL
-    """
+    if len(paths) == 1 and paths[0].name == "nifty_options_composite.parquet":
+        matching = paths
+        con = duckdb.connect()
+        sql = f"""
+        SELECT timestamp, strike, option_type, open, high, low, close, volume
+        FROM read_parquet({qpaths(matching)})
+        WHERE CAST(timestamp AS DATE) BETWEEN DATE '{start_date}' AND DATE '{end_date}'
+          AND CAST(expiry AS DATE) = DATE '{expiry}'
+          AND timestamp IS NOT NULL
+        """
+    else:
+        matching = [p for p in paths if p.stem == expiry.isoformat()]
+        if not matching:
+            return pd.DataFrame()
+        con = duckdb.connect()
+        sql = f"""
+        SELECT timestamp, strike, option_type, open, high, low, close, volume
+        FROM read_parquet({qpaths(matching)})
+        WHERE CAST(timestamp AS DATE) BETWEEN DATE '{start_date}' AND DATE '{end_date}'
+          AND timestamp IS NOT NULL
+        """
     df = con.execute(sql).df()
     con.close()
     if df.empty:
@@ -678,12 +700,14 @@ def main():
         "open_interest", "trading_day", "symbol", "strike", "option_type", "expiry"
     ]
     schema_hash = hashlib.sha256("|".join(schema_fields).encode("utf-8")).hexdigest()
+    composite_manifest_path = out.parent / "composite" / "composite_manifest.json"
+    using_composite = bool(paths and paths[0].name == "nifty_options_composite.parquet")
     manifest = {
         "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
         "code_commit_sha": os.getenv("GITHUB_SHA", "unknown"),
-        "data_repository": REPO_ID,
-        "dataset_revision": dataset_revision(),
-        "dataset_card_url": DATASET_CARD_URL,
+        "data_repository": "composite_free_sources" if using_composite else REPO_ID,
+        "dataset_revision": "composite:" + (sha256_file(paths[0]) if using_composite else dataset_revision()),
+        "dataset_card_url": str(composite_manifest_path) if using_composite else DATASET_CARD_URL,
         "files": remote_files,
         "file_sha256": file_hashes,
         "schema_fields": schema_fields,
