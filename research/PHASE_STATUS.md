@@ -123,3 +123,7 @@ Latest strategy reset implementation is active. CI run 37230721613 failed at uni
 
 ## 2026-10-05 — calendar test fixture correction
 Phase 1 strategy-scope implementation remains under validation. CI run 37231086646 failed because the regression fixture expected the expiry date as the pre-expiry exit. Developer corrected the fixture to an actual NSE holiday boundary in March 2026. Gate 1 remains pending independent tester review; Gate 2 remains CLOSED and is not reopened by this test fix.
+
+
+## 2026-10-05 — Gate 1 Review 22 remediation
+Phase 1 remains under implementation validation. Independent tester Review 22 rejected implementation acceptance because the reversal condition had been silently fixed at combined short-leg delta 1.20. Developer parameterized and documented 1.20 as a modelling convention within the user-stated 0.80–1.30 range, added validation/tests, and defined the required sensitivity grid. Fresh CI and independent tester re-review are required. Gate 2 remains CLOSED.
