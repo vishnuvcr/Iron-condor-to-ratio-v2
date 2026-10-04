@@ -129,3 +129,17 @@ def test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle():
     }])
     out, _ = compose([normalize_frame(cloud, "cloudtrader", "cloud.csv")])
     assert out.empty
+
+
+def test_source_row_hash_is_generated_for_mixed_types():
+    raw = pd.DataFrame([{
+        "timestamp": "2025-01-02T09:20:00+05:30",
+        "expiry": "2025-01-30",
+        "strike": 24000.0,
+        "option_type": "CE",
+        "open": 10.0, "high": 11.0, "low": 9.0, "close": 10.5,
+        "volume": 100, "open_interest": 1000,
+    }])
+    out = normalize_frame(raw, "thetrademarkk", "sample.parquet")
+    assert isinstance(out.iloc[0]["source_row_hash"], str)
+    assert len(out.iloc[0]["source_row_hash"]) == 64
