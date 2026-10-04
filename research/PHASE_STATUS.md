@@ -38,3 +38,7 @@ Developer implemented tester findings F1-F3 from Gate 2 Review 6: expiry provena
 
 ## 2026-10-04 — disk-backed composite merge
 Phase 2 remains IN PROGRESS. The first composite build was too memory-intensive because it concatenated all monthly files in Pandas. Developer replaced it with a sequential DuckDB merge and restored cancellation of superseded code-data CI runs. Gate 2 remains closed pending fresh CI and independent tester review.
+
+
+## 2026-10-04 — consolidated CSV export
+Phase 2 remains IN PROGRESS. Added a deterministic DuckDB export of the validated composite to `results/composite/consolidated_options_data.csv` for Google Drive transfer. CSV promotion remains gated on successful CI and independent tester reconciliation against the Parquet composite.
