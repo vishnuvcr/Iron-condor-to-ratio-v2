@@ -310,6 +310,7 @@ def build_ratio(
     signal_ts: pd.Timestamp,
     expiry: date,
     df: pd.DataFrame,
+    rate: float,
     cycle: CycleResult,
     cost_model: CostModel,
     lot_size: int,
@@ -446,7 +447,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
                     return None
                 direction = "CALL_RATIO" if trigger == "CALL" else "PUT_RATIO"
                 snapshot_for_select = snap
-                built = build_ratio(snapshot_for_select, direction, "initial", ts, expiry, df, cycle, cost_model, lot_size)
+                built = build_ratio(snapshot_for_select, direction, "initial", ts, expiry, df, rate, cycle, cost_model, lot_size)
                 if built is None:
                     return None
                 new_positions, fill_ts = built
@@ -472,7 +473,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
                         new_direction = "PUT_RATIO" if direction == "CALL_RATIO" else "CALL_RATIO"
                         target_set = "initial"
                         reason = "ratio_reversal"
-                    built = build_ratio(snap, new_direction, target_set, ts, expiry, df, cycle, cost_model, lot_size)
+                    built = build_ratio(snap, new_direction, target_set, ts, expiry, df, rate, cycle, cost_model, lot_size)
                     if built is None:
                         return None
                     new_positions, fill_ts = built
