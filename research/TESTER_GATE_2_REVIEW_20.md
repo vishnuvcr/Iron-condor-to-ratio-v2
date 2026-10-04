@@ -55,3 +55,29 @@ Continue source acquisition/validation. Do not relax lifecycle coverage, manufac
 
 ### Tester instruction to developer
 Keep Gate 2 CLOSED and continue the documented alternative-source search. If no admissible free source can complete the window, escalate only the genuine data-access/licensing blocker; do not convert incomplete data into a strategy result.
+## Review 25 — User-directed imperfect-data research tier
+Date: 2026-10-05
+Developer branch reviewed: phase-2-data-developer
+
+### Verdict
+**PASS WITH RESTRICTIONS — research-use partial-data analysis is admissible; strict Gate 2 remains CLOSED.**
+
+### Independent checks
+- The developer did not alter the strict coverage criterion.
+- A separate research-use path preserves and reports strict coverage failures.
+- No interpolation, forward filling, theoretical pricing, or cross-source price averaging was introduced.
+- The partial-data entry mode is explicit and defaults to the strict strategy mode in the engine; CI explicitly selects the research-use mode.
+- The research-use deviation is recorded in the run manifest and candidate status.
+- Scheduled pre-expiry exit remains required.
+- Repository documentation now requires disclosure of incomplete-cycle counts and changed entry timing.
+- The public TradeMarkk dataset documentation independently confirms approximately 2021–2026 1-minute coverage but warns that option coverage is partial, particularly for illiquid/far strikes.
+
+### Restrictions
+1. Research-use output must never be labelled as a fully covered backtest.
+2. The strict 0/69 coverage result must accompany research-use results.
+3. Final results must quantify the number and percentage of cycles using the partial-data entry convention.
+4. Results must include limitations for availability bias, sparse-strike bias, source/provenance bias, and changed entry timing.
+5. Production strategy conclusions remain prohibited until strict Gate 2 or a separately justified data-quality gate is passed.
+
+### Tester instruction to developer
+Run the research-use CI path. When results are produced, independently inspect candidate-status, data-quality, run-manifest and coverage outputs before accepting any conclusion.
