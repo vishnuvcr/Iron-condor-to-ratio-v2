@@ -206,6 +206,18 @@ jobs:
         run: |
           set -o pipefail
           PYTHONPATH=. python scripts/backtest.py             --start "${{ inputs.start || '2021-01-01' }}"             --end "${{ inputs.end || '2026-09-30' }}"             --brokerage "${{ inputs.brokerage || '20' }}"             --slippage-ticks "${{ inputs.slippage_ticks || '1' }}" --entry-mode "${{ inputs.entry_mode || 'available' }}" 2>&1 | tee backtest-output.txt
+      - name: Prepare compact result bundle
+        run: |
+          set -e
+          mkdir -p results/compact
+          cp results/metrics.json results/trade_summary.csv results/order_log.csv results/candidate_status.csv results/data_quality.csv results/data_coverage.csv results/run_manifest.json results/compact/
+          cp results/composite/csv_reconciliation.json results/composite/research_use_data_status.json results/compact/
+          cp backtest-output.txt results/compact/backtest-output.txt
+      - name: Upload compact results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-results-compact
+          path: results/compact/
       - name: Upload run artifact
         uses: actions/upload-artifact@v4
         with:
@@ -214,10 +226,13 @@ jobs:
             results/
             composite-csv-export.txt
             composite-csv-reconciliation.txt
-      - name: Commit results
+      - name: Commit compact results
         run: |
           git config user.name "research-bot"
           git config user.email "research-bot@users.noreply.github.com"
-          git add results/
-          git diff --cached --quiet || git commit -m "Record automated backtest results"
-          git push
+          git fetch origin "${GITHUB_REF_NAME}"
+          git checkout "${GITHUB_REF_NAME}"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git add results/metrics.json results/trade_summary.csv results/order_log.csv results/candidate_status.csv results/data_quality.csv results/data_coverage.csv results/run_manifest.json results/composite/csv_reconciliation.json results/composite/research_use_data_status.json
+          git diff --cached --quiet || git commit -m "Record compact automated backtest results"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
