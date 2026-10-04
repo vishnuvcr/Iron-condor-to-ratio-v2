@@ -36,3 +36,29 @@ The tester does not approve any historical performance result until the data sou
 
 ## Tester instruction to developer
 Implement only the revised strategy. Resolve the listed modelling conventions explicitly, add regression tests, then resubmit the implementation for independent tester review before production backtesting.
+
+## Review 22 — Independent implementation re-check
+Date: 2026-10-05
+Developer branch reviewed: phase-2-data-developer
+
+### Verdict
+**FAIL / RESUBMISSION REQUIRED before Gate 1 implementation acceptance.**
+
+### Findings
+1. The developer correctly removed 32-DTE logic from the current cycle boundary and the unit-test suite is now passing in CI run 37231175290.
+2. Initial entry timing is explicitly documented as a modelling convention (09:20 signal), and execution is causal via the next available bar open.
+3. Same-bar IC trigger selection is deterministic through the delta comparison/tie-break logic.
+4. Costs and slippage are applied through the order path.
+5. **Blocking issue: reversal condition is not yet faithfully/explicitly resolved.** The production engine currently triggers reversal when the combined absolute delta of the two short ratio legs reaches >= 1.20. The user-defined rule states a short-leg delta condition in the 0.80–1.30 range, and the strategy specification itself says the precise interpretation requires validation. The implementation therefore silently chooses a combined-delta threshold without documenting the rationale or providing the required sensitivity analysis.
+6. The current strategy specification records the ambiguity but does not yet make the selected production convention and sensitivity protocol operational in the backtest.
+7. The continuation condition is implemented as combined short-leg delta <= 0.20; this directionality must also be regression-tested as a threshold-crossing rule rather than merely an algebraic statement.
+
+### Required remediation
+- Explicitly document the baseline modelling convention for the reversal range without attributing that convention to the user's strategy.
+- Add deterministic regression tests for reversal interpretation and continuation threshold crossing.
+- Add a sensitivity configuration covering admissible reversal interpretations/thresholds before any production performance result is accepted.
+- Resubmit the developer branch for independent tester review.
+- Gate 2 remains CLOSED regardless of Gate 1 status.
+
+### Tester instruction to developer
+Do not run or publish production strategy performance until this implementation gate is remediated and independently re-reviewed.
