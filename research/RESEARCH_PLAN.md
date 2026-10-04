@@ -1,7 +1,7 @@
 # Research Plan
 
 ## Research question
-Does the video strategy — starting with a monthly NIFTY Iron Condor and switching to a directional ratio spread when the condor's short leg reaches about 0.10 delta — produce robust risk-adjusted returns after realistic Indian option-trading costs and slippage?
+Does the latest user-defined NIFTY strategy — monthly 0.30/0.10 Iron Condor, 0.10-delta breakout transition, directional ratio spread, 0.20 continuation reset, and 0.80–1.30 reversal rule — produce robust risk-adjusted returns after realistic Indian option-trading costs and slippage?
 
 ## Secondary questions
 1. How often does the initial Iron Condor reach the transition trigger?
