@@ -81,3 +81,8 @@ Tester Review 14 identified that latest-expiry-per-month was insufficient becaus
 
 ## 2026-10-04 — Pandas 3.x expiry-dtype remediation
 CI run 37225753011 stopped at unit tests: 32 passed, 1 failed because explicit and symbol-resolved expiry values had incompatible date/Timestamp dtypes under Pandas 3.0.6. Independent Tester Review 15 recorded the finding. Developer standardized canonical expiry dtype before concatenation and added a regression test. Gate 2 remains closed pending fresh CI.
+
+
+## 2026-10-04 — test fixture correction and CI diagnostics hardening
+CI run 37225959932 reached 33 passed / 1 failed after the expiry dtype fix. The remaining failure was a latent test-fixture error: it expected a lower-priority cloud row to replace a valid primary row with the same key. Developer corrected the fixture to make the primary price invalid while retaining its expiry provenance, and kept a separate mixed-dtype regression test.
+The same run exposed a failure-handler race: git pushes from CI were rejected as non-fast-forward when the developer branch had advanced. Developer removed failure-time pushes and switched diagnostics to artifact uploads.
