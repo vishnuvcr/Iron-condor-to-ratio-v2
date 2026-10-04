@@ -26,9 +26,9 @@ The published video is the primary specification. Ambiguities are preserved and 
 ## Current gate
 **Gate 2 / Phase 2 — data engineering: IN PROGRESS.**
 
-The current 2024–2026 pipeline detected 19 monthly expiries. This is **not** the final historical sample. It is being treated as a pipeline-validation sample only.
+The prior expanded pipeline detected 23 candidate monthly expiries but only 15 complete trades; 2022/2023 continuity was not established. That result is **validation-only**, not a final historical sample. Phase 2 now uses the expiry-partitioned 2021–2026 NIFTY source and must pass independent coverage/provenance checks.
 
 ### Historical expansion
-A multi-year expansion assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). Candidate sources include NSE official data, a public Hugging Face 1-minute index/options dataset covering approximately 2021–2026, and a Zenodo NIFTY 1-minute dataset covering 2017–2020. Sources will not be stitched into a production result until overlap, timestamp, contract, strike, and data-quality checks pass.
+A multi-year expansion assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate is the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; the rissin source is retained for overlap validation, with NSE and Zenodo sources as independent references/candidates. Sources will not be stitched into a production result until overlap, timestamp, contract, strike, and data-quality checks pass.
 
 **No final performance conclusion will be accepted until the independent tester approves historical coverage and provenance.**
