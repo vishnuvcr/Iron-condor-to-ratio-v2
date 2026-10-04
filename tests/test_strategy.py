@@ -222,7 +222,11 @@ def test_research_use_available_entry_does_not_require_strict_first_session(monk
     )
     seen = {"nearest_bar": 0}
     monkeypatch.setattr(bt, "nearest_bar", lambda data, target: seen.__setitem__("nearest_bar", 1) or ts)
-    monkeypatch.setattr(bt, "snapshot_at", lambda data, target: pd.DataFrame())
+    monkeypatch.setattr(
+        bt,
+        "snapshot_at",
+        lambda data, target: pd.DataFrame(columns=["option_type", "close", "volume", "forward", "strike", "timestamp"]),
+    )
     cycle = bt.run_cycle(df, date(2026, 7, 28), 0.0, CostModel(), entry_mode="available")
     assert cycle is None
     assert seen["nearest_bar"] == 1
