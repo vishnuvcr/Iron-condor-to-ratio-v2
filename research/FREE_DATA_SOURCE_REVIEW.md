@@ -62,3 +62,7 @@ The project now attempts a composite dataset when a free source has invalid or m
 
 ## 2026-10-04 builder optimization
 The composite merge was changed from whole-history Pandas concatenation to a disk-backed DuckDB sequential merge. Source rows are validated one file at a time; higher-priority rows remain authoritative, lower-priority exact-key rows fill missing observations, and overlap diagnostics are aggregated by source/file.
+
+
+## 2026-10-04 — rissin composite fallback
+The public rissin dataset is now promoted to the first exact-key fallback for 2024–2026. Its Upstox NIFTY partitions provide explicit expiry, strike, CE/PE, IST timestamp and 1-minute OHLC/volume. Intraday OI is documented as unavailable, which is acceptable for the baseline delta engine because OI is not a strategy signal. The composite will use rissin for missing/invalid price rows and overlap validation, never by interpolating prices. [Dataset evidence](https://huggingface.co/datasets/rissin/nse-options-intraday).
