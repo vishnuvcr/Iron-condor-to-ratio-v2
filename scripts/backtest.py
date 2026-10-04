@@ -20,6 +20,7 @@ from src.strategy_engine import (
     Position,
     TICK,
     black76_delta_from_forward,
+    black76_delta_from_price,
     implied_vol_black76,
     lot_size_for_monthly_expiry,
     monthly_expiries,
@@ -136,7 +137,7 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
     t = (pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - df["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     t = np.maximum(t.values, 1e-6)
     is_call = df["option_type"].values == "CE"
-    delta = implied_vol_black76(
+    delta = black76_delta_from_price(
         df["forward"].values,
         df["strike"].values,
         t,
