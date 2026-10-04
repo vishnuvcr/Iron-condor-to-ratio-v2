@@ -53,6 +53,13 @@ def download_data(cache_root: Path) -> List[Path]:
     return paths
 
 
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
 def dataset_revision() -> str:
     token = os.getenv("HF_TOKEN")
     try:
@@ -548,13 +555,19 @@ def main():
     all_cycles = []
     quality = []
     all_orders = []
+    coverage = []
+    candidate_status = []
 
     for expiry in expiry_list:
         entry_start = expiry - timedelta(days=35)
         df = load_cycle_data(paths, expiry, entry_start, expiry - timedelta(days=1))
         if df.empty:
+            candidate_status.append({"expiry": str(expiry), "status": "SKIPPED_EMPTY_DATA", "reason": "No contract rows in cycle window"})
             quality.append({"expiry": str(expiry), "status": "EMPTY"})
             continue
+        cycle_min_ts = str(df["timestamp"].min())
+        cycle_max_ts = str(df["timestamp"].max())
+        coverage.append({"expiry": str(expiry), "min_timestamp": cycle_min_ts, "max_timestamp": cycle_max_ts, "rows": len(df)})
         dup = int(df.duplicated(["timestamp", "strike", "option_type"]).sum())
         neg_volume = int((df["volume"] < 0).sum())
         non_monotonic_contracts = 0
@@ -577,6 +590,7 @@ def main():
             cycle = run_cycle(df, expiry, args.rate, cm)
             if cycle is not None:
                 all_cycles.append(cycle)
+                candidate_status.append({"expiry": str(expiry), "status": "TRADED", "reason": "Complete entry/adjustment/exit execution"})
                 for o in cycle.orders:
                     all_orders.append({
                         "expiry": o.cycle_expiry,
@@ -590,13 +604,18 @@ def main():
                         "cost": o.costs["total"],
                         "reason": o.reason,
                     })
+            else:
+                candidate_status.append({"expiry": str(expiry), "status": "SKIPPED_NO_COMPLETE_EXECUTION", "reason": "Cycle did not have a complete executable path"})
         except Exception as exc:
+            candidate_status.append({"expiry": str(expiry), "status": "ERROR", "reason": repr(exc)})
             quality.append({"expiry": str(expiry), "status": "ERROR", "error": repr(exc)})
 
     trades = summarize(all_cycles)
     trades.to_csv(out / "trade_summary.csv", index=False)
     pd.DataFrame(all_orders).to_csv(out / "order_log.csv", index=False)
     pd.DataFrame(quality).to_csv(out / "data_quality.csv", index=False)
+    pd.DataFrame(candidate_status).to_csv(out / "candidate_status.csv", index=False)
+    pd.DataFrame(coverage).to_csv(out / "data_coverage.csv", index=False)
 
     metrics = metrics_df(trades)
     (out / "metrics.json").write_text(json.dumps(metrics, indent=2, default=str))
@@ -633,6 +652,8 @@ def main():
         "slippage_ticks": args.slippage_ticks,
         "tick": TICK,
         "created_utc": datetime.utcnow().isoformat() + "Z",
+        "data_coverage": coverage,
+        "candidate_status_file": "candidate_status.csv",
     }
     (out / "run_manifest.json").write_text(json.dumps(manifest, indent=2))
     print(json.dumps({"metrics": metrics, "expiries": [str(x) for x in expiry_list]}, indent=2))
