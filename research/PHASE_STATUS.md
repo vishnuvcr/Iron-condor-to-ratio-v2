@@ -127,3 +127,7 @@ Phase 1 strategy-scope implementation remains under validation. CI run 372310866
 
 ## 2026-10-05 — Gate 1 Review 22 remediation
 Phase 1 remains under implementation validation. Independent tester Review 22 rejected implementation acceptance because the reversal condition had been silently fixed at combined short-leg delta 1.20. Developer parameterized and documented 1.20 as a modelling convention within the user-stated 0.80–1.30 range, added validation/tests, and defined the required sensitivity grid. Fresh CI and independent tester re-review are required. Gate 2 remains CLOSED.
+
+
+## 2026-10-05 — threshold regression test correction
+Phase 1 remains under implementation validation. CI run 37231284204 reached 35 passing tests and one fixture failure in the newly added threshold test. The production parameter validation was not implicated; the empty-data fixture was corrected. Fresh CI and tester re-review remain required. Gate 2 remains CLOSED.
