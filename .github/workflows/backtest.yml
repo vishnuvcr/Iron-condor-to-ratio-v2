@@ -37,9 +37,54 @@ permissions:
   contents: write
 
 jobs:
-  test-and-backtest:
+  unit-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt pytest
+      - name: Unit tests
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python -m pytest -q 2>&1 | tee ci-test-output.txt
+      - name: Upload test output
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-output
+          path: ci-test-output.txt
+
+  build-partition:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - year: 2021
+            start: "2021-01-01"
+            end: "2021-12-31"
+          - year: 2022
+            start: "2022-01-01"
+            end: "2022-12-31"
+          - year: 2023
+            start: "2023-01-01"
+            end: "2023-12-31"
+          - year: 2024
+            start: "2024-01-01"
+            end: "2024-12-31"
+          - year: 2025
+            start: "2025-01-01"
+            end: "2025-12-31"
+          - year: 2026
+            start: "2026-01-01"
+            end: "2026-09-30"
     env:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       HF_HOME: ~/.cache/huggingface
@@ -47,11 +92,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Cache Hugging Face data
         uses: actions/cache@v4
         with:
@@ -61,68 +104,103 @@ jobs:
           key: hf-trademarkk-nifty-expiry-options-v1-${{ runner.os }}-2021-2026
           restore-keys: |
             hf-trademarkk-nifty-expiry-options-v1-${{ runner.os }}-
-
       - name: Install
-        run: pip install -r requirements.txt pytest
-
-
-      - name: Unit tests
-        run: |
-          set -o pipefail
-          PYTHONPATH=. python -m pytest -q 2>&1 | tee ci-test-output.txt
-
+        run: pip install -r requirements.txt
       - name: Stage free sources
         run: |
           set -o pipefail
-          PYTHONPATH=. python scripts/stage_free_sources.py \
-            --start "${{ inputs.start || '2021-01-01' }}" \
-            --end "${{ inputs.end || '2026-09-30' }}" \
-            --cache-root data/cache 2>&1 | tee free-source-staging.txt
-
-      - name: Build composite dataset
+          PYTHONPATH=. python scripts/stage_free_sources.py             --start "${{ matrix.start }}"             --end "${{ matrix.end }}"             --cache-root data/cache 2>&1 | tee free-source-staging-${{ matrix.year }}.txt
+      - name: Build composite partition
         run: |
           set -o pipefail
-          PYTHONPATH=. python scripts/composite_data.py 2>&1 | tee composite-build.txt
+          PYTHONPATH=. python scripts/composite_data.py             --start "${{ matrix.start }}"             --end "${{ matrix.end }}"             --out "results/partitions/${{ matrix.year }}" 2>&1 | tee composite-build-${{ matrix.year }}.txt
+      - name: Upload partition
+        uses: actions/upload-artifact@v4
+        with:
+          name: composite-partition-${{ matrix.year }}
+          path: |
+            results/partitions/${{ matrix.year }}/nifty_options_composite.parquet
+            results/partitions/${{ matrix.year }}/composite_manifest.json
+            composite-build-${{ matrix.year }}.txt
+            free-source-staging-${{ matrix.year }}.txt
 
+  assemble-and-backtest:
+    needs: build-partition
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_HOME: ~/.cache/huggingface
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cache Hugging Face data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            data/cache
+          key: hf-trademarkk-nifty-expiry-options-v1-${{ runner.os }}-2021-2026
+          restore-keys: |
+            hf-trademarkk-nifty-expiry-options-v1-${{ runner.os }}-
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Download partition artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: composite-partition-*
+          path: results/partitions
+          merge-multiple: false
+      - name: Normalize partition artifact layout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root = Path("results/partitions")
+          for d in list(root.glob("composite-partition-*")):
+              year = d.name.rsplit("-", 1)[-1]
+              target = root / year
+              target.mkdir(parents=True, exist_ok=True)
+              for p in d.rglob("*"):
+                  if p.is_file():
+                      dest = target / p.name
+                      if not dest.exists():
+                          dest.write_bytes(p.read_bytes())
+          PY
+      - name: Assemble composite
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python scripts/merge_composite_partitions.py 2>&1 | tee composite-merge.txt
       - name: Check composite coverage
         run: |
           set -o pipefail
           PYTHONPATH=. python scripts/check_composite_coverage.py 2>&1 | tee composite-coverage.txt
-
       - name: Export consolidated options CSV
         run: |
           set -o pipefail
           PYTHONPATH=. python scripts/export_composite_csv.py 2>&1 | tee composite-csv-export.txt
-
       - name: Reconcile CSV against Parquet
         run: |
           set -o pipefail
           PYTHONPATH=. python scripts/reconcile_composite_csv.py 2>&1 | tee composite-csv-reconciliation.txt
-
       - name: Upload diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: backtest-diagnostics
           path: |
-            free-source-staging.txt
-            composite-build.txt
+            composite-merge.txt
             composite-coverage.txt
             composite-csv-export.txt
             composite-csv-reconciliation.txt
-            ci-test-output.txt
-            backtest-output.txt
           if-no-files-found: ignore
-
       - name: Run backtest
         run: |
           set -o pipefail
-          PYTHONPATH=. python scripts/backtest.py \
-            --start "${{ inputs.start || '2021-01-01' }}" \
-            --end "${{ inputs.end || '2026-09-30' }}" \
-            --brokerage "${{ inputs.brokerage || '20' }}" \
-            --slippage-ticks "${{ inputs.slippage_ticks || '1' }}" 2>&1 | tee backtest-output.txt
-
+          PYTHONPATH=. python scripts/backtest.py             --start "${{ inputs.start || '2021-01-01' }}"             --end "${{ inputs.end || '2026-09-30' }}"             --brokerage "${{ inputs.brokerage || '20' }}"             --slippage-ticks "${{ inputs.slippage_ticks || '1' }}" 2>&1 | tee backtest-output.txt
       - name: Upload run artifact
         uses: actions/upload-artifact@v4
         with:
@@ -131,7 +209,6 @@ jobs:
             results/
             composite-csv-export.txt
             composite-csv-reconciliation.txt
-
       - name: Commit results
         run: |
           git config user.name "research-bot"
