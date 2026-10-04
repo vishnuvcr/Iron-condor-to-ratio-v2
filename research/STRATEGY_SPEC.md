@@ -44,15 +44,14 @@ Primary baseline model:
 - Forward price F at each timestamp is estimated from call-put parity:
   F_i = K + C_i - P_i
   for strikes with simultaneously positive call and put prices.
-- Use the median F_i across liquid near-ATM strikes at that timestamp.
+- At each timestamp, take all strikes with both call and put volume > 0 and positive premium; use the cross-sectional median active strike K_med, retain paired strikes with 0.90*K_med <= K_i <= 1.10*K_med, and take the median F_i from those pairs.
 - Implied volatility is solved numerically from the observed option close and the estimated forward.
-- Call delta = N(d1).
-- Put delta = -N(-d1).
+- For a general rate r, DF = exp(-rT), call delta = DF*N(d1), and put delta = -DF*N(-d1). For the baseline r=0, these reduce to N(d1) and -N(-d1).
 - If the observed premium is at/below intrinsic value within a small numerical tolerance, use the limiting delta rather than an unstable IV.
 - If IV cannot be solved, that contract is ineligible for delta targeting on that timestamp.
 
 Sensitivity models:
-- r = 5% and r = 6% with the same parity framework.
+- r = 5% and r = 6%, using DF=exp(-rT) and forward parity F_i = K_i + (C_i-P_i)/DF.
 - Where a validated source supplies IV/Greeks directly, it may be used as a cross-check, not as a silent replacement.
 
 ### Delta target selection
@@ -60,7 +59,7 @@ At a decision timestamp, select among valid monthly-expiry contracts:
 - positive premium;
 - positive volume on the signal bar;
 - valid model delta;
-- strike within a broad liquidity window around estimated forward;
+- strike within 15% of estimated forward (0.85*F <= K <= 1.15*F);
 - closest absolute delta to the target.
 
 The engine records target delta, achieved delta, strike, and selection timestamp.
@@ -118,10 +117,10 @@ For a sell, fill = max(0, reference price - slippage_ticks*0.05).
 
 ### Lot sizes
 Lot size is mapped by the actual contract/expiry regime, not by a simple trade-date constant.
-For the main production window:
-- NIFTY monthly expiries through 2025-12-30 use the then-existing 75-lot regime for the post-Nov-2024 production window.
-- NIFTY monthly expiries from 2026-01-27 use 65.
-A separate pre-75-lot historical segment is reported by points or with an explicit lot-size mapping from NSE contract files.
+For the main production window beginning 2025-01-01:
+- monthly expiries through 2025-12-30 use 75;
+- monthly expiries from 2026-01-27 use 65.
+A separate pre-2025 segment is reported only with an explicit NSE contract-file lot-size mapping.
 
 ### Benchmarks
 At minimum:
