@@ -7,7 +7,6 @@ from datetime import date
 from pathlib import Path
 
 import duckdb
-import exchange_calendars as xc
 import pandas as pd
 
 from scripts.backtest import entry_and_exit_dates
@@ -73,8 +72,6 @@ def main():
     con.close()
 
     by_expiry = {pd.Timestamp(row["expiry"]).date(): row for _, row in summary.iterrows()}
-    cal = xc.get_calendar("XBSE")
-
     rows = []
     failures = []
 
@@ -113,11 +110,7 @@ def main():
         missing_sessions = 0
 
         if entry and exit_date:
-            sessions = cal.sessions_in_range(
-                pd.Timestamp(entry),
-                pd.Timestamp(exit_date),
-            )
-            expected = {ts.date() for ts in sessions}
+            expected = set(nse_fno_sessions(entry, exit_date))
             con = duckdb.connect()
             observed_df = con.execute(
                 """
