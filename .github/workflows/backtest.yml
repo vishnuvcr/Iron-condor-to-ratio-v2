@@ -64,6 +64,12 @@ jobs:
       - name: Install
         run: pip install -r requirements.txt pytest
 
+
+      - name: Unit tests
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python -m pytest -q 2>&1 | tee ci-test-output.txt
+
       - name: Stage free sources
         run: |
           set -o pipefail
@@ -91,11 +97,6 @@ jobs:
         run: |
           set -o pipefail
           PYTHONPATH=. python scripts/reconcile_composite_csv.py 2>&1 | tee composite-csv-reconciliation.txt
-
-      - name: Unit tests
-        run: |
-          set -o pipefail
-          PYTHONPATH=. python -m pytest -q 2>&1 | tee ci-test-output.txt
 
       - name: Record diagnostic output
         if: failure()
