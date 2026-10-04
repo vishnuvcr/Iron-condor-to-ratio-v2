@@ -1,6 +1,6 @@
 {
   "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
-  "code_commit_sha": "61f86597ab66100ad24fb3c09e59c2ea07e1aba2",
+  "code_commit_sha": "4b3643c201b0ade5a4986b67122d6c9cfb027ede",
   "data_repository": "thetrademarkk/india-index-options-1m",
   "dataset_revision": "0f4800e43e6f96cec0794369d78eb4d3c4211ef5",
   "dataset_card_url": "https://huggingface.co/datasets/thetrademarkk/india-index-options-1m",
@@ -564,7 +564,7 @@
   "brokerage": 20.0,
   "slippage_ticks": 1,
   "tick": 0.05,
-  "created_utc": "2026-10-04T17:17:47.579315Z",
+  "created_utc": "2026-10-04T17:30:02.583986Z",
   "data_coverage": [
     {
       "expiry": "2021-05-27",

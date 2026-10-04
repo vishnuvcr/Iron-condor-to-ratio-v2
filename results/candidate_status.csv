@@ -61,5 +61,5 @@ expiry,status,reason
 2026-04-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2026-05-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2026-06-09,SKIPPED_EMPTY_DATA,No contract rows in cycle window
-2026-07-28,TRADED,Complete entry/adjustment/exit execution
+2026-07-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2026-08-04,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
