@@ -137,16 +137,45 @@ def implied_vol_black76(
     residual = np.abs(model - price)
     valid = valid & (residual <= 0.02)
 
-    delta = black76_delta_from_forward(forward, strike, t, sigma, rate, is_call)
-
-    # Limiting deltas for premiums at or extremely close to intrinsic value.
+    # Return the solved implied volatility; delta from an observed premium is computed separately.
     limiting_call = np.where(forward > strike, df, np.where(forward < strike, 0.0, 0.5 * df))
     limiting_put = np.where(forward > strike, 0.0, np.where(forward < strike, -df, -0.5 * df))
     near_intrinsic = price <= intrinsic + 1e-7
     limit_delta = np.where(is_call, limiting_call, limiting_put)
     delta = np.where(near_intrinsic, limit_delta, delta)
-    delta = np.where(valid | near_intrinsic, delta, np.nan)
-    return delta
+    sigma = np.where(valid, sigma, np.nan)
+    return sigma
+
+
+def black76_delta_from_price(
+    forward: np.ndarray,
+    strike: np.ndarray,
+    t: np.ndarray,
+    price: np.ndarray,
+    is_call: np.ndarray,
+    rate: float,
+) -> np.ndarray:
+    sigma = implied_vol_black76(forward, strike, t, price, is_call, rate)
+    df = np.exp(-rate * t)
+    sqrt_t = np.sqrt(np.maximum(t, 1e-12))
+    safe_sigma = np.maximum(np.nan_to_num(sigma, nan=0.0), 1e-8)
+    d1 = (
+        np.log(np.maximum(forward, 1e-12) / np.maximum(strike, 1e-12))
+        + 0.5 * safe_sigma**2 * t
+    ) / (safe_sigma * sqrt_t)
+    call_delta = df * ndtr(d1)
+    put_delta = -df * ndtr(-d1)
+    delta = np.where(is_call, call_delta, put_delta)
+
+    df = np.exp(-rate * t)
+    intrinsic_call = df * np.maximum(forward - strike, 0.0)
+    intrinsic_put = df * np.maximum(strike - forward, 0.0)
+    intrinsic = np.where(is_call, intrinsic_call, intrinsic_put)
+    near_intrinsic = np.isfinite(price) & (price <= intrinsic + 1e-7)
+    limiting_call = np.where(forward > strike, df, np.where(forward < strike, 0.0, 0.5 * df))
+    limiting_put = np.where(forward > strike, 0.0, np.where(forward < strike, -df, -0.5 * df))
+    limit_delta = np.where(is_call, limiting_call, limiting_put)
+    return np.where(near_intrinsic, limit_delta, delta)
 
 
 @dataclass
