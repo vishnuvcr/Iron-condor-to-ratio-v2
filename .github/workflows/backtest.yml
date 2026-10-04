@@ -2,17 +2,18 @@ name: Backtest Strategy
 
 concurrency:
   group: phase2-backtest-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 on:
   push:
     branches: [phase-2-data-developer]
-    paths-ignore:
-      - "results/**"
-      - "research/PHASE_STATUS.md"
-      - "research/ERROR_LOG.md"
-      - "ci-test-output.txt"
-      - "backtest-output.txt"
+    paths:
+      - ".github/workflows/backtest.yml"
+      - "scripts/**"
+      - "src/**"
+      - "tests/**"
+      - "requirements.txt"
+      - "data/**"
   workflow_dispatch:
     inputs:
       start:
