@@ -61,7 +61,11 @@ If the market reverses and the short-leg delta reaches the stated 0.80–1.30 ra
 - No look-ahead information may be used.
 
 ## Deterministic implementation conventions requiring validation
-The supplied strategy does not specify an exact clock time for initial deployment, order-fill timing, the precise interpretation of the 0.80–1.30 reversal range, or the exact treatment when both IC short legs trigger simultaneously. These will be documented as modelling conventions and tested for sensitivity rather than attributed to the user.
+The supplied strategy does not specify an exact clock time for initial deployment, order-fill timing, the precise interpretation of the 0.80–1.30 reversal range, or the exact treatment when both IC short legs trigger simultaneously. These are modelling conventions, not user rules.
+
+Baseline implementation convention for the reversal range: use the combined absolute delta of the two short ratio legs and trigger reversal at 1.20. This is explicitly a modelling convention because 1.20 lies within the stated 0.80–1.30 range; it is not presented as the user's exact threshold. The production research must include sensitivity runs at 0.80, 1.00, 1.20 and 1.30 before a performance conclusion is accepted.
+
+Continuation is parameterized at the specified approximately-0.20 combined short-leg delta threshold. The baseline is 0.20, with no alternative value treated as part of the strategy unless documented as sensitivity analysis.
 
 ## Delta model
 Use the existing validated Black-76/parity framework for historical delta estimation, with the model and rate assumptions explicitly reported. Delta selection records target, achieved delta, strike, timestamp, and model parameters.
