@@ -109,3 +109,41 @@ Run the research-use CI path. When results are produced, independently inspect c
 - Require separate reversal sensitivity at 0.80/1.00/1.20/1.30 before robustness conclusions.
 
 **Instructions to developer:** Do not promote performance results or advance to the next research phase until the current backtest artifacts are independently inspected and the tester either passes the performance gate or records a specific remediation. If the run times out, remediate performance without weakening the strategy or data-integrity rules.
+
+
+## Tester Review 27 — First research-use performance result (2026-10-05)
+
+### Independent result check
+CI run **37232849676** completed the backtest successfully after all structural checks passed.
+
+The backtest command explicitly used research-use `--entry-mode available`, brokerage **₹20/order**, and **1 option tick** of adverse slippage.
+
+Observed performance printed by the workflow:
+- traded cycles: **28**
+- total net P&L: **−₹20,455.46**
+- average net P&L: **−₹730.55**
+- median net P&L: **−₹433.80**
+- win rate: **46.43%**
+- profit factor: **0.647**
+- maximum drawdown: **−₹41,981.20**
+- 5th percentile monthly P&L: **−₹10,542.68**
+- 95th percentile monthly P&L: **₹4,464.95**
+- return on ₹1 lakh reference capital: **−20.46%**
+- annualized monthly Sharpe proxy: **−0.541**
+
+The run considered 65 observed monthly-expiry candidates in the available dataset window, versus 69 requested calendar months. Thus the traded sample is approximately **43.1% of observed expiry candidates** and **40.6% of requested months**.
+
+### Tester interpretation
+The baseline research-use implementation **does not demonstrate a profitable edge**. The negative net P&L, profit factor below 1, negative Sharpe proxy, and substantial drawdown all point against promoting the strategy in its current baseline form.
+
+However, this is **not yet a final scientific conclusion**, because the sample is availability-biased and incomplete, the strict Gate 2 remains closed, and reversal-threshold robustness has not yet been run.
+
+### Decision
+**PERFORMANCE GATE: HOLD / NOT PASSED FOR STRATEGY PROMOTION.**
+
+Required next step:
+1. Run the pre-specified reversal sensitivity grid **0.80 / 1.00 / 1.20 / 1.30** under the same data, costs, and research-use rules.
+2. Compare net P&L, profit factor, drawdown, win rate, and traded-cycle count across thresholds.
+3. If no threshold produces a robust improvement, document the baseline strategy as unsupported by the available imperfect sample and move to the planned discussion/future-research stage rather than tuning indefinitely.
+
+**Instructions to developer:** Run only the predefined reversal sensitivity grid next. Do not optimize the threshold beyond those four points unless the research plan is formally amended and independently tested. Preserve the negative baseline result and all data-coverage limitations.
