@@ -142,3 +142,27 @@ def test_complete_expiry_partition_uses_pre_expiry_session():
     entry, exit_date = entry_and_exit_dates(date(2026, 7, 28), dates)
     assert entry == date(2026, 6, 26)
     assert exit_date == date(2026, 7, 27)
+
+
+def test_cycle_boundary_uses_nse_holiday_calendar_for_friday_to_tuesday():
+    from datetime import date
+    from scripts.backtest import entry_and_exit_dates
+
+    # 2021-03-29 was an NSE F&O holiday; when a synthetic Tuesday expiry
+    # follows that Monday, the final normal session is Friday 2021-03-26.
+    dates = [date(2021, 2, 26), date(2021, 3, 26)]
+    entry, exit_date = entry_and_exit_dates(date(2021, 3, 30), dates)
+    assert entry == date(2021, 2, 26)
+    assert exit_date == date(2021, 3, 26)
+
+
+def test_cycle_boundary_accepts_target_that_is_an_nse_holiday():
+    from datetime import date
+    from scripts.backtest import entry_and_exit_dates
+
+    # 2026-01-26 is an NSE F&O holiday. For the synthetic February-2026
+    # expiry, the first eligible normal session is 2026-01-27.
+    dates = [date(2026, 1, 27), date(2026, 2, 26)]
+    entry, exit_date = entry_and_exit_dates(date(2026, 2, 27), dates)
+    assert entry == date(2026, 1, 27)
+    assert exit_date == date(2026, 2, 26)
