@@ -104,3 +104,7 @@
 
 
 | 2026-10-05 | 2 | CI ERROR | CI run 37232519372 assembled data and exported the CSV successfully, but reconciliation failed because DuckDB's timestamp CSV reader required the missing `pytz` package. | Added `pytz` to requirements and hardened the reconciliation COPY path handling. Backtest was correctly blocked until reconciliation passes. |
+
+
+| 2026-10-05 | 2 | CI INFRASTRUCTURE | Run 37232849676 completed all research execution steps successfully, but the automatic `git push` of the 4.7GB result bundle failed with HTTP 500 / remote disconnect. | The complete result remains preserved as GitHub Actions artifact 11315040792. Repository promotion of multi-GB raw result files is not reliable; lightweight summaries should be committed while large raw datasets remain artifacts/cache. |
+| 2026-10-05 | 2 | RESULT | Research-use baseline run completed with 28 traded cycles and negative performance: net P&L −₹20,455.46, profit factor 0.647, win rate 46.43%, max drawdown −₹41,981.20, Sharpe proxy −0.541. | Treat as exploratory only; strict Gate 2 remains CLOSED. Tester Review 27 requires predefined reversal sensitivity 0.80/1.00/1.20/1.30 before strategy promotion. |
