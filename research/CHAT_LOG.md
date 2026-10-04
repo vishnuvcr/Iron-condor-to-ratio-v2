@@ -23,3 +23,7 @@ CI run 37231284204 passed 35 tests but failed the new threshold test because its
 
 ## 2026-10-05 — Gate 2 recheck after strategy reset
 CI run 37231413691 passed unit tests and all six data partitions and assembled the composite successfully, but the current first-session-of-expiry-month to pre-expiry lifecycle gate reported 0/69 complete months. Tester Review 24 independently confirmed the data gate remains closed. A fresh public-source sweep found no free source that completes the full 2021-01 to 2026-09 1-minute NIFTY option lifecycle. No performance result was run.
+
+
+## 2026-10-05 — user-directed imperfect-data policy
+User instructed that the most usable real data should be used even if not 100% perfect, with imperfections explicitly disclosed in limitations. Developer therefore added a separate research-use partial-data mode; strict Gate 2 remains failed and no missing option prices are synthesized. Tester review is required before interpreting the exploratory output.
