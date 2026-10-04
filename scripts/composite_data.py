@@ -269,95 +269,162 @@ def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
     con = duckdb.connect()
     con.execute("SET memory_limit='6GB'")
     con.execute("SET threads=2")
+    out.mkdir(parents=True, exist_ok=True)
 
-    created = False
+    grouped = {}
+    for source, path in files:
+        grouped.setdefault(source, []).append(path)
+
     overlap_rows = []
     source_stats = []
-    calendar = explicit_calendar_from_staged(files)
 
-    for source, path in sorted(files, key=lambda x: (next(s.priority for s in SOURCES if s.name == x[0]), str(x[1]))):
+    # Bulk-load the highest-priority TradeMarkk Parquets in one DuckDB scan.
+    primary = sorted(grouped.get("thetrademarkk", []))
+    if primary:
+        primary_revision = revision_by_file.get(str(primary[0]), "unknown")
+        paths = [str(p) for p in primary]
+        con.execute("""
+            CREATE TABLE composite AS
+            SELECT
+                timestamp,
+                CAST(expiry AS DATE) AS expiry,
+                'EXPLICIT_SOURCE_FIELD' AS expiry_source,
+                CAST(NULL AS VARCHAR) AS expiry_month_key,
+                strike,
+                UPPER(option_type) AS option_type,
+                open,
+                high,
+                low,
+                close,
+                volume,
+                open_interest,
+                'thetrademarkk' AS price_source,
+                'thetrademarkk' AS oi_source,
+                filename AS source_file,
+                ? AS source_revision,
+                md5(concat_ws('|',
+                    CAST(timestamp AS VARCHAR), CAST(expiry AS VARCHAR),
+                    CAST(strike AS VARCHAR), CAST(option_type AS VARCHAR),
+                    CAST(open AS VARCHAR), CAST(high AS VARCHAR),
+                    CAST(low AS VARCHAR), CAST(close AS VARCHAR),
+                    CAST(volume AS VARCHAR)
+                )) AS source_row_hash
+            FROM read_parquet(?, union_by_name=true, filename=true)
+            WHERE timestamp IS NOT NULL
+              AND expiry IS NOT NULL
+              AND strike > 0
+              AND UPPER(option_type) IN ('CE', 'PE')
+              AND open > 0 AND high > 0 AND low > 0 AND close > 0
+              AND volume >= 0
+              AND high >= GREATEST(open, close)
+              AND low <= LEAST(open, close)
+              AND CAST(expiry AS DATE) >= CAST(timestamp AS DATE)
+            QUALIFY ROW_NUMBER() OVER (
+                PARTITION BY timestamp, CAST(expiry AS DATE), strike, UPPER(option_type)
+                ORDER BY filename
+            ) = 1
+        """, [primary_revision, paths])
+
+        primary_rows = con.execute("SELECT COUNT(*) FROM composite").fetchone()[0]
+        source_stats.append({
+            "source": "thetrademarkk",
+            "file_count": len(primary),
+            "valid_rows": int(primary_rows),
+            "sha256_files": {str(p): sha256_file(p) for p in primary},
+        })
+        calendar = explicit_calendar_from_staged(files)
+    else:
+        calendar = {}
+
+    # Lower-priority sources are small enough to normalize one file at a time.
+    lower = []
+    for source, paths in grouped.items():
+        if source != "thetrademarkk":
+            lower.extend((source, p) for p in sorted(paths))
+
+    for source, path in lower:
         raw = _read_source_file(path)
         frame = normalize_frame(raw, source, str(path), revision_by_file.get(str(path), "unknown"))
-        if calendar:
-            mask = frame["expiry"].isna() & frame["expiry_month_key"].notna()
-            if mask.any():
-                mapped = frame.loc[mask, "expiry_month_key"].map(calendar)
-                ok = mapped.notna()
-                idx = mapped.index[ok]
-                frame.loc[idx, "expiry"] = mapped.loc[idx]
-                frame.loc[idx, "expiry_source"] = "RESOLVED_FROM_EXPLICIT_SOURCE"
+
+        mask = frame["expiry"].isna() & frame["expiry_month_key"].notna()
+        if mask.any() and calendar:
+            mapped = frame.loc[mask, "expiry_month_key"].map(calendar)
+            ok = mapped.notna()
+            idx = mapped.index[ok]
+            frame.loc[idx, "expiry"] = mapped.loc[idx]
+            frame.loc[idx, "expiry_source"] = "RESOLVED_FROM_EXPLICIT_SOURCE"
 
         clean, stats = validate_rows(frame)
         stats.update({"source": source, "file": str(path), "sha256": sha256_file(path)})
         source_stats.append(stats)
-        if clean.empty:
-            continue
+        if clean.empty or "composite" not in [x[0] for x in con.execute("SHOW TABLES").fetchall()]:
+            if clean.empty:
+                continue
 
         con.register("stage_df", clean)
+        row = con.execute(
+            """SELECT
+                 COUNT(*) AS overlap_rows,
+                 AVG(ABS(c.close - s.close) / NULLIF(GREATEST(ABS(c.close), ABS(s.close)), 0)) AS close_rel_diff_mean,
+                 MAX(ABS(c.close - s.close) / NULLIF(GREATEST(ABS(c.close), ABS(s.close)), 0)) AS close_rel_diff_max
+               FROM composite c
+               JOIN stage_df s
+                 ON c.timestamp = s.timestamp
+                AND c.expiry = s.expiry
+                AND c.strike = s.strike
+                AND c.option_type = s.option_type
+              WHERE c.price_source <> s.price_source"""
+        ).fetchone()
+        overlap_rows.append({
+            "source": source,
+            "file": str(path),
+            "overlap_rows": int(row[0] or 0),
+            "close_rel_diff_mean": float(row[1]) if row[1] is not None else None,
+            "close_rel_diff_max": float(row[2]) if row[2] is not None else None,
+        })
 
-        if not created:
-            con.execute("CREATE TABLE composite AS SELECT * FROM stage_df")
-            created = True
-        else:
-            row = con.execute(
-                """SELECT
-                     COUNT(*) AS overlap_rows,
-                     AVG(ABS(c.close - s.close) / NULLIF(GREATEST(ABS(c.close), ABS(s.close)), 0)) AS close_rel_diff_mean,
-                     MAX(ABS(c.close - s.close) / NULLIF(GREATEST(ABS(c.close), ABS(s.close)), 0)) AS close_rel_diff_max
-                   FROM composite c
-                   JOIN stage_df s
-                     ON c.timestamp = s.timestamp
-                    AND c.expiry = s.expiry
-                    AND c.strike = s.strike
-                    AND c.option_type = s.option_type
-                  WHERE c.price_source <> s.price_source""").fetchone()
-            overlap_rows.append({
-                "source": source,
-                "file": str(path),
-                "overlap_rows": int(row[0] or 0),
-                "close_rel_diff_mean": float(row[1]) if row[1] is not None else None,
-                "close_rel_diff_max": float(row[2]) if row[2] is not None else None,
-            })
-
-            con.execute(
-                """UPDATE composite AS c
-                   SET open_interest = s.open_interest,
-                       oi_source = s.price_source
-                   FROM stage_df AS s
-                   WHERE c.timestamp = s.timestamp
-                     AND c.expiry = s.expiry
-                     AND c.strike = s.strike
-                     AND c.option_type = s.option_type
-                     AND c.open_interest IS NULL
-                     AND s.open_interest IS NOT NULL"""
-            )
-            con.execute(
-                """INSERT INTO composite
-                   SELECT s.*
-                   FROM stage_df s
-                   ANTI JOIN composite c
-                     ON c.timestamp = s.timestamp
-                    AND c.expiry = s.expiry
-                    AND c.strike = s.strike
-                    AND c.option_type = s.option_type"""
-            )
-
+        con.execute(
+            """UPDATE composite AS c
+               SET open_interest = s.open_interest,
+                   oi_source = s.price_source
+               FROM stage_df AS s
+               WHERE c.timestamp = s.timestamp
+                 AND c.expiry = s.expiry
+                 AND c.strike = s.strike
+                 AND c.option_type = s.option_type
+                 AND c.open_interest IS NULL
+                 AND s.open_interest IS NOT NULL"""
+        )
+        con.execute(
+            """INSERT INTO composite
+               SELECT s.*
+               FROM stage_df s
+               ANTI JOIN composite c
+                 ON c.timestamp = s.timestamp
+                AND c.expiry = s.expiry
+                AND c.strike = s.strike
+                AND c.option_type = s.option_type"""
+        )
         con.unregister("stage_df")
 
-    if not created:
+    tables = {r[0] for r in con.execute("SHOW TABLES").fetchall()}
+    if "composite" not in tables:
         con.close()
         manifest["status"] = "NO_VALID_STAGED_DATA"
         (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
         return
 
-    con.execute("COPY (SELECT * FROM composite ORDER BY expiry, timestamp, strike, option_type) TO ? (FORMAT PARQUET, COMPRESSION ZSTD)", [str(out / "nifty_options_composite.parquet")])
+    output_parquet = out / "nifty_options_composite.parquet"
+    con.execute(
+        "COPY (SELECT * FROM composite ORDER BY expiry, timestamp, strike, option_type) TO ? (FORMAT PARQUET, COMPRESSION ZSTD)",
+        [str(output_parquet)],
+    )
     counts = con.execute("SELECT price_source, COUNT(*) FROM composite GROUP BY 1 ORDER BY 1").fetchall()
     oi_sources = con.execute("SELECT oi_source, COUNT(*) FROM composite GROUP BY 1 ORDER BY 1").fetchall()
     total = con.execute("SELECT COUNT(*) FROM composite").fetchone()[0]
     con.close()
 
-    overlap_df = pd.DataFrame(overlap_rows)
-    overlap_df.to_csv(out / "source_overlap.csv", index=False)
+    pd.DataFrame(overlap_rows).to_csv(out / "source_overlap.csv", index=False)
     manifest["status"] = "BUILT"
     manifest["source_stats"] = source_stats
     manifest["composition_stats"] = {
@@ -365,10 +432,10 @@ def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
         "price_rows_by_source": {str(k): int(v) for k, v in counts},
         "oi_rows_by_source": {str(k): int(v) for k, v in oi_sources},
     }
-    manifest["composite_sha256"] = sha256_file(out / "nifty_options_composite.parquet")
+    manifest["composite_sha256"] = sha256_file(output_parquet)
     manifest["overlap_file"] = "source_overlap.csv"
-    (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
-
+    (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2)
+)
 
 def main():
     ap = argparse.ArgumentParser()
