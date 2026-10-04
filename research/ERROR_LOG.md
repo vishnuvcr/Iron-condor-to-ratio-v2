@@ -13,3 +13,4 @@
 | 2026-10-04 | 2 | ERROR | Full backtest failed after unit tests passed; the initial workflow did not capture backtest stdout/stderr. | Hardened workflow to tee backtest output into a committed diagnostic file on failure. |
 | 2026-10-04 | 2 | INFO | A second semantic issue was found in IC trigger monitoring: both short and long legs share option_type keys. | Added a deterministic choose_ic_trigger helper and short-leg-only state tracking. |
 | 2026-10-04 | 2 | ERROR | Canonical full backtest failed because dataset timestamps were timezone-aware while expiry/decision timestamps were naive. | Normalize data timestamps to IST and construct all expiry/entry/exit decision timestamps as Asia/Kolkata-aware. |
+| 2026-10-04 | 2 | ERROR | First timezone patch missed a duplicate naive expiry expression later in add_forward_and_delta; run 37212653706 failed in the same arithmetic. | Removed the duplicate expression and added a timezone regression test. |
