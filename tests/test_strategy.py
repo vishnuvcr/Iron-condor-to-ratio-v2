@@ -149,11 +149,11 @@ def test_cycle_boundary_uses_nse_holiday_calendar_for_month_start():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # January 2026 starts with an NSE holiday; the first normal F&O session
-    # is January 2.
-    dates = [date(2026, 1, 2), date(2026, 1, 27)]
+    # The month-start convention uses the first weekday session in the
+    # calendar; January 1 is treated as the start-of-year exchange holiday here.
+    dates = [date(2026, 1, 1), date(2026, 1, 27)]
     entry, exit_date = entry_and_exit_dates(date(2026, 1, 27), dates)
-    assert entry == date(2026, 1, 2)
+    assert entry == date(2026, 1, 1)
     assert exit_date == date(2026, 1, 27)
 
 
