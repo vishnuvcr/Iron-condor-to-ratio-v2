@@ -1,6 +1,6 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Phase 2 — Data engineering in progress; strategy scope reset to the latest user-defined rules only.**
+Research status: **Phase 3 — bounded robustness + scientific research expansion in progress.**
 
 **Scope reset (2026-10-05):** the initial transcript is non-authoritative and the 32-DTE constraint is removed. No prior 32-DTE result is a result for the current strategy.
 
@@ -8,102 +8,95 @@ Research status: **Phase 2 — Data engineering in progress; strategy scope rese
 - research/RESEARCH_PLAN.md
 - research/STRATEGY_SPEC.md
 - research/PHASE_STATUS.md
-- research/DATA_SOURCES.md
-- research/HISTORICAL_DATA_EXPANSION.md
+- research/LITERATURE_REVIEW_2026-10-05.md
+- research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md
 - research/FREE_DATA_SOURCE_REVIEW.md
 - research/COMPOSITE_DATA_PROTOCOL.md
 - research/COST_MODEL.md
 - research/ERROR_LOG.md
 - research/CHAT_LOG.md
 - research/ROLES_AND_GATES.md
-- research/TESTER_GATE_2_REVIEW_8.md
-- research/TESTER_GATE_2_REVIEW_9.md
-- research/TESTER_GATE_2_REVIEW_10.md
-- research/TESTER_GATE_2_REVIEW_11.md
 
 ## Roles and branches
-- developer: implementation branch; may write research code and workflow changes.
-- tester: independent review branch; must not copy developer implementation code into tester code. Tester reviews developer commits read-only and records findings independently.
-- phase-2-data-developer: isolated Phase 2 implementation branch.
-- phase-2-data-tester: isolated Phase 2 independent-test branch.
+- developer: `phase-3-robustness-developer`
+- tester: `phase-3-robustness-tester`
+- Phase 2 branches remain frozen historical implementation/review environments.
 
-## Research principle
-The published video is the primary specification. Ambiguities are preserved and flagged rather than silently converted into assumptions. Any required assumption is documented, tested, and sensitivity-analysed.
+Developer and tester are isolated. Tester approval is required before strategy promotion.
 
-## Current Gate 2 status
+## Current gate status
 
-**CLOSED / NOT PASSED for strict validation; research-use partial-data analysis ENABLED.**
+**Strict Gate 2: CLOSED. Research-use partial-data analysis: ENABLED.**
 
-No strategy performance result is accepted. Earlier data-gate work used a 32-DTE protocol, but that protocol has been removed from the current strategy scope; those artifacts are retained only as infrastructure/history.
+The current composite does not establish complete deterministic lifecycle coverage for all 69 requested months. This is disclosed rather than hidden.
 
-### Composite data path
-The current Phase 2 pipeline:
-1. stages free/public sources and caches them;
-2. builds an exact-key, provenance-aware composite in DuckDB/Parquet;
-3. rejects invalid option OHLC rows without interpolation/averaging;
-4. checks cycle coverage and expected exchange-session continuity;
-5. exports `results/composite/consolidated_options_data.csv`;
-6. reconciles the CSV against the canonical Parquet before any backtest is eligible.
+## Current Phase 3
 
-Parquet remains the research-native dataset. The CSV is the transfer artifact for Google Drive and future repository reuse.
+The predefined reversal-threshold sensitivity grid is:
+- 0.80
+- 1.00
+- 1.20
+- 1.30
 
-### Gate 1 implementation convention
-The 0.80–1.30 reversal rule is not given as an exact computational threshold. The baseline research convention is combined absolute delta of the two short ratio legs reaching 1.20, explicitly treated as a modelling convention rather than a user rule. Before any performance conclusion, reversal sensitivity runs must cover 0.80, 1.00, 1.20 and 1.30.
+All runs use identical composite data, ₹20/order brokerage, one adverse option tick of slippage, continuation threshold 0.20, and research-use entry mode.
 
-### Current acceptance conditions
-Gate 2 cannot pass until:
-- every promoted expiry spans the current strategy's deterministic first-expiry-month-session entry and final pre-expiry session;
-- no expected exchange session is missing inside a promoted cycle;
-- expiry provenance is explicit or resolved from another explicit source;
-- fallback rows retain source-level provenance;
-- the CSV schema and row count match the Parquet;
-- the canonical Parquet-derived CSV has the same SHA-256 as the published CSV;
-- fresh CI and the independent tester review pass.
+Six data partitions and composite assembly have passed. The 1.30 threshold run has completed successfully; the other threshold runs are still executing.
 
-No performance result is promoted while any of these conditions remain open.
+No strategy is promoted based on the highest P&L alone.
 
-## Current research status — 2026-10-05
+## Scientific research expansion
 
-**Phase 2 / Gate 2: NOT PASSED.** The latest composite remains data-incomplete for the current strategy lifecycle, so no performance result has been promoted. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step, and the assembly preserves the requested coverage window; CI run 37231413691 passed unit tests, all six partitions and composite assembly, but the lifecycle gate remained 0/69 complete months; independent tester Review 24 confirmed Gate 2 remains closed.
+The research now includes:
+- literature review on iron condors, ratio spreads and skew;
+- Indian option-market volatility/efficiency research;
+- volatility-risk-premium evidence;
+- FII/implied-volatility relationships;
+- Indian derivatives-market structural changes;
+- predefined volatility/skew/regime hypotheses;
+- bootstrap and distributional analysis plans;
+- static-IC benchmark comparison;
+- cost-drag decomposition.
 
-### Historical expansion
-The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate remains the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; rissin is retained for overlap validation, with other free/public candidates retained as documented fallbacks.
+See [research/LITERATURE_REVIEW_2026-10-05.md](research/LITERATURE_REVIEW_2026-10-05.md) and [research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md](research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md).
 
-### Free source and composite research
-See [research/FREE_DATA_SOURCE_REVIEW.md](research/FREE_DATA_SOURCE_REVIEW.md) and [research/COMPOSITE_DATA_PROTOCOL.md](research/COMPOSITE_DATA_PROTOCOL.md). No paid dataset has been assumed.
+NSE's current option-chain infrastructure exposes OI, volume, IV, bid/ask and LTP fields, while NSE contract specifications document expiry conventions and tick sizes. NSE also publishes participant-wise/FII derivatives statistics and daily F&O reports. These are important external reference streams for later regime and market-structure analysis. urlNSE Option Chainhttps://www.nseindia.com/option-chain?symbol=NIFTY urlNSE Contract Specificationshttps://www.nseindia.com/static/products-services/equity-derivatives-contract-specifications urlNSE F&O Reportshttps://www.nseindia.com/all-reports-derivatives
 
-### CSV transfer artifact
-The pipeline writes [results/composite/consolidated_options_data.csv](results/composite/consolidated_options_data.csv) only after a canonical composite has been built. Gate 2 promotion still requires independent tester reconciliation.
+The project will explicitly account for the 2024–2025 Indian derivatives-market changes when interpreting time stability. NSE changed NIFTY expiry conventions effective April 2025, and SEBI introduced several index-derivatives measures from November 2024 onward. These structural breaks make pooled pre/post-reform performance comparisons important. 
 
-### Gate 2 review trail
-- [Tester Review 8](research/TESTER_GATE_2_REVIEW_8.md)
-- [Tester Review 9](research/TESTER_GATE_2_REVIEW_9.md)
-- [Tester Review 10](research/TESTER_GATE_2_REVIEW_10.md)
-- [Tester Review 11](research/TESTER_GATE_2_REVIEW_11.md)
-- [Tester Review 12](research/TESTER_GATE_2_REVIEW_12.md)
-- [Tester Review 13](research/TESTER_GATE_2_REVIEW_13.md)
-- [Tester Review 14](research/TESTER_GATE_2_REVIEW_14.md)
-- [Tester Review 15](research/TESTER_GATE_2_REVIEW_15.md)
-- [Tester Review 16](research/TESTER_GATE_2_REVIEW_16.md)
-- [Tester Review 17](research/TESTER_GATE_2_REVIEW_17.md)
-- [Tester Review 18](research/TESTER_GATE_2_REVIEW_18.md)
-- [Gate 2 Review 19 — Data Coverage](research/TESTER_GATE_2_REVIEW_19.md)
-- [Gate 2 Review 20 — Lead-In Hypothesis](research/TESTER_GATE_2_REVIEW_20.md)
-- [Tester Review 19](research/TESTER_GATE_2_REVIEW_19.md)
-- [Tester Review 24 — Post-scope-reset data gate](research/TESTER_GATE_2_REVIEW_20.md)
+## Data and CSV
 
-No strategy performance conclusion is accepted as fully validated until Gate 2 is independently approved.
+The canonical research dataset is Parquet. The consolidated CSV is the transfer artifact for Google Drive/future reuse:
 
-### First research-use baseline result
-CI run 37232849676 completed the partial-data research-use backtest using the first observed expiry-month session when the deterministic first session was unavailable, with ₹20/order brokerage and 1 adverse option tick of slippage. The baseline produced **28 traded cycles**, **−₹20,455.46 net P&L**, **0.647 profit factor**, **46.43% win rate**, **−₹41,981.20 maximum drawdown**, and **−0.541 monthly-Sharpe proxy**. This is exploratory and **does not support strategy promotion**. The run considered 65 observed monthly-expiry candidates against 69 requested calendar months; strict lifecycle coverage remains 0/69.
+`results/composite/consolidated_options_data.csv`
 
-The complete 4.7 GB result bundle is preserved as GitHub Actions artifact 11315040792 because pushing multi-GB raw results into the Git repository failed with an HTTP 500. Lightweight research summaries remain the preferred repository artifacts.
+The pipeline never interpolates, forward-fills, averages or theoretically reconstructs missing option prices.
 
-**Next predefined robustness gate:** reversal-threshold sensitivity at 0.80, 1.00, 1.20 and 1.30 under identical data/cost/slippage assumptions.
+## Baseline research-use result
 
+The first research-use baseline produced:
+- 28 traded cycles
+- net P&L: **−₹20,455.46**
+- profit factor: **0.647**
+- win rate: **46.43%**
+- max drawdown: **−₹41,981.20**
+- monthly-Sharpe proxy: **−0.541**
 
-## Research-use imperfect-data tier
+This result is exploratory and **does not support strategy promotion**. Strict lifecycle coverage remains 0/69.
 
-The strict Gate 2 remains closed because full lifecycle coverage is incomplete. By explicit user direction, the project may nevertheless run a separately labelled research-use analysis on the best available real data. No prices are interpolated or fabricated. Where the deterministic first expiry-month session is unavailable, the research-use variant may start at the first observed expiry-month session; this deviation is recorded in the run manifest and final limitations. Such results are exploratory until independently reviewed.
+## Final research objective
 
-The current free-source foundation is the TradeMarkk 1-minute index/options dataset, which documents approximately 2021–2026 coverage but explicitly warns that option coverage is partial, especially for illiquid/far strikes. urlTradeMarkk dataset cardhttps://huggingface.co/datasets/thetrademarkk/india-index-options-1m
+The research will stop at the predefined phases. The final deliverable will be a structured manuscript containing:
+1. research questions and hypotheses;
+2. literature review;
+3. data/provenance methodology;
+4. strategy specification;
+5. statistical methodology;
+6. benchmark and robustness results;
+7. regime/skew/cost analysis where data permit;
+8. discussion;
+9. strengths and limitations;
+10. conclusion;
+11. future research;
+12. tables, figures, appendices and reproducibility supplements.
+
+No endless parameter search is permitted.
