@@ -33,9 +33,27 @@ def main():
     con.execute("SET threads=2")
     paths = [str(p) for p in partitions]
     con.execute(
-        "CREATE OR REPLACE TABLE composite AS "
-        "SELECT * FROM read_parquet(?, union_by_name=true) "
-        "ORDER BY expiry, timestamp, strike, option_type",
+        """
+        CREATE OR REPLACE TABLE composite AS
+        SELECT * EXCLUDE (rn)
+        FROM (
+            SELECT *,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY timestamp, expiry, strike, option_type
+                       ORDER BY
+                           CASE price_source
+                               WHEN 'thetrademarkk' THEN 1
+                               WHEN 'rissin' THEN 2
+                               WHEN 'cloudtrader' THEN 3
+                               ELSE 9
+                           END,
+                           source_file
+                   ) AS rn
+            FROM read_parquet(?, union_by_name=true)
+        )
+        WHERE rn = 1
+        ORDER BY expiry, timestamp, strike, option_type
+        """,
         [paths],
     )
     con.execute(
