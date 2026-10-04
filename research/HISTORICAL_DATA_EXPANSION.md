@@ -4,7 +4,7 @@ Date: 2026-10-04
 
 ## Decision
 
-The 2024–2026 `rissin/nse-options-intraday` run is a pipeline-validation dataset, not the final research sample. The production backtest must use the longest defensible common-data window after independent validation.
+The 2024–2026 `rissin/nse-options-intraday` run was a pipeline-validation dataset, not the final research sample. The same canonical source has since been verified to expose NIFTY intraday partitions for 2022 and 2023, allowing a first expansion to 2022–2026 without provider stitching. The production backtest must use the longest defensible common-data window after independent validation.
 
 ## Candidate sources
 
@@ -26,9 +26,17 @@ The 2024–2026 `rissin/nse-options-intraday` run is a pipeline-validation datas
 7. Keep source provenance, dataset revision/version, retrieval time, file hashes, and coverage ranges in every run manifest.
 8. Do not mix sources in a single production result unless overlap validation demonstrates acceptable comparability.
 
+## Current expanded source
+
+The primary source now targets `upstox_intraday/NIFTY/NIFTY_2022.parquet` through `NIFTY_2026.parquet`. The dataset card states that the Upstox intraday track is 1-minute NIFTY data, while its repository history explicitly shows the 2022 and 2023 NIFTY partitions. The dataset notes that intraday OI is not supplied by Upstox, so OI is not used as a hidden input to the baseline delta model.
+
 ## Current gap
 
 The current Phase-2 implementation uses 2024–2026 files from `rissin/nse-options-intraday`. That explains why only 19 monthly expiries were detected in the initial production-window test. It does not justify treating 19 expiries as the final sample.
+
+## Lot-size regimes
+
+For the expanded window, the engine uses 25 for monthly expiries through 2024-11-19, 75 for new monthly contracts from 2024-11-21 through 2025-12-30, and 65 from the 2026 regime. These breakpoints are tied to NSE index-derivatives lot-size revisions and are covered by unit tests.
 
 ## Production target
 
