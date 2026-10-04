@@ -35,3 +35,7 @@ Developer reviewed the research-use implementation while CI run 37231842778 was 
 
 ## 2026-10-05 — user scope order: YouTube strategy only
 User explicitly ordered: “Do not introduce anything into the strategy testing. Just test what I have given you from the YouTube video.” Developer acknowledged that the reversal-threshold sensitivity grid was an unauthorized methodological addition. The sensitivity workflow and 1.20 threshold convention are being removed/reclassified. Future testing must reproduce only the video-defined rules; ambiguity must be disclosed rather than converted into new strategy parameters.
+
+
+## 2026-10-05 — reversal trigger corrected
+User clarified that the reversal trigger is **1.30**, not a 0.80–1.30 range. All subsequent strategy testing must use fixed 1.30 reversal logic. No threshold sensitivity or alternative reversal interpretation is authorized.
