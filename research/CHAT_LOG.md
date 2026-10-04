@@ -46,3 +46,9 @@ The README CSV transfer link was found to use an incorrect root-relative path. D
 
 ## 2026-10-04 — expected-expiry coverage remediation
 Independent Tester Review 10 identified a structural gap: the coverage checker could only validate expiries already present in the composite, so a wholly missing monthly partition could pass unnoticed. Developer changed the checker to derive the expected monthly expiry set from the primary staging manifest and fail any missing expected cycle. Gate 2 remains closed pending fresh CI and tester re-review.
+
+## 2026-10-04 — NSE calendar remediation
+Independent Tester Review 11 identified the use of a BSE session calendar as a proxy for an NSE NIFTY options study. Developer replaced it with a versioned NSE F&O holiday calendar covering 2021–2026 from the annual NSE F&O holiday circulars, removed the unused exchange-calendars dependency, and added independent calendar tests. Gate 2 remains CLOSED pending fresh CI and tester re-review.
+
+## 2026-10-04 — synthetic expiry-gate check
+A sandbox-only synthetic check confirmed that the revised coverage logic detects a deliberately missing expected monthly expiry. An earlier sandbox attempt failed because duckdb was unavailable; it produced no repository side effects and was logged as a tooling limitation.
