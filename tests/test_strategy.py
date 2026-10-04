@@ -123,46 +123,47 @@ def test_iv_matches_independent_brentq():
     assert abs(actual - expected) < 1e-4
 
 
-def test_incomplete_expiry_partition_is_rejected():
+def test_incomplete_monthly_cycle_is_rejected():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # Data ending weeks before expiry must not be converted into an early exit.
+    # Data beginning after the first NSE session of the expiry month cannot
+    # satisfy the latest strategy's entry convention.
     assert entry_and_exit_dates(
         date(2026, 7, 28),
-        [date(2026, 6, 23), date(2026, 6, 24), date(2026, 7, 2)],
+        [date(2026, 7, 2), date(2026, 7, 27)],
     ) == (None, None)
 
 
-def test_complete_expiry_partition_uses_pre_expiry_session():
+def test_monthly_cycle_uses_first_expiry_month_session_and_pre_expiry_session():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    dates = [date(2026, 6, 26), date(2026, 6, 29), date(2026, 7, 24), date(2026, 7, 27)]
+    dates = [date(2026, 7, 1), date(2026, 7, 2), date(2026, 7, 24), date(2026, 7, 27)]
     entry, exit_date = entry_and_exit_dates(date(2026, 7, 28), dates)
-    assert entry == date(2026, 6, 26)
+    assert entry == date(2026, 7, 1)
     assert exit_date == date(2026, 7, 27)
 
 
-def test_cycle_boundary_uses_nse_holiday_calendar_for_friday_to_tuesday():
+def test_cycle_boundary_uses_nse_holiday_calendar_for_month_start():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # 2021-03-29 was an NSE F&O holiday; when a synthetic Tuesday expiry
-    # follows that Monday, the final normal session is Friday 2021-03-26.
-    dates = [date(2021, 2, 26), date(2021, 3, 26)]
-    entry, exit_date = entry_and_exit_dates(date(2021, 3, 30), dates)
-    assert entry == date(2021, 2, 26)
-    assert exit_date == date(2021, 3, 26)
+    # January 2026 starts with an NSE holiday; the first normal F&O session
+    # is January 2.
+    dates = [date(2026, 1, 2), date(2026, 1, 27)]
+    entry, exit_date = entry_and_exit_dates(date(2026, 1, 27), dates)
+    assert entry == date(2026, 1, 2)
+    assert exit_date == date(2026, 1, 27)
 
 
-def test_cycle_boundary_accepts_target_that_is_an_nse_holiday():
+def test_cycle_boundary_accepts_complete_month_without_32dte_lead_in():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # 2026-01-26 is an NSE F&O holiday. For the synthetic February-2026
-    # expiry, the first eligible normal session is 2026-01-27.
-    dates = [date(2026, 1, 27), date(2026, 2, 26)]
+    # The cycle is valid when the first expiry-month session is present even
+    # though the dataset contains no prior-month/32-DTE lead-in.
+    dates = [date(2026, 2, 2), date(2026, 2, 26)]
     entry, exit_date = entry_and_exit_dates(date(2026, 2, 27), dates)
-    assert entry == date(2026, 1, 27)
+    assert entry == date(2026, 2, 2)
     assert exit_date == date(2026, 2, 26)
