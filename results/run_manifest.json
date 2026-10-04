@@ -1,0 +1,17 @@
+{
+  "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
+  "data_repository": "rissin/nse-options-intraday",
+  "files": [
+    "upstox_intraday/NIFTY/NIFTY_2024.parquet",
+    "upstox_intraday/NIFTY/NIFTY_2025.parquet",
+    "upstox_intraday/NIFTY/NIFTY_2026.parquet"
+  ],
+  "start": "2025-01-01",
+  "end": "2026-09-30",
+  "expiry_count": 19,
+  "rate": 0.0,
+  "brokerage": 20.0,
+  "slippage_ticks": 1,
+  "tick": 0.05,
+  "created_utc": "2026-10-04T15:40:23.297252Z"
+}
