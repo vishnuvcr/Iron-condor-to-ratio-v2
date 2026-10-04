@@ -62,9 +62,13 @@ def download_cloudtrader(out: Path, manifest: dict):
     target = out / "cloudtrader"
     target.mkdir(parents=True, exist_ok=True)
     archive = target / "nifty_free_sample"
+    existing = list(target.glob("*.csv")) + list(target.glob("*.zip"))
+    if existing:
+        manifest["cloudtrader"] = {"status": "CACHED", "files": [str(p) for p in existing]}
+        return
     cmd = ["gdown", "--id", CLOUD_DRIVE_ID, "-O", str(archive)]
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=60)
     except Exception as exc:
         manifest["cloudtrader"] = {"status": "DOWNLOAD_FAILED", "error": repr(exc), "drive_id": CLOUD_DRIVE_ID}
         return
