@@ -434,13 +434,30 @@ def run_cycle(
     if not (0.80 <= reversal_delta_threshold <= 1.30):
         raise ValueError("reversal_delta_threshold must lie within the stated 0.80–1.30 modelling range")
     dates = trading_dates(df)
-    strategy_entry_date, exit_date = entry_and_exit_dates(expiry, dates)
-    if exit_date is None:
-        return None
+    strategy_entry_date, strategy_exit_date = entry_and_exit_dates(expiry, dates)
     if entry_mode == "strategy":
+        if strategy_entry_date is None or strategy_exit_date is None:
+            return None
         entry_date = strategy_entry_date
+        exit_date = strategy_exit_date
     elif entry_mode == "available":
-        entry_date = next((d for d in dates if d < expiry), None)
+        # Research-use tier: preserve the same pre-expiry exit requirement,
+        # but permit the first observed session in the expiry month when the
+        # deterministic first session is absent. This is not a production
+        # validation path and is recorded in the run manifest.
+        expected_sessions = nse_fno_sessions(
+            date(expiry.year, expiry.month, 1),
+            expiry - timedelta(days=1),
+        )
+        if not expected_sessions:
+            return None
+        exit_date = expected_sessions[-1]
+        if exit_date not in dates:
+            return None
+        entry_date = next(
+            (d for d in dates if d.year == expiry.year and d.month == expiry.month and d < expiry),
+            None,
+        )
     else:
         raise ValueError("entry_mode must be 'strategy' or 'available'")
     if entry_date is None:
