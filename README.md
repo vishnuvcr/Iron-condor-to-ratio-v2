@@ -92,7 +92,14 @@ The pipeline writes [results/composite/consolidated_options_data.csv](results/co
 - [Tester Review 19](research/TESTER_GATE_2_REVIEW_19.md)
 - [Tester Review 24 — Post-scope-reset data gate](research/TESTER_GATE_2_REVIEW_20.md)
 
-No strategy performance conclusion is accepted until Gate 2 is independently approved.
+No strategy performance conclusion is accepted as fully validated until Gate 2 is independently approved.
+
+### First research-use baseline result
+CI run 37232849676 completed the partial-data research-use backtest using the first observed expiry-month session when the deterministic first session was unavailable, with ₹20/order brokerage and 1 adverse option tick of slippage. The baseline produced **28 traded cycles**, **−₹20,455.46 net P&L**, **0.647 profit factor**, **46.43% win rate**, **−₹41,981.20 maximum drawdown**, and **−0.541 monthly-Sharpe proxy**. This is exploratory and **does not support strategy promotion**. The run considered 65 observed monthly-expiry candidates against 69 requested calendar months; strict lifecycle coverage remains 0/69.
+
+The complete 4.7 GB result bundle is preserved as GitHub Actions artifact 11315040792 because pushing multi-GB raw results into the Git repository failed with an HTTP 500. Lightweight research summaries remain the preferred repository artifacts.
+
+**Next predefined robustness gate:** reversal-threshold sensitivity at 0.80, 1.00, 1.20 and 1.30 under identical data/cost/slippage assumptions.
 
 
 ## Research-use imperfect-data tier
