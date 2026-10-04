@@ -32,7 +32,7 @@ The published video is the primary specification. Ambiguities are preserved and 
 
 ## Current Gate 2 status
 
-**CLOSED / PENDING TESTER APPROVAL.**
+**CLOSED / NOT PASSED.**
 
 No strategy performance result is accepted. Earlier data-gate work used a 32-DTE protocol, but that protocol has been removed from the current strategy scope; those artifacts are retained only as infrastructure/history.
 
@@ -62,9 +62,9 @@ Gate 2 cannot pass until:
 
 No performance result is promoted while any of these conditions remain open.
 
-## Current research status — 2026-10-04
+## Current research status — 2026-10-05
 
-**Phase 2 / Gate 2: NOT PASSED.** The latest composite remains data-incomplete for the current strategy lifecycle, so no performance result has been promoted. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step, and the assembly preserves the requested coverage window; a fresh CI run and independent tester review are required before Gate 2 can be reconsidered.
+**Phase 2 / Gate 2: NOT PASSED.** The latest composite remains data-incomplete for the current strategy lifecycle, so no performance result has been promoted. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step, and the assembly preserves the requested coverage window; CI run 37231413691 passed unit tests, all six partitions and composite assembly, but the lifecycle gate remained 0/69 complete months; independent tester Review 24 confirmed Gate 2 remains closed.
 
 ### Historical expansion
 The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate remains the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; rissin is retained for overlap validation, with other free/public candidates retained as documented fallbacks.
@@ -90,5 +90,6 @@ The pipeline writes [results/composite/consolidated_options_data.csv](results/co
 - [Gate 2 Review 19 — Data Coverage](research/TESTER_GATE_2_REVIEW_19.md)
 - [Gate 2 Review 20 — Lead-In Hypothesis](research/TESTER_GATE_2_REVIEW_20.md)
 - [Tester Review 19](research/TESTER_GATE_2_REVIEW_19.md)
+- [Tester Review 24 — Post-scope-reset data gate](research/TESTER_GATE_2_REVIEW_20.md)
 
 No strategy performance conclusion is accepted until Gate 2 is independently approved.
