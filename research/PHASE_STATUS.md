@@ -116,3 +116,6 @@ Phase 2 remains IN PROGRESS and Gate 2 CLOSED. The current composite is not admi
 
 ## 2026-10-05 — strategy scope reset
 Phase 1 specification is being reset to the latest user-defined strategy only. The initial transcript is non-authoritative, and the 32-DTE constraint is removed entirely. Phase 2 remains IN PROGRESS and Gate 2 remains CLOSED. The existing data work is retained only as infrastructure validation; production testing will be rerun against the corrected strategy specification once the data gate and independent tester approve the reset.
+
+## 2026-10-05 developer update
+Latest strategy reset implementation is active. CI run 37230721613 failed at unit tests because one month-start test used an incorrect calendar assumption; the engine itself was not implicated. The test was corrected and the error was logged. Gate 1 remains awaiting tester confirmation of the corrected implementation; Gate 2 remains CLOSED.
