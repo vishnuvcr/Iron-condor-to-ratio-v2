@@ -138,6 +138,17 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
     t = (pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - df["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     t = np.maximum(t.values, 1e-6)
     is_call = df["option_type"].values == "CE"
+    in_window = (
+        df["forward"].notna()
+        & (df["strike"] >= 0.85 * df["forward"])
+        & (df["strike"] <= 1.15 * df["forward"])
+    )
+    df = df.loc[in_window].copy()
+    t = (
+        pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - df["timestamp"]
+    ).dt.total_seconds() / (365.0 * 86400.0)
+    t = np.maximum(t.values, 1e-6)
+    is_call = df["option_type"].values == "CE"
     delta = black76_delta_from_price(
         df["forward"].values,
         df["strike"].values,
@@ -174,6 +185,11 @@ def nearest_bar(df: pd.DataFrame, target_dt: pd.Timestamp) -> Optional[pd.Timest
 
 
 def snapshot_at(df: pd.DataFrame, ts: pd.Timestamp) -> pd.DataFrame:
+    if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names:
+        try:
+            return df.xs(ts, level="timestamp", drop_level=True)
+        except KeyError:
+            return df.iloc[0:0]
     return df[df["timestamp"] == ts].copy()
 
 
@@ -231,9 +247,13 @@ def common_next_open(
     max_minutes: int = 5,
 ) -> Optional[Tuple[pd.Timestamp, Dict[Tuple[float, str], float]]]:
     cutoff = signal_ts + pd.Timedelta(minutes=max_minutes)
-    candidates = sorted(
-        pd.to_datetime(df.loc[(df["timestamp"] > signal_ts) & (df["timestamp"] <= cutoff), "timestamp"].unique())
-    )
+    if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names:
+        ts_values = pd.to_datetime(df.index.get_level_values("timestamp").unique())
+        candidates = sorted(ts_values[(ts_values > signal_ts) & (ts_values <= cutoff)])
+    else:
+        candidates = sorted(
+            pd.to_datetime(df.loc[(df["timestamp"] > signal_ts) & (df["timestamp"] <= cutoff), "timestamp"].unique())
+        )
     for ts in candidates:
         refs: Dict[Tuple[float, str], float] = {}
         ok = True
@@ -363,7 +383,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
     direction = None
     prev_dc = np.nan
     prev_dp = np.nan
-    signal_times = sorted(pd.to_datetime(df["timestamp"].unique()))
+    signal_times = sorted(pd.to_datetime(df.index.get_level_values("timestamp").unique())) if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names else sorted(pd.to_datetime(df["timestamp"].unique()))
     exit_target = pd.Timestamp.combine(exit_date, time(15, 20))
     for ts in signal_times:
         if ts <= entry_signal or ts > exit_target:
@@ -524,6 +544,10 @@ def main():
             if not g["timestamp"].is_monotonic_increasing:
                 non_monotonic_contracts += 1
         df = add_forward_and_delta(df, expiry, args.rate)
+        if df.empty:
+            quality.append({"expiry": str(expiry), "status": "EMPTY_AFTER_DELTA_FILTER"})
+            continue
+        df = df.set_index(["timestamp", "strike", "option_type"], drop=False).sort_index()
         forward_coverage = float(df["forward"].notna().mean()) if "forward" in df else 0.0
         delta_coverage = float(df["delta"].notna().mean()) if "delta" in df else 0.0
         quality.append({
