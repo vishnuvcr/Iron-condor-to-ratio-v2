@@ -38,7 +38,7 @@ def download_data(cache_root: Path, start: date, end: date) -> Tuple[List[Path],
     composite = Path("results/composite/nifty_options_composite.parquet")
     if composite.exists():
         con = duckdb.connect()
-        exps = con.execute("SELECT DISTINCT CAST(expiry AS DATE) AS expiry FROM read_parquet(?) WHERE expiry IS NOT NULL AND expiry_source = 'EXPLICIT_SOURCE_FIELD' ORDER BY 1", [str(composite)]).fetchdf()
+        exps = con.execute("SELECT DISTINCT CAST(expiry AS DATE) AS expiry FROM read_parquet(?) WHERE expiry IS NOT NULL AND expiry_source IN ('EXPLICIT_SOURCE_FIELD', 'RESOLVED_FROM_EXPLICIT_SOURCE') ORDER BY 1", [str(composite)]).fetchdf()
         con.close()
         remote_files = [f"COMPOSITE::{pd.Timestamp(e.iloc[0]).date().isoformat()}" for _, e in exps.iterrows()]
         return [composite], remote_files
