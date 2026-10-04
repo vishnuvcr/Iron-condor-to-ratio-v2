@@ -27,3 +27,7 @@ CI run 37231413691 passed unit tests and all six data partitions and assembled t
 
 ## 2026-10-05 — user-directed imperfect-data policy
 User instructed that the most usable real data should be used even if not 100% perfect, with imperfections explicitly disclosed in limitations. Developer therefore added a separate research-use partial-data mode; strict Gate 2 remains failed and no missing option prices are synthesized. Tester review is required before interpreting the exploratory output.
+
+
+## 2026-10-05 — Phase 2 code-review cleanup
+Developer reviewed the research-use implementation while CI run 37231842778 was still assembling the composite. Two non-strategy defects were found and corrected: a stale 32-DTE coverage-output field was removed, and the continuation decision now uses the configured 0.20 threshold parameter rather than a duplicate hard-coded literal. Workflow diagnostics were also changed to upload unconditionally so tolerated strict-gate failures remain auditable.
