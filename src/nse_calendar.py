@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-HOLIDAY_FILE = Path("research/NSE_FNO_HOLIDAYS_2021_2026.csv")
+HOLIDAY_FILE = Path(__file__).resolve().parent.parent / "research" / "NSE_FNO_HOLIDAYS_2021_2026.csv"
 
 
 def nse_fno_holidays() -> set[date]:
