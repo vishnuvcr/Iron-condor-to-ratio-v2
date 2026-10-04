@@ -101,3 +101,7 @@ Run 37226364257 passed 35 tests and source staging but was terminated by the hos
 
 ## 2026-10-04 — partitioned composite architecture
 Tester Review 17 found the monolithic sequential composite build was too slow for the bounded research workflow despite the explicit 30-minute job timeout. Developer replaced it with year-partitioned builds (2021–2025 and 2026 through September) followed by a deterministic assembly job. Gate 2 validation, CSV export/reconciliation, and backtesting remain downstream of successful assembly.
+
+
+## 2026-10-04 — assembly manifest remediation
+The partitioned build passed all six year jobs, then Gate 2 coverage failed because the assembly job did not preserve the requested start/end window. Tester Review 18 recorded this as a gate-contract defect. Developer updated the assembly manifest and workflow arguments; no coverage criterion was relaxed.
