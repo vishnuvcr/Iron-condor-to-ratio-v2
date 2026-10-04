@@ -1,24 +1,65 @@
 expiry,status,reason
-2022-01-13,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-05-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-06-24,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-07-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-08-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-09-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-10-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-11-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2021-12-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-01-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-02-24,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-03-31,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-04-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-05-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-06-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-07-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-08-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-09-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-10-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-11-24,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2022-12-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-01-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-02-23,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-03-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-04-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-05-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-06-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-07-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-08-31,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-09-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-10-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-11-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2023-12-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-01-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-02-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-03-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-04-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-05-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-06-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-07-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-08-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2024-09-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2024-10-31,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
-2024-11-28,TRADED,Complete entry/adjustment/exit execution
+2024-11-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2024-12-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
-2025-01-30,TRADED,Complete entry/adjustment/exit execution
+2025-01-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2025-02-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2025-03-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
 2025-04-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
-2025-05-29,TRADED,Complete entry/adjustment/exit execution
-2025-06-26,TRADED,Complete entry/adjustment/exit execution
-2025-07-31,TRADED,Complete entry/adjustment/exit execution
-2025-08-28,TRADED,Complete entry/adjustment/exit execution
-2025-09-30,TRADED,Complete entry/adjustment/exit execution
-2025-10-28,TRADED,Complete entry/adjustment/exit execution
-2025-11-25,TRADED,Complete entry/adjustment/exit execution
-2025-12-30,TRADED,Complete entry/adjustment/exit execution
-2026-01-27,TRADED,Complete entry/adjustment/exit execution
-2026-02-24,TRADED,Complete entry/adjustment/exit execution
-2026-03-30,TRADED,Complete entry/adjustment/exit execution
-2026-04-28,TRADED,Complete entry/adjustment/exit execution
-2026-05-26,TRADED,Complete entry/adjustment/exit execution
-2026-06-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
-2026-07-21,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-05-29,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-06-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-07-31,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-08-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-09-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-10-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-11-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2025-12-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-01-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-02-24,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-03-30,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-04-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-05-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
+2026-06-09,SKIPPED_EMPTY_DATA,No contract rows in cycle window
+2026-07-28,TRADED,Complete entry/adjustment/exit execution
+2026-08-04,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path
