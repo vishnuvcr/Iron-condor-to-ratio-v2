@@ -43,7 +43,7 @@ def test_cost_model_side_logic():
 from scipy.special import ndtr
 from scipy.stats import norm
 import numpy as np
-from src.strategy_engine import black76_delta_from_forward, implied_vol_black76
+from src.strategy_engine import black76_delta_from_forward, black76_delta_from_price, implied_vol_black76
 
 
 def test_black76_delta_and_iv_roundtrip():
@@ -58,8 +58,10 @@ def test_black76_delta_and_iv_roundtrip():
     put_delta = black76_delta_from_forward(F, K, T, sigma, 0.0, np.array([False]))[0]
     assert abs(call_delta - ndtr(d1)[0]) < 1e-10
     assert abs(put_delta + ndtr(-d1)[0]) < 1e-10
-    recovered = implied_vol_black76(F, K, T, call_price, np.array([True]), 0.0)[0]
-    assert abs(recovered - 0.20) < 1e-5
+    recovered_iv = implied_vol_black76(F, K, T, call_price, np.array([True]), 0.0)[0]
+    recovered_delta = black76_delta_from_price(F, K, T, call_price, np.array([True]), 0.0)[0]
+    assert abs(recovered_iv - 0.20) < 1e-5
+    assert abs(recovered_delta - ndtr(d1)[0]) < 1e-10
 
 
 def test_stt_boundary_and_slippage():
