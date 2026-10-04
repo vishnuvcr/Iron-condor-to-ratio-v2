@@ -6,6 +6,7 @@ from src.nse_calendar import nse_fno_holidays, nse_fno_sessions
 def test_nse_fno_holiday_file_has_all_years():
     holidays = nse_fno_holidays()
     assert all(year in {d.year for d in holidays} for year in range(2021, 2027))
+    assert len(holidays) == 85
 
 
 def test_nse_fno_2025_holiday_is_not_a_normal_session():
