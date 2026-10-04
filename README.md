@@ -32,7 +32,7 @@ The published video is the primary specification. Ambiguities are preserved and 
 
 ## Current Gate 2 status
 
-**CLOSED / NOT PASSED.**
+**CLOSED / NOT PASSED for strict validation; research-use partial-data analysis ENABLED.**
 
 No strategy performance result is accepted. Earlier data-gate work used a 32-DTE protocol, but that protocol has been removed from the current strategy scope; those artifacts are retained only as infrastructure/history.
 
@@ -93,3 +93,10 @@ The pipeline writes [results/composite/consolidated_options_data.csv](results/co
 - [Tester Review 24 — Post-scope-reset data gate](research/TESTER_GATE_2_REVIEW_20.md)
 
 No strategy performance conclusion is accepted until Gate 2 is independently approved.
+
+
+## Research-use imperfect-data tier
+
+The strict Gate 2 remains closed because full lifecycle coverage is incomplete. By explicit user direction, the project may nevertheless run a separately labelled research-use analysis on the best available real data. No prices are interpolated or fabricated. Where the deterministic first expiry-month session is unavailable, the research-use variant may start at the first observed expiry-month session; this deviation is recorded in the run manifest and final limitations. Such results are exploratory until independently reviewed.
+
+The current free-source foundation is the TradeMarkk 1-minute index/options dataset, which documents approximately 2021–2026 coverage but explicitly warns that option coverage is partial, especially for illiquid/far strikes. urlTradeMarkk dataset cardhttps://huggingface.co/datasets/thetrademarkk/india-index-options-1m
