@@ -536,7 +536,7 @@ def run_cycle(
                     fill_ts = close_positions(positions, ts, df, cycle, cost_model, lot_size, "ratio_reset")
                     if fill_ts is None:
                         return None
-                    if s <= 0.20:
+                    if s <= continuation_delta_threshold:
                         new_direction = direction
                         target_set = "continuation"
                         reason = "ratio_continuation"
