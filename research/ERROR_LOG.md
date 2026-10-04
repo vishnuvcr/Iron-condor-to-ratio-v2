@@ -110,3 +110,5 @@
 | 2026-10-05 | 2 | RESULT | Research-use baseline run completed with 28 traded cycles and negative performance: net P&L −₹20,455.46, profit factor 0.647, win rate 46.43%, max drawdown −₹41,981.20, Sharpe proxy −0.541. | Treat as exploratory only; strict Gate 2 remains CLOSED. Tester Review 27 requires predefined reversal sensitivity 0.80/1.00/1.20/1.30 before strategy promotion. |
 
 | 2026-10-05 | 3 | SCOPE ERROR | Developer introduced a 0.80/1.00/1.20/1.30 reversal-threshold sensitivity grid and a 1.20 combined-delta convention that were not authorized by the user and did not faithfully test the YouTube strategy. | Removed the sensitivity workflow and threshold parameterization; restored the reversal rule to the literal stated 0.80–1.30 short-leg-delta range. Results from the unauthorized runs are non-authoritative and excluded from research conclusions. |
+
+| 2026-10-05 | 4 | USER CORRECTION | Developer incorrectly converted the user's fixed 1.30 reversal trigger into a 0.80–1.30 range. | Corrected implementation and research plan to use a fixed 1.30 short-leg delta reversal trigger; no reversal sensitivity testing is permitted. |
