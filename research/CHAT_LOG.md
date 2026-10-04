@@ -97,3 +97,7 @@ The staged primary source contains weekly-dated files in June and August 2026. D
 
 ## 2026-10-04 — explicit CI timeout
 Run 37226364257 passed 35 tests and source staging but was terminated by the hosted runner after about 4m19s during the sequential composite build. Branch inspection found no later commit/concurrency cancellation responsible. Developer set the workflow job timeout to 30 minutes; no research/data acceptance criteria changed.
+
+
+## 2026-10-04 — partitioned composite architecture
+Tester Review 17 found the monolithic sequential composite build was too slow for the bounded research workflow despite the explicit 30-minute job timeout. Developer replaced it with year-partitioned builds (2021–2025 and 2026 through September) followed by a deterministic assembly job. Gate 2 validation, CSV export/reconciliation, and backtesting remain downstream of successful assembly.
