@@ -18,3 +18,12 @@ User authorized continued autonomous research. Developer expanded the canonical 
 
 ## 2026-10-04 — source correction
 The expanded rissin run completed with 23 candidate monthly expiries but only 15 complete trades; 2022 had only a 15-row partial expiry and 2023 was absent. Tester Gate 2 therefore remains failed/pending. Developer switched the primary data source to the expiry-partitioned thetrademarkk NIFTY 1-minute dataset (2021–2026), retained rissin for overlap validation, and corrected NIFTY historical lot-size boundaries using NSE contract revisions. This log records actions and outcomes, not private chain-of-thought.
+
+
+## 2026-10-04 — Proceed / Gate 2 revalidation
+- Developer verified CI run 37219640553 completed successfully.
+- Independent inspection showed the run produced only one trade and that its expiry partition ended on 2026-07-02 for a 2026-07-28 expiry.
+- This violates the deterministic 32-DTE entry and final-pre-expiry monitoring requirements; the result is therefore validation-only and not a performance result.
+- Developer corrected the engine to reject incomplete expiry partitions and added regression tests.
+- External dataset research confirms the current thetrademarkk source describes expiry-partitioned 1-minute option data but also warns option coverage is partial; the exact cycle-span requirement must be demonstrated rather than inferred. citeturn0search1turn0search3
+- Gate 2 remains CLOSED. Next step is source acquisition/validation, followed by independent tester review.
