@@ -62,7 +62,7 @@ No performance result is promoted while any of these conditions remain open.
 
 ## Current research status — 2026-10-04
 
-**Phase 2 / Gate 2: NOT PASSED.** The latest successful historical-data run produced only a one-trade validation artifact and was rejected. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, and 13; unit tests now run before data staging; a fresh CI run is required before Gate 2 can be reconsidered.
+**Phase 2 / Gate 2: NOT PASSED.** The latest successful historical-data run produced only a one-trade validation artifact and was rejected. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, and 14; unit tests now run before data staging; a fresh CI run is required before Gate 2 can be reconsidered.
 
 ### Historical expansion
 The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate remains the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; rissin is retained for overlap validation, with other free/public candidates retained as documented fallbacks.
@@ -80,5 +80,6 @@ The pipeline writes [results/composite/consolidated_options_data.csv](results/co
 - [Tester Review 11](research/TESTER_GATE_2_REVIEW_11.md)
 - [Tester Review 12](research/TESTER_GATE_2_REVIEW_12.md)
 - [Tester Review 13](research/TESTER_GATE_2_REVIEW_13.md)
+- [Tester Review 14](research/TESTER_GATE_2_REVIEW_14.md)
 
 No strategy performance conclusion is accepted until Gate 2 is independently approved.
