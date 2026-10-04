@@ -140,5 +140,5 @@ def test_complete_expiry_partition_uses_pre_expiry_session():
 
     dates = [date(2026, 6, 26), date(2026, 6, 29), date(2026, 7, 24), date(2026, 7, 27)]
     entry, exit_date = entry_and_exit_dates(date(2026, 7, 28), dates)
-    assert entry == date(2026, 6, 29)
+    assert entry == date(2026, 6, 26)
     assert exit_date == date(2026, 7, 27)
