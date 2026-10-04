@@ -44,3 +44,5 @@
 | 2026-10-04 | 2 | TESTER CONFIRMATION | Gate 2 Review 12 independently matched the versioned 2021–2026 NSE F&O holiday file to the annual NSE F&O circulars; no calendar-date mismatch found. | Keep Gate 2 pending until CI and final artifact checks pass. |
 | 2026-10-04 | 2 | DATA INTEGRITY | The cycle boundary helper used a fixed three-calendar-day tolerance and could reject a valid Friday-to-Tuesday cycle when Monday was an NSE holiday; it also rejected a 32-DTE target that itself fell on a holiday. | Reworked cycle boundaries to use the versioned NSE F&O session calendar and added boundary regression tests. |
 | 2026-10-04 | 2 | PROVENANCE | Primary DuckDB composite rows used MD5 while normalized fallback rows used SHA-256 for source_row_hash. | Standardized the primary DuckDB path to SHA-256; fallback rows already used SHA-256. |
+
+| 2026-10-04 | 2 | CI INFRASTRUCTURE | Hardened CI run 37225146663 staged all 64 primary monthly files and began the composite build, then the GitHub-hosted runner received a shutdown signal and exited 143. | No research output from that run was promoted. Failed jobs were automatically re-run as attempt 2. |
