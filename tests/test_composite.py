@@ -186,3 +186,11 @@ def test_fallback_monthly_candidate_rejects_weekly_expiry():
     assert is_monthly_expiry_candidate(date(2025, 9, 23)) is False
     assert is_monthly_expiry_candidate(date(2025, 9, 29)) is True
     assert is_monthly_expiry_candidate(date(2025, 9, 30)) is True
+
+
+def test_primary_weekly_expiry_is_not_a_monthly_candidate():
+    from datetime import date
+    from scripts.check_composite_coverage import is_monthly_expiry_candidate
+
+    assert is_monthly_expiry_candidate(date(2026, 6, 9)) is False
+    assert is_monthly_expiry_candidate(date(2026, 6, 30)) is True
