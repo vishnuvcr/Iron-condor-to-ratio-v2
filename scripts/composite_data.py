@@ -207,6 +207,16 @@ def compose(frames: list[pd.DataFrame]):
     if not frames:
         return pd.DataFrame(columns=CANON), {"rows": 0}
 
+    # Keep canonical expiry dtype stable across source-specific frames.
+    # Cross-source resolution can otherwise produce Python date in one frame
+    # and pandas Timestamp in another, which Pandas 3.x refuses to order.
+    normalized_frames = []
+    for frame in frames:
+        x = frame.copy()
+        x["expiry"] = pd.to_datetime(x["expiry"], errors="coerce").dt.date
+        normalized_frames.append(x)
+    frames = normalized_frames
+
     cleaned = []
     for f in frames:
         c, _ = validate_rows(f)
