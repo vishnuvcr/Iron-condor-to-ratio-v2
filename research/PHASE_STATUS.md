@@ -21,3 +21,7 @@ Gate 2 remains NOT PASSED. Independent review confirms the prior one-trade outpu
 
 ## 2026-10-04 tester update
 Gate 2 remains NOT PASSED. Free-source expansion produced credible candidates, but no source has yet demonstrated complete 32-DTE-to-pre-expiry coverage and required strike coverage. See research/TESTER_GATE_2_REVIEW_5.md.
+
+
+## 2026-10-05 — Tester Review 29
+Phase 3 strategy-fidelity and numerical verification: **PASS WITH RESTRICTIONS**. The fixed 1.30 reversal implementation and the completed 28-cycle research-use output were independently reconciled from trade and order files. Strategy promotion is NOT approved. Strict Gate 2 remains CLOSED at 0/69 requested calendar months. The next permitted step is manuscript/conclusion work without strategy modification.
