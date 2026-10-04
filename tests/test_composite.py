@@ -143,3 +143,14 @@ def test_source_row_hash_is_generated_for_mixed_types():
     out = normalize_frame(raw, "thetrademarkk", "sample.parquet")
     assert isinstance(out.iloc[0]["source_row_hash"], str)
     assert len(out.iloc[0]["source_row_hash"]) == 64
+
+def test_naive_date_time_is_localized_to_ist_without_shift():
+    raw = pd.DataFrame([{
+        "Symbol": "NIFTY25JAN24000CE",
+        "Date": "2025-01-02",
+        "Time": "09:20:00",
+        "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
+        "Volume": 100, "OI": 1000,
+    }])
+    out = normalize_frame(raw, "cloudtrader", "sample.csv")
+    assert str(out.iloc[0]["timestamp"]) == "2025-01-02 09:20:00+05:30"
