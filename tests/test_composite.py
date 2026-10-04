@@ -154,3 +154,26 @@ def test_naive_date_time_is_localized_to_ist_without_shift():
     }])
     out = normalize_frame(raw, "cloudtrader", "sample.csv")
     assert str(out.iloc[0]["timestamp"]) == "2025-01-02 09:20:00+05:30"
+
+
+def test_requested_months_are_independent_of_primary_file_presence(tmp_path):
+    import json
+    from scripts.check_composite_coverage import expected_monthly_candidates
+
+    manifest = tmp_path / "source_staging_manifest.json"
+    manifest.write_text(json.dumps({
+        "start": "2021-01-01",
+        "end": "2026-09-30",
+        "thetrademarkk": {
+            "files": [
+                "data/cache/thetrademarkk/2021-05-27.parquet",
+                "data/cache/thetrademarkk/2026-08-04.parquet",
+            ]
+        },
+    }))
+    candidates = expected_monthly_candidates(manifest)
+    assert len(candidates) == 69
+    by_month = {x["month"]: x for x in candidates}
+    assert by_month[(2021, 1)]["primary_file_available"] is False
+    assert by_month[(2021, 5)]["primary_file_available"] is True
+    assert by_month[(2026, 9)]["primary_file_available"] is False
