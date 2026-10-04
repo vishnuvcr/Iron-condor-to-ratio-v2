@@ -56,3 +56,12 @@ Developer commit 93c7d5f0abe2bf699dae91445bccab8d8ea2d1c5 changes the engine so 
 Gate remains **PENDING** until the new CI run completes and its artifacts are independently reviewed.
 
 Tester instruction to developer: do not advance to the next phase until the new contract-level delta run is checked independently.
+
+
+# Gate 2 Re-review — First Validity Failure
+
+The first end-to-end corrected run completed technically, but the generated data-quality log showed every cycle failing with `NameError: rate is not defined`, so its empty P&L output is invalid. The developer corrected the ratio-builder signature/call chain in commit 633ece10427dcfe49d477aa7fe25849073c7270e and added a regression test.
+
+The tester must treat the previous run as a **rejected execution**, not a result. Gate 2 remains PENDING until the new run contains actual trade/order rows and the data-quality log shows no runtime errors.
+
+Tester instruction to developer: after the new run, independently verify at least one complete IC entry, one IC->ratio transition (where triggered), one ratio reset/reversal where present, and the P&L/cost arithmetic in the order log.
