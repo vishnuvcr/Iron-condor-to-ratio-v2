@@ -137,12 +137,6 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
     pairs.loc[pairs["forward_i"] <= 0, "forward_i"] = np.nan
     forward = pairs.groupby("timestamp")["forward_i"].median().rename("forward")
     df = df.join(forward, on="timestamp")
-    in_window = (
-        df["forward"].notna()
-        & (df["strike"] >= 0.85 * df["forward"])
-        & (df["strike"] <= 1.15 * df["forward"])
-    )
-    df = df.loc[in_window].copy()
     expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
     t = (expiry_close - df["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     t = np.maximum(t.values, 1e-6)
@@ -200,6 +194,13 @@ def select_contract(snapshot: pd.DataFrame, option_type: str, target_abs_delta: 
     if x.empty:
         return None
     x = x[(x["delta"].abs() >= 0.01) & (x["delta"].abs() <= 0.99)]
+    if x.empty:
+        return None
+    if "forward" in x.columns:
+        x = x[x["forward"].notna()]
+        if not x.empty:
+            fwd = float(x["forward"].iloc[0])
+            x = x[(x["strike"] >= 0.85 * fwd) & (x["strike"] <= 1.15 * fwd)]
     if x.empty:
         return None
     x = x.copy()
