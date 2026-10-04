@@ -25,5 +25,5 @@ The expanded rissin run completed with 23 candidate monthly expiries but only 15
 - Independent inspection showed the run produced only one trade and that its expiry partition ended on 2026-07-02 for a 2026-07-28 expiry.
 - This violates the deterministic 32-DTE entry and final-pre-expiry monitoring requirements; the result is therefore validation-only and not a performance result.
 - Developer corrected the engine to reject incomplete expiry partitions and added regression tests.
-- External dataset research confirms the current thetrademarkk source describes expiry-partitioned 1-minute option data but also warns option coverage is partial; the exact cycle-span requirement must be demonstrated rather than inferred. citeturn0search1turn0search3
+- External dataset research confirms the current thetrademarkk source describes expiry-partitioned 1-minute option data but also warns option coverage is partial; the exact cycle-span requirement must be demonstrated rather than inferred.
 - Gate 2 remains CLOSED. Next step is source acquisition/validation, followed by independent tester review.
