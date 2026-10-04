@@ -32,3 +32,17 @@ The prior expanded pipeline detected 23 candidate monthly expiries but only 15 c
 A multi-year expansion assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate is the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; the rissin source is retained for overlap validation, with NSE and Zenodo sources as independent references/candidates. Sources will not be stitched into a production result until overlap, timestamp, contract, strike, and data-quality checks pass.
 
 **No final performance conclusion will be accepted until the independent tester approves historical coverage and provenance.**
+
+
+## Current research status — 2026-10-04
+
+**Phase 2 / Gate 2: NOT PASSED.** The latest CI run completed technically, but the resulting one-trade output is invalid for the baseline because the selected expiry partition did not contain the required 32-DTE-to-expiry history. The July 28, 2026 partition ended on July 2. The engine has now been hardened to reject incomplete expiry partitions instead of treating their last observation as an early exit.
+
+- Strategy specification: [research/STRATEGY_SPEC.md](research/STRATEGY_SPEC.md)
+- Research plan: [research/RESEARCH_PLAN.md](research/RESEARCH_PLAN.md)
+- Phase status: [research/PHASE_STATUS.md](research/PHASE_STATUS.md)
+- Data-source expansion: [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md)
+- Error log: [research/ERROR_LOG.md](research/ERROR_LOG.md)
+- Tester Gate 2 reports: [research/TESTER_GATE_2_REVIEW_3.md](research/TESTER_GATE_2_REVIEW_3.md)
+
+No performance result from the current one-trade run is treated as evidence of strategy profitability. The next Gate 2 submission requires a defensible continuous historical source with complete cycle coverage and independent tester approval.
