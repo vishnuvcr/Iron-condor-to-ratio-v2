@@ -146,9 +146,9 @@ def normalize_frame(
     out["oi_source"] = source
     out["source_file"] = source_file
     out["source_revision"] = source_revision
+    hash_cols = ["timestamp", "expiry", "strike", "option_type", "open", "high", "low", "close", "volume"]
     out["source_row_hash"] = (
-        out[["timestamp", "expiry", "strike", "option_type", "open", "high", "low", "close", "volume"]]
-        .astype(str).agg("|".join, axis=1)
+        out[hash_cols].apply(lambda row: "|".join(map(str, row.tolist())), axis=1)
         .map(lambda x: hashlib.sha256(x.encode()).hexdigest())
     )
     return out[CANON]
