@@ -90,3 +90,9 @@ def test_timezone_aware_expiry_arithmetic():
     delta_days = (expiry_close - ts).dt.total_seconds() / 86400.0
     assert delta_days.iloc[0] > 20
     assert delta_days.iloc[1] > 0
+
+
+def test_build_ratio_accepts_rate_parameter():
+    import inspect
+    from scripts.backtest import build_ratio
+    assert "rate" in inspect.signature(build_ratio).parameters
