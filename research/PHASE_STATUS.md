@@ -135,3 +135,7 @@ Phase 1 remains under implementation validation. CI run 37231284204 reached 35 p
 
 ## 2026-10-05 — Gate 1 PASS / Gate 2 recheck
 Independent tester Review 23 passed the revised strategy implementation after reversal-threshold remediation. CI run 37231413691 passed unit tests and all six partitions, but the current strategy lifecycle coverage check failed at 0/69 requested months. Independent tester Review 24 confirms Gate 2 CLOSED. No performance result was produced. Alternative historical-source acquisition remains the next phase-2 task.
+
+
+## 2026-10-05 — research-use data tier activated
+Per user instruction, Phase 2 now has two clearly separated outcomes: (1) strict Gate 2, which remains CLOSED because full lifecycle coverage is not available; and (2) a research-use partial-data tier that may run the best available real dataset with explicit limitations. No missing prices will be synthesized. The research-use engine can use the first observed expiry-month session when the deterministic month-start session is unavailable, and it will retain the strict coverage failure in the run manifest. Tester approval is required before treating the resulting analysis as a research result.
