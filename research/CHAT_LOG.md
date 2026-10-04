@@ -86,3 +86,10 @@ CI run 37225753011 stopped at unit tests: 32 passed, 1 failed because explicit a
 ## 2026-10-04 — test fixture correction and CI diagnostics hardening
 CI run 37225959932 reached 33 passed / 1 failed after the expiry dtype fix. The remaining failure was a latent test-fixture error: it expected a lower-priority cloud row to replace a valid primary row with the same key. Developer corrected the fixture to make the primary price invalid while retaining its expiry provenance, and kept a separate mixed-dtype regression test.
 The same run exposed a failure-handler race: git pushes from CI were rejected as non-fast-forward when the developer branch had advanced. Developer removed failure-time pushes and switched diagnostics to artifact uploads.
+
+
+## 2026-10-04 — resource-stable composite build
+Tester Review 16 found the multi-year composite build was being terminated during the bulk primary scan after unit tests and source staging had passed. Developer switched the composite work database to file-backed DuckDB and ingests one primary Parquet partition at a time, preserving row validation and provenance.
+
+## 2026-10-04 — weekly filename resolver hardening
+The staged primary source contains weekly-dated files in June and August 2026. Developer ensured the symbol-only expiry resolver ignores those filenames and uses only month-end monthly candidates. A dedicated regression test covers 2026-06-09 vs 2026-06-30 and 2026-08-04 vs 2026-08-25.
