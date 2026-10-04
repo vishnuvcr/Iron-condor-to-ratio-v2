@@ -80,3 +80,7 @@ Phase 2 remains IN PROGRESS. Review 15 found a dependency-sensitive expiry dtype
 
 ## 2026-10-04 — CI test-fixture and diagnostics remediation
 Phase 2 remains IN PROGRESS. The 33/34 unit-test result from run 37225959932 was traced to a test fixture, not production strategy code. The fixture and dtype regression coverage were corrected. CI diagnostic recording was also changed from git pushes to artifact uploads to eliminate branch-race failures.
+
+
+## 2026-10-04 — Gate 2 Review 16 remediation
+Phase 2 remains IN PROGRESS. Composite construction was resource-unstable under the previous bulk/in-memory implementation. The primary path is now file-backed DuckDB with sequential monthly-partition ingestion. A separate resolver safeguard excludes weekly-dated primary files from symbol-based expiry inference. Fresh CI and tester review remain required.
