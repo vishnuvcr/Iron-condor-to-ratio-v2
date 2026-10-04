@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import calendar
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import duckdb
@@ -262,7 +263,7 @@ def staged_files():
 
 
 def explicit_calendar_from_staged(files):
-    calendar = {}
+    expiry_calendar = {}
     for source, path in files:
         if source != "thetrademarkk":
             continue
@@ -270,9 +271,16 @@ def explicit_calendar_from_staged(files):
             e = pd.Timestamp(path.stem).date()
         except Exception:
             continue
+        month_end = date(
+            e.year,
+            e.month,
+            calendar.monthrange(e.year, e.month)[1],
+        )
+        if e < month_end - timedelta(days=6) or e > month_end:
+            continue
         ym = f"{e.year:04d}-{e.month:02d}"
-        calendar[ym] = max(calendar.get(ym, e), e)
-    return calendar
+        expiry_calendar[ym] = max(expiry_calendar.get(ym, e), e)
+    return expiry_calendar
 
 
 def _read_source_file(path: Path):
