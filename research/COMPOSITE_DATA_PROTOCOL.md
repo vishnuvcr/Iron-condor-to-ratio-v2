@@ -66,3 +66,8 @@ Continuity validation now uses a versioned NSE Futures & Options holiday calenda
 
 ## 2026-10-04 monthly-expiry integrity
 A requested calendar month is production-eligible only when its candidate expiry is a defensible monthly expiry near month-end. Primary staging filenames are checked rather than blindly treated as monthly; a non-monthly primary file may be superseded only by an explicit valid fallback monthly expiry. Weekly expiries cannot satisfy the monthly cycle gate.
+
+
+## 2026-10-04 resource and resolver hardening
+- Composite construction uses a file-backed DuckDB working database and sequential primary-partition ingestion to bound peak memory.
+- Staged primary filenames used for symbol-only expiry resolution must themselves satisfy the month-end monthly-expiry candidate rule; weekly-dated files are ignored for that calendar mapping.
