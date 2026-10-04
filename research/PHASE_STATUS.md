@@ -52,3 +52,7 @@ Phase 2 remains IN PROGRESS. Tester Review 10 found that an entirely missing mon
 
 ## 2026-10-04 — Gate 2 Review 11 remediation
 Phase 2 remains IN PROGRESS. Tester Review 11 required an NSE-specific session calendar rather than the BSE proxy. Developer added `research/NSE_FNO_HOLIDAYS_2021_2026.csv`, switched continuity validation to that calendar, added tests, and removed the unused exchange-calendars dependency. Fresh CI and independent tester re-review are required before Gate 2 promotion.
+
+
+## 2026-10-04 — Gate 2 Review 12 confirmation and boundary hardening
+Phase 2 remains IN PROGRESS. Tester Review 12 found no mismatch between the stored NSE F&O holiday calendar and the annual NSE circulars checked for 2021–2026. Developer also hardened cycle boundary logic to use the same NSE session calendar and standardized composite row hashes to SHA-256. Gate 2 remains closed pending fresh CI and final tester review.
