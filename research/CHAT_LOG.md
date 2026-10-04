@@ -69,3 +69,7 @@ Hardened CI run 37225146663 completed source staging, then the GitHub-hosted run
 
 ## 2026-10-04 — requested-window coverage hardening
 Tester Review 13 identified five absent calendar months in the requested 2021-01 to 2026-09 range: staging selected 64 primary monthly files for 69 requested months. Developer changed the coverage gate to derive expected months from the requested range, while allowing explicit fallback data to satisfy a missing primary partition. No gate decision is made until the fresh run completes.
+
+
+## 2026-10-04 — CI ordering improvement
+The backtest workflow now runs unit tests immediately after installation and before source staging/composite construction. This reduces wasted long data builds when a code regression is present; the research acceptance criteria are unchanged.
