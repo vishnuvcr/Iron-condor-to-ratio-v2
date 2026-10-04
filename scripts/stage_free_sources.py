@@ -69,12 +69,15 @@ def download_cloudtrader(out: Path, manifest: dict):
         manifest["cloudtrader"] = {"status": "DOWNLOAD_FAILED", "error": repr(exc), "drive_id": CLOUD_DRIVE_ID}
         return
     manifest["cloudtrader"] = {"status": "DOWNLOADED", "file": str(archive)}
-    suffix = archive.suffix.lower()
     if zipfile_is_archive(archive):
         import zipfile
         with zipfile.ZipFile(archive) as zf:
             zf.extractall(target / "unzipped")
         manifest["cloudtrader"]["unzipped"] = True
+    else:
+        csv_path = target / "free_sample.csv"
+        archive.replace(csv_path)
+        manifest["cloudtrader"]["csv_path"] = str(csv_path)
 
 
 def zipfile_is_archive(path: Path) -> bool:
