@@ -43,3 +43,6 @@ User clarified that the reversal trigger is **1.30**, not a 0.80–1.30 range. A
 
 ## 2026-10-05 — autonomous continuation
 User repeatedly instructed the developer to proceed without intervention and then said “Keep thinking.” Developer continued autonomous execution, preserving the fixed 1.30 strategy scope and logging only concise decisions/status; private chain-of-thought is not copied into repository files.
+
+## 2026-10-05 — final fixed-1.30 conclusion
+Tester Review 29 independently reproduced the fixed-1.30 research-use metrics from the compact artifact. The strategy is negative in the tested sample and is not promoted. The final manuscript records the data limitations, zero reversal events, cost drag, and future research requirements. No parameter tuning was introduced.
