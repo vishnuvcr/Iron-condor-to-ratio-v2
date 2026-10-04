@@ -213,43 +213,31 @@ def trading_dates(df: pd.DataFrame) -> List[date]:
 
 def entry_and_exit_dates(expiry: date, available_dates: List[date]) -> Tuple[Optional[date], Optional[date]]:
     """
-    Require the source to span the full deterministic cycle using the
-    versioned NSE F&O normal-session calendar.
+    Define the latest user-specified strategy cycle without a DTE rule.
 
-    The strategy enters on the first observed trading date on or after
-    expiry-32 calendar days. The source must already contain data by that
-    first eligible NSE session and must contain the final normal NSE F&O
-    session before expiry. This avoids a fixed calendar-day tolerance that
-    can reject valid Friday-to-Tuesday cycles when Monday is an NSE holiday.
+    Entry convention: first normal NSE F&O session of the expiry month.
+    This is a modelling convention because the user did not specify an
+    exact entry date/time. Exit: final normal NSE F&O session before expiry.
+    No 32-DTE condition is used anywhere in the cycle boundary.
     """
     if not available_dates:
         return None, None
 
     dates = sorted(set(available_dates))
-    target = expiry - timedelta(days=32)
-    expected_sessions = nse_fno_sessions(target, expiry - timedelta(days=1))
+    month_start = date(expiry.year, expiry.month, 1)
+    expected_sessions = nse_fno_sessions(month_start, expiry - timedelta(days=1))
     if not expected_sessions:
         return None, None
 
     first_expected = expected_sessions[0]
     final_expected = expected_sessions[-1]
 
-    # The source must begin no later than the first eligible normal NSE
-    # session on/after the 32-DTE target.
-    if dates[0] > first_expected:
+    if dates[0] > first_expected or first_expected not in dates:
         return None, None
-
-    entries = [d for d in dates if target <= d < expiry]
-    if not entries:
-        return None, None
-
-    # The source must extend through the final expected normal NSE F&O
-    # session before expiry. Interior session continuity is checked by the
-    # dedicated data gate before production promotion.
     if final_expected not in dates:
         return None, None
 
-    return entries[0], final_expected
+    return first_expected, final_expected
 
 def nearest_bar(df: pd.DataFrame, target_dt: pd.Timestamp) -> Optional[pd.Timestamp]:
     if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names:
@@ -615,7 +603,7 @@ def main():
     candidate_status = []
 
     for expiry in expiry_list:
-        entry_start = expiry - timedelta(days=35)
+        entry_start = date(expiry.year, expiry.month, 1)
         df = load_cycle_data(paths, expiry, entry_start, expiry - timedelta(days=1))
         if df.empty:
             candidate_status.append({"expiry": str(expiry), "status": "SKIPPED_EMPTY_DATA", "reason": "No contract rows in cycle window"})
