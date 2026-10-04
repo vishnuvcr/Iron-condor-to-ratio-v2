@@ -38,7 +38,7 @@ def download_data(cache_root: Path, start: date, end: date) -> Tuple[List[Path],
     composite = Path("results/composite/nifty_options_composite.parquet")
     if composite.exists():
         con = duckdb.connect()
-        exps = con.execute("SELECT DISTINCT CAST(expiry AS DATE) FROM read_parquet(?) WHERE expiry IS NOT NULL ORDER BY 1", [str(composite)]).fetchdf()
+        exps = con.execute("SELECT DISTINCT CAST(expiry AS DATE) AS expiry FROM read_parquet(?) WHERE expiry IS NOT NULL AND expiry_source = 'EXPLICIT_SOURCE_FIELD' ORDER BY 1", [str(composite)]).fetchdf()
         con.close()
         remote_files = [f"COMPOSITE::{pd.Timestamp(e.iloc[0]).date().isoformat()}" for _, e in exps.iterrows()]
         return [composite], remote_files
@@ -697,7 +697,7 @@ def main():
             file_hashes[str(path)] = f"ERROR:{exc!r}"
     schema_fields = [
         "timestamp", "open", "high", "low", "close", "volume",
-        "open_interest", "trading_day", "symbol", "strike", "option_type", "expiry"
+        "open_interest", "trading_day", "symbol", "strike", "option_type", "expiry", "expiry_source"
     ]
     schema_hash = hashlib.sha256("|".join(schema_fields).encode("utf-8")).hexdigest()
     composite_manifest_path = out.parent / "composite" / "composite_manifest.json"
