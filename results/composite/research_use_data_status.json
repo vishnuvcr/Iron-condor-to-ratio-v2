@@ -1,0 +1,13 @@
+{
+  "mode": "research_use_partial",
+  "strict_gate": "FAILED",
+  "research_eligible_cycles_with_observed_entry_window": 0,
+  "total_requested_months": 69,
+  "complete_cycles": 0,
+  "failure_count": 69,
+  "limitations": [
+    "The strict first-session-of-expiry-month lifecycle gate is not satisfied.",
+    "The research-use backtest may start at the first observed session available in the expiry month.",
+    "Results must not be presented as a fully covered historical validation."
+  ]
+}
