@@ -98,7 +98,11 @@ def normalize_frame(
         raise ValueError(f"{source}: missing timestamp or date/time in {source_file}")
 
     out = pd.DataFrame()
-    out["timestamp"] = pd.to_datetime(ts_values, errors="coerce", utc=True).dt.tz_convert(IST)
+    parsed_ts = pd.to_datetime(ts_values, errors="coerce")
+    if getattr(parsed_ts.dt, "tz", None) is None:
+        out["timestamp"] = parsed_ts.dt.tz_localize(IST)
+    else:
+        out["timestamp"] = parsed_ts.dt.tz_convert(IST)
 
     symbol_series = df[symbol_col].astype(str) if symbol_col else None
 
