@@ -1,6 +1,6 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Gate 1 passed; Phase 2 data engineering in progress.**
+Research status: **Gate 2 / Phase 2 data engineering in progress; final historical sample not yet accepted.**
 
 This repository is the reproducible research record for backtesting the YouTube strategy supplied by the user:
 https://youtu.be/T4gvTshMEyA
@@ -11,55 +11,68 @@ https://youtu.be/T4gvTshMEyA
 - research/PHASE_STATUS.md
 - research/DATA_SOURCES.md
 - research/HISTORICAL_DATA_EXPANSION.md
+- research/FREE_DATA_SOURCE_REVIEW.md
+- research/COMPOSITE_DATA_PROTOCOL.md
 - research/COST_MODEL.md
 - research/ERROR_LOG.md
 - research/CHAT_LOG.md
 - research/ROLES_AND_GATES.md
+- research/TESTER_GATE_2_REVIEW_8.md
+- research/TESTER_GATE_2_REVIEW_9.md
 
 ## Roles and branches
 - developer: implementation branch; may write research code and workflow changes.
 - tester: independent review branch; must not copy developer implementation code into tester code. Tester reviews developer commits read-only and records findings independently.
+- phase-2-data-developer: isolated Phase 2 implementation branch.
+- phase-2-data-tester: isolated Phase 2 independent-test branch.
 
 ## Research principle
 The published video is the primary specification. Ambiguities are preserved and flagged rather than silently converted into assumptions. Any required assumption is documented, tested, and sensitivity-analysed.
 
-## Current gate
-**Gate 2 / Phase 2 — data engineering: IN PROGRESS.**
+## Current Gate 2 status
 
-The prior expanded pipeline detected 23 candidate monthly expiries but only 15 complete trades; 2022/2023 continuity was not established. That result is **validation-only**, not a final historical sample. Phase 2 now uses the expiry-partitioned 2021–2026 NIFTY source and must pass independent coverage/provenance checks.
+**CLOSED / PENDING TESTER APPROVAL.**
 
-### Historical expansion
-A multi-year expansion assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate is the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; the rissin source is retained for overlap validation, with NSE and Zenodo sources as independent references/candidates. Sources will not be stitched into a production result until overlap, timestamp, contract, strike, and data-quality checks pass.
+The previously observed one-trade result remains rejected because its source partition ended on July 2, 2026 for a July 28, 2026 expiry, so it did not span the deterministic 32-DTE entry to final pre-expiry monitoring.
 
-**No final performance conclusion will be accepted until the independent tester approves historical coverage and provenance.**
+### Composite data path
+The current Phase 2 pipeline:
+1. stages free/public sources and caches them;
+2. builds an exact-key, provenance-aware composite in DuckDB/Parquet;
+3. rejects invalid option OHLC rows without interpolation/averaging;
+4. checks cycle coverage and expected exchange-session continuity;
+5. exports `results/composite/consolidated_options_data.csv`;
+6. reconciles the CSV against the canonical Parquet before any backtest is eligible.
 
+Parquet remains the research-native dataset. The CSV is the transfer artifact for Google Drive and future repository reuse.
+
+### Current acceptance conditions
+Gate 2 cannot pass until:
+- every promoted expiry spans the 32-DTE entry window and the final pre-expiry session;
+- no expected exchange session is missing inside a promoted cycle;
+- expiry provenance is explicit or resolved from another explicit source;
+- fallback rows retain source-level provenance;
+- the CSV schema and row count match the Parquet;
+- the canonical Parquet-derived CSV has the same SHA-256 as the published CSV;
+- fresh CI and the independent tester review pass.
+
+No performance result is promoted while any of these conditions remain open.
 
 ## Current research status — 2026-10-04
 
-**Phase 2 / Gate 2: NOT PASSED.** The latest CI run completed technically, but the resulting one-trade output is invalid for the baseline because the selected expiry partition did not contain the required 32-DTE-to-expiry history. The July 28, 2026 partition ended on July 2. The engine has now been hardened to reject incomplete expiry partitions instead of treating their last observation as an early exit.
+**Phase 2 / Gate 2: NOT PASSED.** The latest successful historical-data run produced only a one-trade validation artifact and was rejected. The enforcing pipeline has now been updated after independent tester Review 9; a fresh CI run is required before Gate 2 can be reconsidered.
 
-- Strategy specification: [research/STRATEGY_SPEC.md](research/STRATEGY_SPEC.md)
-- Research plan: [research/RESEARCH_PLAN.md](research/RESEARCH_PLAN.md)
-- Phase status: [research/PHASE_STATUS.md](research/PHASE_STATUS.md)
-- Data-source expansion: [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md)
-- Error log: [research/ERROR_LOG.md](research/ERROR_LOG.md)
-- Tester Gate 2 reports: [research/TESTER_GATE_2_REVIEW_3.md](research/TESTER_GATE_2_REVIEW_3.md)
+### Historical expansion
+The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate remains the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; rissin is retained for overlap validation, with other free/public candidates retained as documented fallbacks.
 
-No performance result from the current one-trade run is treated as evidence of strategy profitability. The next Gate 2 submission requires a defensible continuous historical source with complete cycle coverage and independent tester approval.
+### Free source and composite research
+See [research/FREE_DATA_SOURCE_REVIEW.md](research/FREE_DATA_SOURCE_REVIEW.md) and [research/COMPOSITE_DATA_PROTOCOL.md](research/COMPOSITE_DATA_PROTOCOL.md). No paid dataset has been assumed.
 
+### CSV transfer artifact
+The pipeline writes [results/composite/consolidated_options_data.csv](../results/composite/consolidated_options_data.csv) only after a canonical composite has been built. Gate 2 promotion still requires independent tester reconciliation.
 
-## Free data-source investigation — 2026-10-04
-The project is actively prioritizing free/public data before any paid source. See [research/FREE_DATA_SOURCE_REVIEW.md](research/FREE_DATA_SOURCE_REVIEW.md). The first empirical target is the free NIFTY 1-minute OHLCV+OI sample exposed by Cloud Trader Pro/Shoonya; Zenodo 2017-2020 is an older-period candidate. No incomplete sample is allowed to generate final performance claims.
+### Gate 2 review trail
+- [Tester Review 8](research/TESTER_GATE_2_REVIEW_8.md)
+- [Tester Review 9](research/TESTER_GATE_2_REVIEW_9.md)
 
-
-## Composite free-data recovery — 2026-10-04
-The data pipeline now supports a provenance-aware composite dataset. Missing/invalid contract-minute rows can be recovered from another exact-key source without mixing or averaging option prices. See [research/COMPOSITE_DATA_PROTOCOL.md](research/COMPOSITE_DATA_PROTOCOL.md), [scripts/composite_data.py](../scripts/composite_data.py), and [research/FREE_DATA_SOURCE_REVIEW.md](FREE_DATA_SOURCE_REVIEW.md). Thetrademarkk is the current primary free candidate; Cloud Trader/Shoonya free samples are a fallback source. Zenodo is retained for older-period extension. No composite cycle is promoted until independent tester approval.
-
-
-## Current Phase 2 status — 2026-10-04
-- Composite NIFTY options data path implemented with exact-key fallback and provenance.
-- Naïve source timestamps are localized to IST.
-- Disk-backed DuckDB merge and lightweight coverage checks are in place.
-- Google Drive-friendly CSV export: `results/composite/consolidated_options_data.csv` (generated by CI; not yet promoted until Gate 2 passes).
-- Gate 2 remains **CLOSED/PENDING** independent tester approval.
-- See [Composite Data Protocol](research/COMPOSITE_DATA_PROTOCOL.md), [Phase Status](research/PHASE_STATUS.md), and [Tester Gate 2 Review 8](research/TESTER_GATE_2_REVIEW_8.md).
+No strategy performance conclusion is accepted until Gate 2 is independently approved.
