@@ -93,3 +93,7 @@ Tester Review 16 found the multi-year composite build was being terminated durin
 
 ## 2026-10-04 — weekly filename resolver hardening
 The staged primary source contains weekly-dated files in June and August 2026. Developer ensured the symbol-only expiry resolver ignores those filenames and uses only month-end monthly candidates. A dedicated regression test covers 2026-06-09 vs 2026-06-30 and 2026-08-04 vs 2026-08-25.
+
+
+## 2026-10-04 — explicit CI timeout
+Run 37226364257 passed 35 tests and source staging but was terminated by the hosted runner after about 4m19s during the sequential composite build. Branch inspection found no later commit/concurrency cancellation responsible. Developer set the workflow job timeout to 30 minutes; no research/data acceptance criteria changed.
