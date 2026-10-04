@@ -108,3 +108,7 @@ Phase 2 remains IN PROGRESS and Gate 2 CLOSED. Partitioning and assembly are ope
 
 ## 2026-10-05 — Review 19 remediation
 Phase 2 remains IN PROGRESS; Gate 2 CLOSED. Partition lead-ins and deterministic cross-partition deduplication are now implemented. A fresh CI run and independent tester review are required before any further phase transition.
+
+
+## 2026-10-05 — Gate 2 final blocker
+Phase 2 remains IN PROGRESS and Gate 2 CLOSED. The current composite is not admissible for backtesting because no requested month has a complete 32-DTE-to-pre-expiry lifecycle. Do not proceed to strategy results until a complete source is independently validated.
