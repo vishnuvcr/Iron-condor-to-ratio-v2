@@ -1,43 +1,40 @@
-# Phase 3 — Reversal Threshold Robustness
+# Phase 3 — Strategy-Fidelity Validation
 
 ## Purpose
-Test only the pre-specified reversal-threshold sensitivity grid required by Tester Review 27: **0.80, 1.00, 1.20, 1.30**.
+Validate and backtest **only the strategy specified by the user from the YouTube video**. This phase must not introduce parameter optimization, threshold grids, alternative entry/exit rules, or strategy modifications.
 
-## Fixed controls
-- Same composite data and provenance as the Phase 2 research-use baseline.
-- Same research-use entry mode: first observed expiry-month session when strict first-session coverage is unavailable.
-- Same pre-expiry scheduled exit.
-- Same brokerage: ₹20/order.
-- Same adverse slippage: 1 option tick.
-- Same continuation threshold: 0.20.
-- No threshold optimization outside the four predefined points.
-- No interpolation, theoretical pricing, forward filling, or synthetic option prices.
-- No look-ahead.
+## Fixed strategy rules
+- Monthly iron condor: short 0.30-delta call/put; long 0.10-delta call/put.
+- Transition when either short IC leg reaches approximately 0.10 delta.
+- Falling market: call ratio, +1 0.50Δ / -2 0.40Δ / +1 0.10Δ.
+- Rising market: put ratio, +1 0.50Δ / -2 0.40Δ / +1 0.10Δ.
+- Continuation when combined absolute delta of the two short ratio legs reaches approximately 0.20; rebuild the same-direction ratio at 0.40/0.30/0.08.
+- Reversal when the relevant short-leg delta reaches the stated 0.80–1.30 range; exit and reverse into the opposite initial ratio.
+- No return to the iron condor after transition.
+- No 32-DTE rule.
 
-## Outputs
-For each threshold:
-- trade summary
-- order log
-- candidate status
-- metrics
-- run manifest
+## Backtest controls
+These are execution/data mechanics, not strategy parameters:
+- Use completed-bar information and the next executable observation.
+- Apply the repository's explicit brokerage and slippage model to every order.
+- Use the validated delta model.
+- Do not interpolate, forward-fill, average, or synthesize missing option prices.
+- Research-use partial-data results remain clearly labelled as such.
 
-Aggregate:
-- threshold comparison CSV/JSON
-- traded-cycle counts
-- net P&L
-- profit factor
-- win rate
-- max drawdown
-- P05/P95 monthly P&L
-- Sharpe proxy
+## Validation outputs
+- Exact strategy-state transition logs.
+- Per-cycle order logs.
+- Candidate/coverage status.
+- Net/gross P&L and cost decomposition.
+- Reproducibility manifest.
+- Independent tester review.
 
-## Decision gate
-A threshold is not promoted because it has the highest backtest P&L alone. The tester must assess whether the result is robust across the four pre-specified values and whether conclusions survive incomplete/availability-biased data.
+## Gate
+The strategy cannot be promoted until the tester confirms that the implementation matches the YouTube-defined rules and that no unauthorized strategy rule was introduced.
 
-If all four remain weak, the strategy is documented as unsupported by the available research-use sample and the project moves to discussion/limitations/future research rather than indefinite tuning.
+The previously created reversal-threshold sensitivity workflow/results are **out of scope and non-authoritative**. They must not be used as evidence for strategy performance.
 
 ## Phase status
-- Phase 2 baseline: completed, performance gate not passed.
-- Phase 3: in progress.
-- Tester review required before any strategy promotion or further parameter search.
+- Unauthorized threshold-sensitivity work: CLOSED / DISCARDED FROM RESEARCH.
+- Strategy-fidelity validation: IN PROGRESS.
+- Tester approval required before performance conclusions.
