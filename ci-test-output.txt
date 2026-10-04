@@ -1,0 +1,26 @@
+....F.                                                                   [100%]
+=================================== FAILURES ===================================
+_____________________ test_black76_delta_and_iv_roundtrip ______________________
+
+    def test_black76_delta_and_iv_roundtrip():
+        F = np.array([100.0])
+        K = np.array([100.0])
+        T = np.array([30.0 / 365.0])
+        sigma = np.array([0.20])
+        d1 = 0.5 * sigma * np.sqrt(T)
+        d2 = d1 - sigma * np.sqrt(T)
+        call_price = F * ndtr(d1) - K * ndtr(d2)
+        call_delta = black76_delta_from_forward(F, K, T, sigma, 0.0, np.array([True]))[0]
+        put_delta = black76_delta_from_forward(F, K, T, sigma, 0.0, np.array([False]))[0]
+        assert abs(call_delta - ndtr(d1)[0]) < 1e-10
+        assert abs(put_delta + ndtr(-d1)[0]) < 1e-10
+        recovered = implied_vol_black76(F, K, T, call_price, np.array([True]), 0.0)[0]
+>       assert abs(recovered - 0.20) < 1e-5
+E       assert np.float64(0.3114357531402248) < 1e-05
+E        +  where np.float64(0.3114357531402248) = abs((np.float64(0.5114357531402248) - 0.2))
+
+tests/test_strategy.py:62: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_strategy.py::test_black76_delta_and_iv_roundtrip - assert np.float64(0.3114357531402248) < 1e-05
+ +  where np.float64(0.3114357531402248) = abs((np.float64(0.5114357531402248) - 0.2))
+1 failed, 5 passed in 1.21s
