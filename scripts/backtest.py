@@ -178,6 +178,10 @@ def entry_and_exit_dates(expiry: date, available_dates: List[date]) -> Tuple[Opt
 
 
 def nearest_bar(df: pd.DataFrame, target_dt: pd.Timestamp) -> Optional[pd.Timestamp]:
+    if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names:
+        values = pd.to_datetime(df.index.get_level_values("timestamp").unique())
+        values = values[values >= target_dt]
+        return pd.Timestamp(values.min()) if len(values) else None
     idx = df.index[df["timestamp"] >= target_dt]
     if len(idx) == 0:
         return None
