@@ -70,3 +70,26 @@ The public rissin dataset is now promoted to the first exact-key fallback for 20
 
 ## Additional free-source lead — 2026-10-04
 Public research also identified the open-source `fnopy` project, which exposes an NSE historical-data retrieval interface for NIFTY options and examples for specifying expiry, option type, strike and date windows. It is a data-access lead rather than an already-materialized dataset, so it is not promoted as a production source until a cached extract is independently validated for completeness, licensing/availability, and reproducibility.
+
+## 2026-10-05 — additional free/public source sweep
+
+A fresh public-source search was performed to test whether the current partial TradeMarkk lifecycle could be completed without relaxing the data gate.
+
+| Candidate | Coverage indicated by public documentation | Admissibility for current full lifecycle |
+|---|---|---|
+| rissin/nse-options-intraday | NIFTY 1-minute intraday from Oct 2024 onward; historical daily data much older | Useful fallback for 2024–2026 overlap, but cannot fill 2021–Sep 2024 1-minute lifecycle |
+| thetrademarkk/india-index-options-1m | ~2021–2026, 1-minute NIFTY/BANKNIFTY/SENSEX; documentation explicitly says option coverage is partial | Primary free source remains incomplete for deterministic contract lifecycle |
+| codepyx23/india-index-options-1m | Duplicate of TradeMarkk dataset | Does not add independent coverage |
+| mukhilj/breeze_options_pipeline | 3 years of NIFTY 1-minute options, ATM ±50, via ICICI Breeze API | Acquisition requires API credentials; not a freely downloadable complete historical archive |
+| QuantDev-stack/OptionVault | Public repository describes 2018–present 1-minute options, but complete dataset is licensed/paid | Not admissible as a free-source replacement |
+| optionsdata.shop | Public catalog describes a paid full-chain 1-minute NIFTY archive from 2021 onward | Paid source; retained as a contingency, not admitted as free data |
+
+Gate conclusion: no newly identified free/public source currently establishes complete 1-minute NIFTY option coverage for every strategy-required monthly lifecycle from 2021-01 through 2026-09. Composite construction should therefore continue to combine admissible free overlaps, but the data gate must remain closed until complete lifecycle coverage is independently demonstrated.
+
+External references used for this sweep:
+- https://huggingface.co/datasets/rissin/nse-options-intraday
+- https://huggingface.co/datasets/thetrademarkk/india-index-options-1m
+- https://huggingface.co/datasets/codepyx23/india-index-options-1m
+- https://github.com/mukhilj/breeze_options_pipeline
+- https://github.com/QuantDev-stack/OptionVault
+- https://optionsdata.shop/data/nifty-options-historical-data
