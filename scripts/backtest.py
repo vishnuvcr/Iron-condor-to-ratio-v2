@@ -538,7 +538,7 @@ def metrics_df(trades: pd.DataFrame, capital: float = 100000.0) -> Dict[str, flo
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--start", default="2025-01-01")
+    ap.add_argument("--start", default="2022-01-01")
     ap.add_argument("--end", default="2026-09-30")
     ap.add_argument("--rate", type=float, default=0.0)
     ap.add_argument("--brokerage", type=float, default=20.0)
@@ -554,7 +554,7 @@ def main():
     start, end = date.fromisoformat(args.start), date.fromisoformat(args.end)
     paths = download_data(cache_root)
     expiry_list = load_expiry_list(paths, start, end)
-    expiry_list = [e for e in expiry_list if start <= e <= end and e >= date(2025, 1, 27)]
+    expiry_list = [e for e in expiry_list if start <= e <= end]
 
     all_cycles = []
     quality = []
@@ -644,10 +644,28 @@ def main():
         plt.savefig(out / "pnl_distribution.png", dpi=160)
         plt.close()
 
+    file_hashes = {}
+    for path in paths:
+        try:
+            file_hashes[str(path)] = sha256_file(path)
+        except Exception as exc:
+            file_hashes[str(path)] = f"ERROR:{exc!r}"
+    schema_fields = [
+        "date", "timestamp", "underlying", "expiry", "strike", "option_type",
+        "exercise_style", "open", "high", "low", "close", "volume", "oi",
+        "settle_price", "source", "granularity"
+    ]
+    schema_hash = hashlib.sha256("|".join(schema_fields).encode("utf-8")).hexdigest()
     manifest = {
         "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
+        "code_commit_sha": os.getenv("GITHUB_SHA", "unknown"),
         "data_repository": REPO_ID,
+        "dataset_revision": dataset_revision(),
+        "dataset_card_url": DATASET_CARD_URL,
         "files": REMOTE_FILES,
+        "file_sha256": file_hashes,
+        "schema_fields": schema_fields,
+        "schema_hash": schema_hash,
         "start": args.start,
         "end": args.end,
         "expiry_count": len(expiry_list),
@@ -658,6 +676,7 @@ def main():
         "created_utc": datetime.utcnow().isoformat() + "Z",
         "data_coverage": coverage,
         "candidate_status_file": "candidate_status.csv",
+        "data_quality_file": "data_quality.csv",
     }
     (out / "run_manifest.json").write_text(json.dumps(manifest, indent=2))
     print(json.dumps({"metrics": metrics, "expiries": [str(x) for x in expiry_list]}, indent=2))
