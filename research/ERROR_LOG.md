@@ -38,3 +38,5 @@
 | 2026-10-04 | 2 | TEST ERROR | Composite unit tests failed in source_row_hash generation because Pandas row-wise join still encountered numeric objects despite an astype(str) conversion. | Replaced hashing with explicit per-cell map(str) conversion and added a mixed-type regression test. |
 
 | 2026-10-04 | 2 | DATA INTEGRITY | Composite normalization initially parsed naive Date+Time fields with utc=True, which would shift local IST source times by 5:30 hours when converted back to IST. | Changed timestamp parsing to localize naive timestamps directly to Asia/Kolkata and added an exact-time regression test. |
+
+| 2026-10-04 | 2 | CI ERROR | Composite coverage checker failed after building the dataset because expiry was a datetime.date and code called .date() on it. | Removed the redundant date() call and added rissin as a free exact-key fallback source after Cloud Trader sample download failed in CI. |
