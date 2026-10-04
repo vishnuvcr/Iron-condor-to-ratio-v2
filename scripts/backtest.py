@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+
 import argparse
 import json
 import os
@@ -30,6 +32,8 @@ from src.strategy_engine import (
 
 REPO_ID = "rissin/nse-options-intraday"
 REMOTE_FILES = [
+    "upstox_intraday/NIFTY/NIFTY_2022.parquet",
+    "upstox_intraday/NIFTY/NIFTY_2023.parquet",
     "upstox_intraday/NIFTY/NIFTY_2024.parquet",
     "upstox_intraday/NIFTY/NIFTY_2025.parquet",
     "upstox_intraday/NIFTY/NIFTY_2026.parquet",
