@@ -96,7 +96,7 @@ def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date:
     con.close()
     if df.empty:
         return df
-    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True, errors="coerce").dt.tz_convert("Asia/Kolkata")
     df["date"] = pd.to_datetime(df["date"]).dt.date
     df["expiry"] = pd.to_datetime(df["expiry"]).dt.date
     for c in ["strike", "open", "high", "low", "close", "volume"]:
@@ -123,13 +123,15 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
     if pairs.empty:
         return df.assign(forward=np.nan, delta=np.nan)
 
-    t_pairs = (pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - pairs["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
+    expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
+    t_pairs = (expiry_close - pairs["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     t_pairs = np.maximum(t_pairs.values, 1e-6)
     df_disc = np.exp(-rate * t_pairs)
     kmed = pairs.groupby("timestamp")["strike"].median().rename("kmed")
     pairs = pairs.join(kmed, on="timestamp")
     pairs = pairs[(pairs["strike"] >= 0.90 * pairs["kmed"]) & (pairs["strike"] <= 1.10 * pairs["kmed"])]
-    t = (pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - pairs["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
+    expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
+    t = (expiry_close - pairs["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     df_disc = np.exp(-rate * np.maximum(t.values, 1e-6))
     pairs["forward_i"] = pairs["strike"].values + (pairs["call_close"].values - pairs["put_close"].values) / df_disc
     pairs.loc[pairs["forward_i"] <= 0, "forward_i"] = np.nan
@@ -144,9 +146,8 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
         & (df["strike"] <= 1.15 * df["forward"])
     )
     df = df.loc[in_window].copy()
-    t = (
-        pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - df["timestamp"]
-    ).dt.total_seconds() / (365.0 * 86400.0)
+    expiry_close = pd.Timestamp(expiry, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
+    t = (expiry_close - df["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
     t = np.maximum(t.values, 1e-6)
     is_call = df["option_type"].values == "CE"
     delta = black76_delta_from_price(
@@ -350,7 +351,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
         return None
     cycle = CycleResult(expiry=expiry, entry_date=entry_date)
     lot_size = lot_size_for_monthly_expiry(expiry)
-    entry_target = pd.Timestamp.combine(entry_date, time(9, 20))
+    entry_target = pd.Timestamp(entry_date, tz="Asia/Kolkata") + pd.Timedelta(hours=9, minutes=20)
     entry_signal = nearest_bar(df, entry_target)
     if entry_signal is None:
         return None
@@ -388,7 +389,7 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
     prev_dc = np.nan
     prev_dp = np.nan
     signal_times = sorted(pd.to_datetime(df.index.get_level_values("timestamp").unique())) if isinstance(df.index, pd.MultiIndex) and "timestamp" in df.index.names else sorted(pd.to_datetime(df["timestamp"].unique()))
-    exit_target = pd.Timestamp.combine(exit_date, time(15, 20))
+    exit_target = pd.Timestamp(exit_date, tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=20)
     for ts in signal_times:
         if ts <= entry_signal or ts > exit_target:
             continue
