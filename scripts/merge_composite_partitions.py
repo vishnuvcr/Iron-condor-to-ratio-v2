@@ -15,6 +15,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--partitions", default="results/partitions")
     ap.add_argument("--out", default="results/composite")
+    ap.add_argument("--start", default="2021-01-01")
+    ap.add_argument("--end", default="2026-09-30")
     args = ap.parse_args()
 
     partitions = sorted(Path(args.partitions).glob("*/nifty_options_composite.parquet"))
@@ -48,6 +50,8 @@ def main():
 
     manifest = {
         "status": "BUILT",
+        "start": args.start,
+        "end": args.end,
         "partition_count": len(partitions),
         "partitions": [str(p) for p in partitions],
         "rows": int(total),
@@ -55,6 +59,11 @@ def main():
         "composite_sha256": sha256_file(target),
     }
     (out / "composite_manifest.json").write_text(json.dumps(manifest, indent=2))
+    (out / "source_staging_manifest.json").write_text(json.dumps({
+        "start": args.start,
+        "end": args.end,
+        "assembled_partitions": manifest["partitions"],
+    }, indent=2))
 
 if __name__ == "__main__":
     main()
