@@ -23,3 +23,5 @@
 
 | 2026-10-04 | 2 | ERROR | Expanded rissin source declared 2022-2026 partitions but the actual run produced only one 2022 expiry with 15 rows and no 2023 expiries; continuity was not demonstrated. | Replaced the primary Phase-2 source with the expiry-partitioned thetrademarkk NIFTY 1-minute dataset covering 2021-2026; retain rissin for independent overlap validation. |
 | 2026-10-04 | 2 | ERROR | Historical NIFTY lot-size function incorrectly treated all expiries through Nov-2024 as 25, which is inconsistent with NSE's 50-lot regime before the May-2024 revision. | Added 2021-2026 expiry-boundary regimes and regression tests. |
+
+| 2026-10-04 | 2 | ERROR | Thetrademarkk expiry partitions can end weeks before expiry; the prior engine treated the last available date as the cycle exit, producing an invalid shortened July-2026 trade. | Changed entry/exit validation to require the 32-DTE entry window and data through the final pre-expiry session; incomplete partitions are now rejected. |
