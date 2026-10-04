@@ -27,3 +27,5 @@
 | 2026-10-04 | 2 | ERROR | Thetrademarkk expiry partitions can end weeks before expiry; the prior engine treated the last available date as the cycle exit, producing an invalid shortened July-2026 trade. | Changed entry/exit validation to require the 32-DTE entry window and data through the final pre-expiry session; incomplete partitions are now rejected. |
 
 | 2026-10-04 | 2 | TEST ERROR | New expiry-coverage regression test expected 2026-06-29 even though 2026-06-26 is the first date on/after the 32-DTE target for a 2026-07-28 expiry. | Corrected the fixture; no production-code change was required. |
+
+| 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | Zenodo exposes the 311.9 MB NIFTY options ZIP publicly, but the web/file tooling could not download the large binary directly; this is an access limitation, not evidence that the dataset is unavailable. | Record the public DOI/MD5 metadata and validate the archive through a GitHub Actions download/cache step when implementing the free-source harness. |
