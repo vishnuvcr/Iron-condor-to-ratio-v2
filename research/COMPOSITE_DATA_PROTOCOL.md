@@ -62,3 +62,7 @@ Continuity validation now uses a versioned NSE Futures & Options holiday calenda
 - Exchange-session continuity uses `research/NSE_FNO_HOLIDAYS_2021_2026.csv` for normal NSE F&O weekdays; weekend-only holiday entries are unnecessary because Saturdays/Sundays are excluded by the session generator, while special Muhurat dates are not treated as normal 09:20 sessions.
 - Composite `source_row_hash` uses SHA-256 for both primary and normalized sources.
 - Cycle entry/exit boundary validation uses the same NSE F&O normal-session calendar rather than a fixed calendar-day tolerance.
+
+
+## 2026-10-04 monthly-expiry integrity
+A requested calendar month is production-eligible only when its candidate expiry is a defensible monthly expiry near month-end. Primary staging filenames are checked rather than blindly treated as monthly; a non-monthly primary file may be superseded only by an explicit valid fallback monthly expiry. Weekly expiries cannot satisfy the monthly cycle gate.
