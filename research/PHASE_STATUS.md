@@ -112,3 +112,7 @@ Phase 2 remains IN PROGRESS; Gate 2 CLOSED. Partition lead-ins and deterministic
 
 ## 2026-10-05 — Gate 2 final blocker
 Phase 2 remains IN PROGRESS and Gate 2 CLOSED. The current composite is not admissible for backtesting because no requested month has a complete 32-DTE-to-pre-expiry lifecycle. Do not proceed to strategy results until a complete source is independently validated.
+
+
+## 2026-10-05 — strategy scope reset
+Phase 1 specification is being reset to the latest user-defined strategy only. The initial transcript is non-authoritative, and the 32-DTE constraint is removed entirely. Phase 2 remains IN PROGRESS and Gate 2 remains CLOSED. The existing data work is retained only as infrastructure validation; production testing will be rerun against the corrected strategy specification once the data gate and independent tester approve the reset.
