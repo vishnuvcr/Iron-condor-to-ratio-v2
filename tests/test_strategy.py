@@ -167,3 +167,29 @@ def test_cycle_boundary_accepts_complete_month_without_32dte_lead_in():
     entry, exit_date = entry_and_exit_dates(date(2026, 2, 27), dates)
     assert entry == date(2026, 2, 2)
     assert exit_date == date(2026, 2, 26)
+
+
+def test_ratio_cycle_threshold_conventions_are_explicit():
+    import pandas as pd
+    from scripts.backtest import run_cycle
+
+    # Empty data returns before a cycle can be traded, but invalid modelling
+    # parameters must be rejected deterministically before execution.
+    empty = pd.DataFrame()
+    cm = CostModel()
+    try:
+        run_cycle(empty, date(2026, 3, 30), 0.0, cm, reversal_delta_threshold=0.79)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("reversal threshold below the stated 0.80–1.30 range was accepted")
+
+    try:
+        run_cycle(empty, date(2026, 3, 30), 0.0, cm, reversal_delta_threshold=1.31)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("reversal threshold above the stated 0.80–1.30 range was accepted")
+
+    # The baseline 1.20 convention is explicitly admissible.
+    run_cycle(empty, date(2026, 3, 30), 0.0, cm, reversal_delta_threshold=1.20)
