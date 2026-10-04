@@ -71,3 +71,7 @@ A requested calendar month is production-eligible only when its candidate expiry
 ## 2026-10-04 resource and resolver hardening
 - Composite construction uses a file-backed DuckDB working database and sequential primary-partition ingestion to bound peak memory.
 - Staged primary filenames used for symbol-only expiry resolution must themselves satisfy the month-end monthly-expiry candidate rule; weekly-dated files are ignored for that calendar mapping.
+
+
+## 2026-10-04 partitioned build protocol
+For CI stability, primary and lower-priority source construction is executed in bounded year partitions: 2021, 2022, 2023, 2024, 2025, and 2026 through September. Each partition emits a validated Parquet artifact and manifest. A deterministic assembly job creates the canonical composite; only then may coverage, CSV reconciliation, or backtesting run.
