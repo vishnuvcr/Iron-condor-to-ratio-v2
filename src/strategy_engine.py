@@ -230,6 +230,37 @@ def direction_from_trigger(trigger_type: str) -> str:
     raise ValueError(trigger_type)
 
 
+def choose_ic_trigger(
+    call_abs_delta: float,
+    put_abs_delta: float,
+    threshold: float = 0.10,
+    prev_call_abs_delta: Optional[float] = None,
+    prev_put_abs_delta: Optional[float] = None,
+) -> Optional[str]:
+    call_hit = np.isfinite(call_abs_delta) and call_abs_delta <= threshold
+    put_hit = np.isfinite(put_abs_delta) and put_abs_delta <= threshold
+    if not call_hit and not put_hit:
+        return None
+    if call_hit and not put_hit:
+        return "CALL"
+    if put_hit and not call_hit:
+        return "PUT"
+    if call_abs_delta < put_abs_delta:
+        return "CALL"
+    if put_abs_delta < call_abs_delta:
+        return "PUT"
+    call_move = (
+        abs(call_abs_delta - prev_call_abs_delta)
+        if prev_call_abs_delta is not None and np.isfinite(prev_call_abs_delta)
+        else -1.0
+    )
+    put_move = (
+        abs(put_abs_delta - prev_put_abs_delta)
+        if prev_put_abs_delta is not None and np.isfinite(prev_put_abs_delta)
+        else -1.0
+    )
+    return "CALL" if call_move > put_move else "PUT"
+
 def ratio_net_delta(direction: str, target: str) -> float:
     if target == "initial":
         if direction == "CALL_RATIO":
