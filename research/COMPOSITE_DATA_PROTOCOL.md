@@ -75,3 +75,7 @@ A requested calendar month is production-eligible only when its candidate expiry
 
 ## 2026-10-04 partitioned build protocol
 For CI stability, primary and lower-priority source construction is executed in bounded year partitions: 2021, 2022, 2023, 2024, 2025, and 2026 through September. Each partition emits a validated Parquet artifact and manifest. A deterministic assembly job creates the canonical composite; only then may coverage, CSV reconciliation, or backtesting run.
+
+
+## 2026-10-04 partition boundary rule
+Year partitions overlap the preceding year from 20 November so the first monthly expiry in a nominal year retains its full deterministic 32-DTE lead-in. The final assembly removes overlap duplicates by canonical key using the established source-priority order.
