@@ -79,3 +79,22 @@ For CI stability, primary and lower-priority source construction is executed in 
 
 ## 2026-10-04 partition boundary rule
 Year partitions overlap the preceding year from 20 November so the first monthly expiry in a nominal year retains its full deterministic 32-DTE lead-in. The final assembly removes overlap duplicates by canonical key using the established source-priority order.
+
+
+## 2026-10-05 — research-use imperfect-data policy
+
+The strict production-quality Gate 2 remains unchanged: a fully covered strategy lifecycle is required for a production-grade historical conclusion.
+
+However, the project now also permits a separately labelled **research-use partial-data analysis** when the best available real dataset is materially useful but imperfect. This mode is intended to answer exploratory questions rather than silently discard all usable evidence.
+
+Rules:
+1. Never fabricate, interpolate, forward-fill, average, or theoretically reconstruct missing option prices.
+2. Preserve row-level provenance and all missing-session diagnostics.
+3. The strict coverage result must remain visible and must not be relabelled as passed.
+4. The research-use backtest may use the first observed trading session available within the expiry month when the deterministic first-session entry is unavailable. This is an explicit modelling deviation and must be recorded in the run manifest and candidate-status output.
+5. The scheduled pre-expiry exit remains mandatory; cycles without an executable exit are excluded.
+6. Every result table/manuscript must state the fraction of requested cycles that are incomplete and the number actually traded.
+7. Research-use results are exploratory/diagnostic until an independent tester confirms that the data limitations are properly disclosed.
+8. The final manuscript must separate strict full-coverage results from research-use partial-data results and discuss survivorship/availability bias, sparse-strike bias, source bias, and changed entry timing.
+
+This policy implements the user's instruction to use the most usable real data even when it is not 100% perfect, while preventing incomplete data from being presented as fully validated evidence.
