@@ -177,3 +177,12 @@ def test_requested_months_are_independent_of_primary_file_presence(tmp_path):
     assert by_month[(2021, 1)]["primary_file_available"] is False
     assert by_month[(2021, 5)]["primary_file_available"] is True
     assert by_month[(2026, 9)]["primary_file_available"] is False
+
+
+def test_fallback_monthly_candidate_rejects_weekly_expiry():
+    from datetime import date
+    from scripts.check_composite_coverage import is_monthly_expiry_candidate
+
+    assert is_monthly_expiry_candidate(date(2025, 9, 23)) is False
+    assert is_monthly_expiry_candidate(date(2025, 9, 29)) is True
+    assert is_monthly_expiry_candidate(date(2025, 9, 30)) is True
