@@ -27,3 +27,7 @@ The expanded rissin run completed with 23 candidate monthly expiries but only 15
 - Developer corrected the engine to reject incomplete expiry partitions and added regression tests.
 - External dataset research confirms the current thetrademarkk source describes expiry-partitioned 1-minute option data but also warns option coverage is partial; the exact cycle-span requirement must be demonstrated rather than inferred.
 - Gate 2 remains CLOSED. Next step is source acquisition/validation, followed by independent tester review.
+
+
+## 2026-10-04 — free-source search
+User authorized continued research using free sources. Developer searched public web, Hugging Face, GitHub, Zenodo and free-data providers. Cloud Trader Pro/Shoonya free NIFTY samples were identified as the first empirical target; Zenodo 2017-2020 was identified as an older-period candidate; thetrademarkk, artist-23, MoneyTicks and OptionVault were assessed as additional candidates with specific limitations. No paid data was purchased or assumed. A formal source-ranking and acceptance test was added in research/FREE_DATA_SOURCE_REVIEW.md. Gate 2 remains closed pending actual data validation and tester approval.
