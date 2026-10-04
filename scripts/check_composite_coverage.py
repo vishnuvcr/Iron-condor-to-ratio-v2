@@ -65,6 +65,10 @@ def expected_monthly_candidates(
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--research-use", action="store_true", help="Report strict failures but permit a research-use backtest on the best available data.")
+    args = parser.parse_args()
     p = Path("results/composite/nifty_options_composite.parquet")
     out = Path("results/composite/cycle_coverage.csv")
     if not p.exists():
@@ -344,6 +348,23 @@ def main():
         print("Gate 2 coverage failures:", file=sys.stderr)
         for failure in failures:
             print(f"- {failure}", file=sys.stderr)
+        if args.research_use:
+            research_eligible = int(((result["first_available"] != "") & (result["exit_date"] != "")).sum())
+            (out.parent / "research_use_data_status.json").write_text(json.dumps({
+                "mode": "research_use_partial",
+                "strict_gate": "FAILED",
+                "research_eligible_cycles_with_observed_entry_window": research_eligible,
+                "total_requested_months": total,
+                "complete_cycles": complete,
+                "failure_count": len(failures),
+                "limitations": [
+                    "The strict first-session-of-expiry-month lifecycle gate is not satisfied.",
+                    "The research-use backtest may start at the first observed session available in the expiry month.",
+                    "Results must not be presented as a fully covered historical validation."
+                ]
+            }, indent=2))
+            print("RESEARCH-USE MODE: strict Gate 2 remains FAILED; continuing only for explicitly labelled partial-data analysis.")
+            return 0
         return 2
     return 0
 
