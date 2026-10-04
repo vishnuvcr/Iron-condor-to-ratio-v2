@@ -194,3 +194,28 @@ def test_primary_weekly_expiry_is_not_a_monthly_candidate():
 
     assert is_monthly_expiry_candidate(date(2026, 6, 9)) is False
     assert is_monthly_expiry_candidate(date(2026, 6, 30)) is True
+
+
+def test_compose_normalizes_date_and_timestamp_expiry_types():
+    import pandas as pd
+    from scripts.composite_data import normalize_frame, compose
+
+    explicit = pd.DataFrame([{
+        "timestamp": "2025-01-02T09:20:00+05:30",
+        "expiry": "2025-01-30",
+        "strike": 24000, "option_type": "CE",
+        "open": 10, "high": 11, "low": 9, "close": 10.5,
+        "volume": 100, "open_interest": 1000,
+    }])
+    symbol = pd.DataFrame([{
+        "Symbol": "NIFTY25JAN24000CE",
+        "Date": "2025-01-02", "Time": "09:20:00",
+        "Open": 10, "High": 11, "Low": 9, "Close": 10.5,
+        "Volume": 100, "OI": 1000,
+    }])
+    out, _ = compose([
+        normalize_frame(explicit, "thetrademarkk", "explicit.parquet"),
+        normalize_frame(symbol, "cloudtrader", "symbol.csv"),
+    ])
+    assert len(out) == 1
+    assert out.iloc[0]["expiry"] == pd.Timestamp("2025-01-30").date()
