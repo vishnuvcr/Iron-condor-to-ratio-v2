@@ -4,6 +4,7 @@ import argparse
 import calendar
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
