@@ -107,6 +107,8 @@ def main():
     by_expiry = {pd.Timestamp(row["expiry"]).date(): row for _, row in summary.iterrows()}
     observed_expiry_by_month: dict[tuple[int, int], date] = {}
     for expiry in by_expiry:
+        if not is_monthly_expiry_candidate(expiry):
+            continue
         key = (expiry.year, expiry.month)
         observed_expiry_by_month[key] = max(observed_expiry_by_month.get(key, expiry), expiry)
 
@@ -115,8 +117,12 @@ def main():
 
     for expected in expected_months:
         key = expected["month"]
-        primary_expiry = expected["primary_expiry"]
-        fallback_expiry = observed_expiry_by_month.get(key) if not primary_expiry else None
+        raw_primary_expiry = expected["primary_expiry"]
+        primary_monthly_ok = bool(
+            raw_primary_expiry and is_monthly_expiry_candidate(raw_primary_expiry)
+        )
+        primary_expiry = raw_primary_expiry if primary_monthly_ok else None
+        fallback_expiry = observed_expiry_by_month.get(key) if primary_expiry is None else None
         expiry = primary_expiry or fallback_expiry
         primary_available = bool(expected["primary_file_available"])
         fallback_monthly_ok = (
@@ -135,8 +141,42 @@ def main():
                 "expiry": "",
                 "coverage_basis": coverage_basis,
                 "primary_file_available": primary_available,
+                "primary_monthly_candidate": bool(primary_expiry and is_monthly_expiry_candidate(primary_expiry)),
                 "fallback_monthly_candidate": fallback_monthly_ok,
                 "target_32dte": "",
+                "first_available": "",
+                "last_available": "",
+                "entry_date": "",
+                "exit_date": "",
+                "status": "INCOMPLETE",
+                "rows": 0,
+                "price_rows_primary": 0,
+                "price_rows_cloudtrader": 0,
+                "price_rows_rissin": 0,
+                "price_rows_artist23": 0,
+                "uses_fallback_price_rows": False,
+                "non_explicit_expiry_rows": 0,
+                "expected_sessions": 0,
+                "observed_sessions": 0,
+                "missing_sessions": 0,
+            })
+            continue
+
+        if primary_available and not primary_monthly_ok and fallback_expiry is None:
+            month_label = f"{key[0]:04d}-{key[1]:02d}"
+            failures.append(
+                f"{month_label}: primary file exists but its expiry {raw_primary_expiry} is not a month-end monthly expiry"
+            )
+            rows.append({
+                "calendar_month": month_label,
+                "expiry": raw_primary_expiry.isoformat() if raw_primary_expiry else "",
+                "coverage_basis": "PRIMARY_NON_MONTHLY",
+                "primary_file_available": True,
+                "primary_monthly_candidate": False,
+                "fallback_monthly_candidate": False,
+                "target_32dte": (
+                    raw_primary_expiry - pd.Timedelta(days=32)
+                ).isoformat() if raw_primary_expiry else "",
                 "first_available": "",
                 "last_available": "",
                 "entry_date": "",
