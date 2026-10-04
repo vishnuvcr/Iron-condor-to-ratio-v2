@@ -11,7 +11,7 @@ import duckdb
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from huggingface_hub import hf_hub_download
+from huggingface_hub import HfApi, hf_hub_download
 
 from src.strategy_engine import (
     CostModel,
@@ -28,9 +28,12 @@ from src.strategy_engine import (
 
 REPO_ID = "rissin/nse-options-intraday"
 REMOTE_FILES = [
+    "upstox_intraday/NIFTY/NIFTY_2024.parquet",
     "upstox_intraday/NIFTY/NIFTY_2025.parquet",
     "upstox_intraday/NIFTY/NIFTY_2026.parquet",
 ]
+DATASET_CARD_URL = "https://huggingface.co/datasets/rissin/nse-options-intraday"
+
 
 
 def download_data(cache_root: Path) -> List[Path]:
@@ -47,6 +50,14 @@ def download_data(cache_root: Path) -> List[Path]:
         paths.append(Path(p))
     return paths
 
+
+def dataset_revision() -> str:
+    token = os.getenv("HF_TOKEN")
+    try:
+        info = HfApi(token=token or None).dataset_info(REPO_ID, revision="main")
+        return str(info.sha)
+    except Exception:
+        return "unknown"
 
 def qpaths(paths: List[Path]) -> str:
     vals = ",".join("'" + str(p).replace("'", "''") + "'" for p in paths)
@@ -209,51 +220,78 @@ def add_order(
     return position
 
 
-def next_open(df: pd.DataFrame, signal_ts: pd.Timestamp, strike: float, option_type: str, max_minutes: int = 5) -> Optional[Tuple[pd.Timestamp, float]]:
-    x = df[(df["strike"] == strike) & (df["option_type"] == option_type) & (df["timestamp"] > signal_ts)]
-    if x.empty:
-        return None
+def common_next_open(
+    df: pd.DataFrame,
+    signal_ts: pd.Timestamp,
+    legs: List[Tuple[float, str]],
+    max_minutes: int = 5,
+) -> Optional[Tuple[pd.Timestamp, Dict[Tuple[float, str], float]]]:
     cutoff = signal_ts + pd.Timedelta(minutes=max_minutes)
-    x = x[(x["timestamp"] <= cutoff) & (x["open"] > 0) & (x["volume"] > 0)]
-    if x.empty:
-        return None
-    row = x.sort_values("timestamp").iloc[0]
-    return row["timestamp"], float(row["open"])
+    candidates = sorted(
+        pd.to_datetime(df.loc[(df["timestamp"] > signal_ts) & (df["timestamp"] <= cutoff), "timestamp"].unique())
+    )
+    for ts in candidates:
+        refs: Dict[Tuple[float, str], float] = {}
+        ok = True
+        for strike, option_type in legs:
+            row = df[
+                (df["timestamp"] == ts)
+                & (df["strike"] == float(strike))
+                & (df["option_type"] == option_type)
+                & (df["open"] > 0)
+                & (df["volume"] > 0)
+            ]
+            if row.empty:
+                ok = False
+                break
+            refs[(float(strike), option_type)] = float(row.iloc[0]["open"])
+        if ok:
+            return pd.Timestamp(ts), refs
+    return None
 
 
-def build_ratio(snapshot: pd.DataFrame, direction: str, target_set: str, signal_ts: pd.Timestamp, expiry: date, fill_ts: pd.Timestamp, cycle: CycleResult, df: pd.DataFrame, cost_model: CostModel, lot_size: int) -> List[Position]:
+def build_ratio(
+    snapshot: pd.DataFrame,
+    direction: str,
+    target_set: str,
+    signal_ts: pd.Timestamp,
+    expiry: date,
+    df: pd.DataFrame,
+    cycle: CycleResult,
+    cost_model: CostModel,
+    lot_size: int,
+) -> Optional[Tuple[List[Position], pd.Timestamp]]:
     if target_set == "initial":
         long_target, short_target, hedge_target = 0.50, 0.40, 0.10
     else:
         long_target, short_target, hedge_target = 0.40, 0.30, 0.08
     opt = "CE" if direction == "CALL_RATIO" else "PE"
-    rows = [
-        (opt, long_target, 1, "BUY", f"{target_set}_long"),
-        (opt, short_target, 2, "SELL", f"{target_set}_short"),
-        (opt, hedge_target, 1, "BUY", f"{target_set}_hedge"),
-    ]
-    out = []
-    for opt_type, target, lots, action, reason in rows:
-        r = select_contract(snapshot, opt_type, target)
+    selections = []
+    for target, lots, action, reason in [
+        (long_target, 1, "BUY", f"{target_set}_long"),
+        (short_target, 2, "SELL", f"{target_set}_short"),
+        (hedge_target, 1, "BUY", f"{target_set}_hedge"),
+    ]:
+        r = select_contract(snapshot, opt, target)
         if r is None:
-            raise RuntimeError(f"No contract at target {target} for {opt_type} at {signal_ts}")
-        price_row = df[(df["timestamp"] == fill_ts) & (df["strike"] == float(r["strike"])) & (df["option_type"] == opt_type)]
-        if price_row.empty:
-            raise RuntimeError(f"No execution bar for {opt_type} {r['strike']} at {fill_ts}")
-        ref_price = float(price_row.iloc[0]["open"])
+            return None
+        selections.append((float(r["strike"]), opt, lots, action, reason))
+    common = common_next_open(df, signal_ts, [(s, o) for s, o, *_ in selections])
+    if common is None:
+        return None
+    fill_ts, refs = common
+    out: List[Position] = []
+    for strike, opt_type, lots, action, reason in selections:
+        ref_price = refs[(strike, opt_type)]
         pos = Position(
-            key=f"{expiry}|{opt_type}|{float(r['strike'])}|{lots}|{signal_ts}",
-            expiry=expiry,
-            strike=float(r["strike"]),
-            option_type=opt_type,
+            key=f"{expiry}|{opt_type}|{strike}|{lots}|{signal_ts}",
+            expiry=expiry, strike=strike, option_type=opt_type,
             lots=lots if action == "BUY" else -lots,
-            entry_ts=fill_ts,
-            entry_price=ref_price,
+            entry_ts=fill_ts, entry_price=ref_price,
         )
         add_order(cycle, expiry, pos, action, fill_ts, ref_price, cost_model, lot_size, reason, lots_override=lots)
         out.append(pos)
-    return out
-
+    return out, fill_ts
 
 def close_positions(
     positions: List[Position],
@@ -266,18 +304,16 @@ def close_positions(
 ) -> Optional[pd.Timestamp]:
     if not positions:
         return signal_ts
-    fills = []
+    legs = [(p.strike, p.option_type) for p in positions]
+    common = common_next_open(df, signal_ts, legs)
+    if common is None:
+        return None
+    fill_ts, refs = common
     for p in positions:
-        nx = next_open(df, signal_ts, p.strike, p.option_type)
-        if nx is None:
-            return None
-        fills.append(nx)
-    fill_ts = max(x[0] for x in fills)
-    for p, (_, ref) in zip(positions, fills):
+        ref = refs[(float(p.strike), p.option_type)]
         action = "SELL" if p.lots > 0 else "BUY"
         add_order(cycle, cycle.expiry, p, action, fill_ts, ref, cost_model, lot_size, reason, lots_override=abs(p.lots))
     return fill_ts
-
 
 def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel) -> Optional[CycleResult]:
     dates = trading_dates(df)
@@ -300,29 +336,24 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
     hp = select_contract(entry_snapshot, "PE", 0.10)
     if any(x is None for x in [sc, sp, hc, hp]):
         return None
-    exec_map = {}
-    for row in [sc, sp, hc, hp]:
-        nx = next_open(df, entry_signal, float(row["strike"]), str(row["option_type"]))
-        if nx is None:
-            return None
-        exec_map[(row["option_type"], float(row["strike"]))] = nx
-    fill_ts = max(v[0] for v in exec_map.values())
+    selections = [
+        (float(sc["strike"]), "CE", 1, "SELL", "IC_short_call"),
+        (float(sp["strike"]), "PE", 1, "SELL", "IC_short_put"),
+        (float(hc["strike"]), "CE", 1, "BUY", "IC_long_call"),
+        (float(hp["strike"]), "PE", 1, "BUY", "IC_long_put"),
+    ]
+    common = common_next_open(df, entry_signal, [(s, o) for s, o, *_ in selections])
+    if common is None:
+        return None
+    fill_ts, refs = common
     positions = []
-    for row, lots, action, reason in [
-        (sc, 1, "SELL", "IC_short_call"),
-        (sp, 1, "SELL", "IC_short_put"),
-        (hc, 1, "BUY", "IC_long_call"),
-        (hp, 1, "BUY", "IC_long_put"),
-    ]:
-        ref = float(df[(df["timestamp"] == fill_ts) & (df["strike"] == float(row["strike"])) & (df["option_type"] == str(row["option_type"]))].iloc[0]["open"])
+    for strike, option_type, lots, action, reason in selections:
+        ref = refs[(strike, option_type)]
         pos = Position(
-            key=f"{expiry}|{row['option_type']}|{float(row['strike'])}|{lots}|{fill_ts}",
-            expiry=expiry,
-            strike=float(row["strike"]),
-            option_type=str(row["option_type"]),
+            key=f"{expiry}|{option_type}|{strike}|{lots}|{fill_ts}",
+            expiry=expiry, strike=strike, option_type=option_type,
             lots=lots if action == "BUY" else -lots,
-            entry_ts=fill_ts,
-            entry_price=ref,
+            entry_ts=fill_ts, entry_price=ref,
         )
         add_order(cycle, expiry, pos, action, fill_ts, ref, cost_model, lot_size, reason, lots_override=1)
         positions.append(pos)
@@ -374,7 +405,10 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
                     return None
                 direction = "CALL_RATIO" if trigger == "CALL" else "PUT_RATIO"
                 snapshot_for_select = snap
-                new_positions = build_ratio(snapshot_for_select, direction, "initial", ts, expiry, fill_ts, cycle, df, cost_model, lot_size)
+                built = build_ratio(snapshot_for_select, direction, "initial", ts, expiry, df, cycle, cost_model, lot_size)
+                if built is None:
+                    return None
+                new_positions, fill_ts = built
                 positions = new_positions
                 state = "RATIO_ACTIVE"
                 cycle.state_transitions.append({"timestamp": str(ts), "from": "IC_ACTIVE", "to": "RATIO_ACTIVE", "trigger": trigger})
@@ -403,7 +437,10 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
                         new_direction = "PUT_RATIO" if direction == "CALL_RATIO" else "CALL_RATIO"
                         target_set = "initial"
                         reason = "ratio_reversal"
-                    new_positions = build_ratio(snap, new_direction, target_set, ts, expiry, fill_ts, cycle, df, cost_model, lot_size)
+                    built = build_ratio(snap, new_direction, target_set, ts, expiry, df, cycle, cost_model, lot_size)
+                    if built is None:
+                        return None
+                    new_positions, fill_ts = built
                     cycle.state_transitions.append({"timestamp": str(ts), "from": "RATIO_ACTIVE", "to": "RATIO_ACTIVE", "trigger": reason, "short_delta_sum": s, "direction_from": direction, "direction_to": new_direction})
                     positions = new_positions
                     direction = new_direction
@@ -483,10 +520,20 @@ def main():
             quality.append({"expiry": str(expiry), "status": "EMPTY"})
             continue
         dup = int(df.duplicated(["timestamp", "strike", "option_type"]).sum())
+        neg_volume = int((df["volume"] < 0).sum())
+        non_monotonic_contracts = 0
+        for _, g in df.sort_values(["strike", "option_type", "timestamp"]).groupby(["strike", "option_type"], sort=False):
+            if not g["timestamp"].is_monotonic_increasing:
+                non_monotonic_contracts += 1
         df = add_forward_and_delta(df, expiry, args.rate)
         forward_coverage = float(df["forward"].notna().mean()) if "forward" in df else 0.0
         delta_coverage = float(df["delta"].notna().mean()) if "delta" in df else 0.0
-        quality.append({"expiry": str(expiry), "rows": len(df), "duplicates_after_filter": dup, "forward_coverage": forward_coverage, "delta_coverage": delta_coverage})
+        quality.append({
+            "expiry": str(expiry), "rows": len(df),
+            "duplicates_after_filter": dup, "negative_volume_rows": neg_volume,
+            "non_monotonic_contracts": non_monotonic_contracts,
+            "forward_coverage": forward_coverage, "delta_coverage": delta_coverage,
+        })
         cm = CostModel(brokerage_per_order=args.brokerage, slippage_ticks=args.slippage_ticks)
         try:
             cycle = run_cycle(df, expiry, args.rate, cm)
