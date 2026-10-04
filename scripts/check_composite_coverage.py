@@ -59,7 +59,7 @@ def main():
         fallback_rows = source_total - int(row["price_rows_primary"])
         rows.append({
             "expiry": expiry.isoformat(),
-            "target_32dte": (expiry - pd.Timedelta(days=32)).date().isoformat(),
+            "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
             "first_available": row["first_available"].isoformat(),
             "last_available": row["last_available"].isoformat(),
             "entry_date": entry.isoformat() if entry else "",
