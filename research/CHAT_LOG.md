@@ -31,3 +31,6 @@ The expanded rissin run completed with 23 candidate monthly expiries but only 15
 
 ## 2026-10-04 — free-source search
 User authorized continued research using free sources. Developer searched public web, Hugging Face, GitHub, Zenodo and free-data providers. Cloud Trader Pro/Shoonya free NIFTY samples were identified as the first empirical target; Zenodo 2017-2020 was identified as an older-period candidate; thetrademarkk, artist-23, MoneyTicks and OptionVault were assessed as additional candidates with specific limitations. No paid data was purchased or assumed. A formal source-ranking and acceptance test was added in research/FREE_DATA_SOURCE_REVIEW.md. Gate 2 remains closed pending actual data validation and tester approval.
+
+## 2026-10-04 — composite recovery instruction
+User explicitly authorized composite historical data construction when an individual free source has missing values. Developer implemented a canonical contract-minute composite protocol using exact timestamp + expiry + strike + option type keys, whole-row fallback, source-priority selection, overlap auditing, and row-level provenance. Option prices are never interpolated or averaged. Cloud-style symbol expiry is accepted for production only after cross-source confirmation of the exact expiry date.
