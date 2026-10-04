@@ -77,3 +77,7 @@ The backtest workflow now runs unit tests immediately after installation and bef
 
 ## 2026-10-04 — monthly-expiry integrity remediation
 Tester Review 14 identified that latest-expiry-per-month was insufficient because a weekly expiry could masquerade as a monthly cycle. Developer added a deterministic month-end monthly-expiry candidate test and applies it to both primary manifest expiries and fallback composite expiries. A primary weekly file no longer silently satisfies a requested monthly cycle; a genuine monthly fallback may still satisfy the month when explicitly present. Gate 2 remains closed pending fresh CI and tester re-review.
+
+
+## 2026-10-04 — Pandas 3.x expiry-dtype remediation
+CI run 37225753011 stopped at unit tests: 32 passed, 1 failed because explicit and symbol-resolved expiry values had incompatible date/Timestamp dtypes under Pandas 3.0.6. Independent Tester Review 15 recorded the finding. Developer standardized canonical expiry dtype before concatenation and added a regression test. Gate 2 remains closed pending fresh CI.
