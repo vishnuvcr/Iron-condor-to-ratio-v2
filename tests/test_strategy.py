@@ -202,3 +202,27 @@ def test_partial_data_entry_mode_is_explicit():
     from scripts.backtest import run_cycle
     assert "entry_mode" in inspect.signature(run_cycle).parameters
     assert inspect.signature(run_cycle).parameters["entry_mode"].default == "strategy"
+
+
+def test_research_use_available_entry_does_not_require_strict_first_session(monkeypatch):
+    import pandas as pd
+    from datetime import date
+    from scripts import backtest as bt
+
+    ts = pd.Timestamp("2026-07-02 09:20:00+05:30")
+    df = pd.DataFrame({
+        "date": [date(2026, 7, 2), date(2026, 7, 27)],
+        "timestamp": [ts, pd.Timestamp("2026-07-27 15:20:00+05:30")],
+    })
+    monkeypatch.setattr(bt, "entry_and_exit_dates", lambda expiry, dates: (None, None))
+    monkeypatch.setattr(
+        bt,
+        "nse_fno_sessions",
+        lambda start, end: [date(2026, 7, 1), date(2026, 7, 27)],
+    )
+    seen = {"nearest_bar": 0}
+    monkeypatch.setattr(bt, "nearest_bar", lambda data, target: seen.__setitem__("nearest_bar", 1) or ts)
+    monkeypatch.setattr(bt, "snapshot_at", lambda data, target: pd.DataFrame())
+    cycle = bt.run_cycle(df, date(2026, 7, 28), 0.0, CostModel(), entry_mode="available")
+    assert cycle is None
+    assert seen["nearest_bar"] == 1
