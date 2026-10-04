@@ -96,3 +96,23 @@ def test_build_ratio_accepts_rate_parameter():
     import inspect
     from scripts.backtest import build_ratio
     assert "rate" in inspect.signature(build_ratio).parameters
+
+def test_iv_matches_independent_brentq():
+    from scipy.optimize import brentq
+    from scipy.special import ndtr
+    F, K, T, r, sigma_true = 102.0, 100.0, 45.0 / 365.0, 0.05, 0.27
+    df = math.exp(-r * T)
+    d1 = (math.log(F / K) + 0.5 * sigma_true**2 * T) / (sigma_true * math.sqrt(T))
+    d2 = d1 - sigma_true * math.sqrt(T)
+    price = df * (F * ndtr(d1) - K * ndtr(d2))
+
+    def f(sig):
+        a = (math.log(F / K) + 0.5 * sig**2 * T) / (sig * math.sqrt(T))
+        b = a - sig * math.sqrt(T)
+        return df * (F * ndtr(a) - K * ndtr(b)) - price
+
+    expected = brentq(f, 1e-4, 5.0)
+    actual = implied_vol_black76(
+        np.array([F]), np.array([K]), np.array([T]), np.array([price]), np.array([True]), r
+    )[0]
+    assert abs(actual - expected) < 1e-4
