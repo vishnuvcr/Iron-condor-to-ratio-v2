@@ -15,3 +15,7 @@ CI run 37231086646 failed the revised month-start test again. Inspection showed 
 
 ## 2026-10-05 — autonomous Gate 1 remediation
 Tester Review 22 independently rejected implementation acceptance because the reversal condition was implicitly implemented as combined short-leg delta >=1.20 without an explicit modelling-convention/sensitivity treatment. Developer parameterized the threshold, constrained it to 0.80–1.30, documented the 1.20 baseline convention and sensitivity grid, and added regression validation. Fresh CI and tester re-review are required.
+
+
+## 2026-10-05 — threshold-test fixture correction
+CI run 37231284204 passed 35 tests but failed the new threshold test because its empty DataFrame lacked the production date column. Developer corrected only the test fixture/expectation; invalid thresholds still raise, while a valid threshold with no data returns no cycle.
