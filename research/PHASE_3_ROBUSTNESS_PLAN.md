@@ -9,7 +9,7 @@ Validate and backtest **only the strategy specified by the user from the YouTube
 - Falling market: call ratio, +1 0.50Δ / -2 0.40Δ / +1 0.10Δ.
 - Rising market: put ratio, +1 0.50Δ / -2 0.40Δ / +1 0.10Δ.
 - Continuation when combined absolute delta of the two short ratio legs reaches approximately 0.20; rebuild the same-direction ratio at 0.40/0.30/0.08.
-- Reversal when the relevant short-leg delta reaches the stated 0.80–1.30 range; exit and reverse into the opposite initial ratio.
+- Reversal when the relevant short-leg delta reaches 1.30; exit and reverse into the opposite initial ratio.
 - No return to the iron condor after transition.
 - No 32-DTE rule.
 
