@@ -109,3 +109,7 @@ The partitioned build passed all six year jobs, then Gate 2 coverage failed beca
 
 ## 2026-10-04 — partition lead-in remediation
 The first partitioned coverage run built all six partitions but produced 0/69 complete cycles because each year started on January 1 and therefore lacked the prior 32-DTE observation window. Tester Review 19 recorded the boundary defect. Developer added a 20-November lead-in to 2022–2026 partitions and deterministic cross-partition deduplication. The observed 2026 missing-month issue remains a separate gate condition.
+
+
+## 2026-10-05 — Gate 2 Review 19
+The latest partitioned run passed unit tests and all six partition builds, but the assembled composite failed the substantive coverage gate: 0/69 requested calendar months completed the deterministic 32-DTE-to-pre-expiry cycle. TradeMarkk's published dataset documentation states option coverage is partial; 2021 Jan-Apr are not present in the staged monthly set. Alternative acquisition paths are being researched without weakening the gate.
