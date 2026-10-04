@@ -39,6 +39,7 @@ permissions:
 jobs:
   test-and-backtest:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       HF_HOME: ~/.cache/huggingface
