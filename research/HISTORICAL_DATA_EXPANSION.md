@@ -4,7 +4,7 @@ Date: 2026-10-04
 
 ## Decision
 
-The 2024–2026 `rissin/nse-options-intraday` run was a pipeline-validation dataset, not the final research sample. The same canonical source has since been verified to expose NIFTY intraday partitions for 2022 and 2023, allowing a first expansion to 2022–2026 without provider stitching. The production backtest must use the longest defensible common-data window after independent validation.
+The 2024–2026 `rissin/nse-options-intraday` run was a pipeline-validation dataset, not the final research sample. The previously selected `rissin/nse-options-intraday` source did expose nominal 2022/2023 partitions, but the actual run showed unusable coverage: one 2022 expiry had only 15 rows and no 2023 expiries were detected. Therefore that source cannot establish a continuous 2022–2026 research sample. The primary source is now `thetrademarkk/india-index-options-1m`, whose NIFTY options directory exposes expiry-level files from 2021 through 2026. The production backtest must still pass expiry-by-expiry coverage and overlap validation.
 
 ## Candidate sources
 
@@ -32,11 +32,11 @@ The primary source now targets `upstox_intraday/NIFTY/NIFTY_2022.parquet` throug
 
 ## Current gap
 
-The current Phase-2 implementation uses 2024–2026 files from `rissin/nse-options-intraday`. That explains why only 19 monthly expiries were detected in the initial production-window test. It does not justify treating 19 expiries as the final sample.
+The current Phase-2 implementation has switched away from the incomplete `rissin` 2022–2026 expansion. The prior run detected only 23 candidate expiries, with 2022 and 2023 unusable; only 15 were traded. This is explicitly validation-only and is not a performance conclusion.
 
 ## Lot-size regimes
 
-For the expanded window, the engine uses 25 for monthly expiries through 2024-11-19, 75 for new monthly contracts from 2024-11-21 through 2025-12-30, and 65 from the 2026 regime. These breakpoints are tied to NSE index-derivatives lot-size revisions and are covered by unit tests.
+For the expanded window, the engine uses 75 through the June-2021 NIFTY monthly expiry, 50 from July-2021 through April-2024, 25 for the May-2024 through November-2024 transition, 75 from the November-2024 new-contract regime through December-2025, and 65 from the January-2026 monthly regime. These breakpoints are tied to NSE contract revisions and are covered by unit tests.
 
 ## Production target
 
