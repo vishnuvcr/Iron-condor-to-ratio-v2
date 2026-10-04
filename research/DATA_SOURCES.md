@@ -14,7 +14,7 @@ Uploaded transcript: 2,251 lines; key rules include initial Iron Condor, delta t
 Candidate sources must be accepted only after validating exact contract-level fields, timestamp granularity, expiry mapping, and licensing/provenance. No source is validated merely because it advertises intraday data.
 
 ## Current preferred research-data candidate
-The public Hugging Face dataset rissin/nse-options-intraday advertises 1-minute NIFTY options from October 2024 onward through 2026, with expiry, strike, option type, OHLC, volume, timestamp, and spot fields. It will be schema-validated before use.
+The public Hugging Face dataset `thetrademarkk/india-index-options-1m` is now the primary continuous intraday candidate. Its NIFTY options directory contains expiry-partitioned 1-minute Parquet files beginning in 2021 and continuing through 2026, with timestamp, OHLCV, strike, option type and expiry fields. The dataset explicitly warns that option coverage is partial for illiquid/far strikes, so contract-level completeness remains a gate. The `rissin/nse-options-intraday` Upstox/NSE-derived dataset remains an independent overlap-validation source for 2024 onward.
 
 ## Important limitation
 A dataset that only presents rolling moneyness buckets without persistent contract identity is not sufficient for contract-level P&L.
