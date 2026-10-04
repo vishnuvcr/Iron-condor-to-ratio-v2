@@ -1,0 +1,2 @@
+/home/runner/work/Iron-condor-to-ratio-v2/Iron-condor-to-ratio-v2/scripts/composite_data.py:449: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "created_utc": datetime.utcnow().isoformat() + "Z",

@@ -1,4 +1,4 @@
-..FF...............                                                      [100%]
+..FF...FF............                                                    [100%]
 =================================== FAILURES ===================================
 _______________ test_cloudtrader_symbol_date_time_normalization ________________
 
@@ -21,7 +21,7 @@ _______________ test_cloudtrader_symbol_date_time_normalization ________________
 
 tests/test_composite.py:35: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-scripts/composite_data.py:125: in normalize_frame
+scripts/composite_data.py:151: in normalize_frame
     .astype(str).agg("|".join, axis=1)
                  ^^^^^^^^^^^^^^^^^^^^^
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
@@ -41,7 +41,7 @@ scripts/composite_data.py:125: in normalize_frame
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <pandas.core.apply.FrameColumnApply object at 0x7f51068ea150>
+self = <pandas.core.apply.FrameColumnApply object at 0x7f8a0af19640>
 
     def apply_series_generator(self) -> tuple[ResType, Index]:
         assert callable(self.func)
@@ -54,7 +54,7 @@ self = <pandas.core.apply.FrameColumnApply object at 0x7f51068ea150>
         for i, v in enumerate(series_gen):
 >           results[i] = self.func(v, *self.args, **self.kwargs)
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E           TypeError: sequence item 2: expected str instance, float found
+E           TypeError: sequence item 1: expected str instance, float found
 
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
 __________________ test_cloudtrader_expiry_is_marked_inferred __________________
@@ -72,7 +72,7 @@ __________________ test_cloudtrader_expiry_is_marked_inferred __________________
 
 tests/test_composite.py:49: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-scripts/composite_data.py:125: in normalize_frame
+scripts/composite_data.py:151: in normalize_frame
     .astype(str).agg("|".join, axis=1)
                  ^^^^^^^^^^^^^^^^^^^^^
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
@@ -92,7 +92,7 @@ scripts/composite_data.py:125: in normalize_frame
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <pandas.core.apply.FrameColumnApply object at 0x7f51068eb350>
+self = <pandas.core.apply.FrameColumnApply object at 0x7f8a0af47380>
 
     def apply_series_generator(self) -> tuple[ResType, Index]:
         assert callable(self.func)
@@ -105,10 +105,124 @@ self = <pandas.core.apply.FrameColumnApply object at 0x7f51068eb350>
         for i, v in enumerate(series_gen):
 >           results[i] = self.func(v, *self.args, **self.kwargs)
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E           TypeError: sequence item 2: expected str instance, float found
+E           TypeError: sequence item 1: expected str instance, float found
+
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
+______________ test_symbol_month_resolves_against_explicit_source ______________
+
+    def test_symbol_month_resolves_against_explicit_source():
+        cloud = pd.DataFrame([{
+            "Symbol": "NIFTY25JAN24000CE",
+            "Date": "2025-01-02",
+            "Time": "09:20:00",
+            "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
+            "Volume": 100, "OI": 1000,
+        }])
+        explicit = pd.DataFrame([{
+            "timestamp": "2025-01-02T09:20:00+05:30",
+            "expiry": "2025-01-30",
+            "strike": 24000,
+            "option_type": "CE",
+            "open": 10.0, "high": 11.0, "low": 9.0, "close": 10.5,
+            "volume": 100, "open_interest": 1000,
+        }])
+        from scripts.composite_data import normalize_frame, compose
+>       cloud_n = normalize_frame(cloud, "cloudtrader", "cloud.csv")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_composite.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/composite_data.py:151: in normalize_frame
+    .astype(str).agg("|".join, axis=1)
+                 ^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
+    result = op.agg()
+             ^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
+    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
+    return op.apply().__finalize__(self, method="apply")
+           ^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
+    return self.apply_standard()
+           ^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
+    results, res_index = self.apply_series_generator()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameColumnApply object at 0x7f8a09269640>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.func)
+    
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        for i, v in enumerate(series_gen):
+>           results[i] = self.func(v, *self.args, **self.kwargs)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: sequence item 1: expected str instance, float found
+
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
+__ test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle ___
+
+    def test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle():
+        from scripts.composite_data import normalize_frame, compose
+        cloud = pd.DataFrame([{
+            "Symbol": "NIFTY25JAN24000CE",
+            "Date": "2025-01-02",
+            "Time": "09:20:00",
+            "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
+            "Volume": 100, "OI": 1000,
+        }])
+>       out, _ = compose([normalize_frame(cloud, "cloudtrader", "cloud.csv")])
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_composite.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/composite_data.py:151: in normalize_frame
+    .astype(str).agg("|".join, axis=1)
+                 ^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
+    result = op.agg()
+             ^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
+    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
+    return op.apply().__finalize__(self, method="apply")
+           ^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
+    return self.apply_standard()
+           ^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
+    results, res_index = self.apply_series_generator()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameColumnApply object at 0x7f8a08dd8230>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.func)
+    
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        for i, v in enumerate(series_gen):
+>           results[i] = self.func(v, *self.args, **self.kwargs)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: sequence item 1: expected str instance, float found
 
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
 =========================== short test summary info ============================
-FAILED tests/test_composite.py::test_cloudtrader_symbol_date_time_normalization - TypeError: sequence item 2: expected str instance, float found
-FAILED tests/test_composite.py::test_cloudtrader_expiry_is_marked_inferred - TypeError: sequence item 2: expected str instance, float found
-2 failed, 17 passed in 2.14s
+FAILED tests/test_composite.py::test_cloudtrader_symbol_date_time_normalization - TypeError: sequence item 1: expected str instance, float found
+FAILED tests/test_composite.py::test_cloudtrader_expiry_is_marked_inferred - TypeError: sequence item 1: expected str instance, float found
+FAILED tests/test_composite.py::test_symbol_month_resolves_against_explicit_source - TypeError: sequence item 1: expected str instance, float found
+FAILED tests/test_composite.py::test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle - TypeError: sequence item 1: expected str instance, float found
+4 failed, 17 passed in 2.15s
