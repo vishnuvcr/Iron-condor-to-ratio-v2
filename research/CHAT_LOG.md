@@ -73,3 +73,7 @@ Tester Review 13 identified five absent calendar months in the requested 2021-01
 
 ## 2026-10-04 — CI ordering improvement
 The backtest workflow now runs unit tests immediately after installation and before source staging/composite construction. This reduces wasted long data builds when a code regression is present; the research acceptance criteria are unchanged.
+
+
+## 2026-10-04 — monthly-expiry integrity remediation
+Tester Review 14 identified that latest-expiry-per-month was insufficient because a weekly expiry could masquerade as a monthly cycle. Developer added a deterministic month-end monthly-expiry candidate test and applies it to both primary manifest expiries and fallback composite expiries. A primary weekly file no longer silently satisfies a requested monthly cycle; a genuine monthly fallback may still satisfy the month when explicitly present. Gate 2 remains closed pending fresh CI and tester re-review.
