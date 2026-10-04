@@ -29,7 +29,7 @@ Signals use only completed-bar information. Orders execute at the next available
 - Initial long hedges: approximately 0.10 delta.
 - Ratio transition: +1 0.50 delta, -2 0.40 delta, +1 0.10 delta.
 - Continuation threshold: combined short-leg absolute delta 0.20.
-- Reversal sensitivity: exactly 0.80, 1.00, 1.20, 1.30.
+- Reversal trigger: fixed 1.30 short-leg delta.
 - Current brokerage model: ₹20/order.
 - Current slippage model: one adverse option tick/order.
 - No synthetic missing prices.
@@ -45,9 +45,9 @@ Signals use only completed-bar information. Orders execute at the next available
 3. Annual and regime-stratified results.
 4. Static 0.30/0.10 IC benchmark using compatible data/execution assumptions.
 5. Cost-drag decomposition.
-6. Predefined reversal-threshold sensitivity.
+6. State-transition frequency and fixed-1.30 reversal-event incidence.
 7. Tail quantiles and expected shortfall where sample size permits.
-8. Multiple-testing caution: four thresholds are a fixed robustness grid, not unrestricted optimization.
+8. Multiple-testing correction for this strategy is not applicable to reversal thresholds because no reversal-threshold grid was authorized or run.
 9. Where the sample is too small for reliable inference, report effect sizes and uncertainty without overstating significance.
 
 ## Regime analysis
