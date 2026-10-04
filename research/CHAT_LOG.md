@@ -11,3 +11,7 @@ User instructed: “Proceed”. Developer continued the latest-strategy-only res
 
 ## 2026-10-05 — CI follow-up
 CI run 37231086646 failed the revised month-start test again. Inspection showed the fixture's expiry date was itself used as the expected exit, although the implementation requires the final normal NSE F&O session before expiry. Developer corrected the fixture to March 2026, where the stored calendar explicitly marks March 3 as a holiday and the expected first session is March 2; no production strategy logic was changed.
+
+
+## 2026-10-05 — autonomous Gate 1 remediation
+Tester Review 22 independently rejected implementation acceptance because the reversal condition was implicitly implemented as combined short-leg delta >=1.20 without an explicit modelling-convention/sensitivity treatment. Developer parameterized the threshold, constrained it to 0.80–1.30, documented the 1.20 baseline convention and sensitivity grid, and added regression validation. Fresh CI and tester re-review are required.
