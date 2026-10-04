@@ -7,3 +7,7 @@ The user identified that the prior chat explanation did not faithfully reproduce
 User explicitly instructed: ignore the initial transcript and ignore 32 DTE; test only the latest strategy rules supplied in chat. Developer reset the strategy specification and research plan accordingly. No historical result from the prior 32-DTE protocol is considered a result for this strategy.
 ## 2026-10-05
 User instructed: “Proceed”. Developer continued the latest-strategy-only reset. CI exposed one calendar-test assumption error; the NSE holiday calendar was checked and the test was corrected without changing strategy logic. CI remains to be re-run on the corrected commit.
+
+
+## 2026-10-05 — CI follow-up
+CI run 37231086646 failed the revised month-start test again. Inspection showed the fixture's expiry date was itself used as the expected exit, although the implementation requires the final normal NSE F&O session before expiry. Developer corrected the fixture to March 2026, where the stored calendar explicitly marks March 3 as a holiday and the expected first session is March 2; no production strategy logic was changed.
