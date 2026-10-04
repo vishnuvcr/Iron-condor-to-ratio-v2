@@ -68,3 +68,7 @@ Phase 2 remains IN PROGRESS. The requested 2021-01 to 2026-09 window contains 69
 
 ## 2026-10-04 — CI ordering improvement
 Phase 2 remains IN PROGRESS. Unit tests were moved to immediately after dependency installation so code regressions are rejected before multi-year source staging and composite construction. Gate criteria remain unchanged.
+
+
+## 2026-10-04 — Gate 2 Review 14 remediation
+Phase 2 remains IN PROGRESS. Tester Review 14 found that the latest observed expiry in a fallback-only month could be a weekly expiry. Developer now requires every production candidate expiry—primary or fallback—to be a defensible month-end monthly expiry; an invalid primary file can only be rescued by a valid explicit fallback monthly expiry. Regression tests were added. Fresh CI and independent tester review are required.
