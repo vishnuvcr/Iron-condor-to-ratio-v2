@@ -139,3 +139,13 @@ Independent tester Review 23 passed the revised strategy implementation after re
 
 ## 2026-10-05 — research-use data tier activated
 Per user instruction, Phase 2 now has two clearly separated outcomes: (1) strict Gate 2, which remains CLOSED because full lifecycle coverage is not available; and (2) a research-use partial-data tier that may run the best available real dataset with explicit limitations. No missing prices will be synthesized. The research-use engine can use the first observed expiry-month session when the deterministic month-start session is unavailable, and it will retain the strict coverage failure in the run manifest. Tester approval is required before treating the resulting analysis as a research result.
+
+
+## 2026-10-05 — Research-use execution remediation
+- Phase: 2 — data engineering / exploratory execution.
+- Strict Gate 2: CLOSED (full lifecycle coverage still not demonstrated).
+- CI run 37232172004: in progress after a prior run was cancelled during composite assembly.
+- Code correction: research-use `entry_mode=available` now genuinely permits the first observed expiry-month session when the deterministic first session is unavailable, while still requiring the final pre-expiry session.
+- Regression test added for the partial-entry path.
+- Additional cleanup: stale 32-DTE coverage output removed; continuation branch now uses the configured 0.20 threshold; diagnostics upload is unconditional.
+- No performance conclusion is promoted yet.
