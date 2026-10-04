@@ -1,5 +1,9 @@
 name: Backtest Strategy
 
+concurrency:
+  group: phase2-backtest-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [phase-2-data-developer]
@@ -47,7 +51,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: hf-nifty-options-v1-${{ runner.os }}-2025-2026
+          key: hf-nifty-options-v2-${{ runner.os }}-2024-2026
           restore-keys: |
             hf-nifty-options-v1-${{ runner.os }}-
 
@@ -55,7 +59,7 @@ jobs:
         run: pip install -r requirements.txt pytest
 
       - name: Unit tests
-        run: pytest -q
+        run: python -m pytest -q
 
       - name: Run backtest
         run: |
