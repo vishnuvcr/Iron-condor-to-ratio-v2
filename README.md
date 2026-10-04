@@ -34,7 +34,7 @@ The published video is the primary specification. Ambiguities are preserved and 
 
 **CLOSED / PENDING TESTER APPROVAL.**
 
-The previously observed one-trade result remains rejected because its source partition ended on July 2, 2026 for a July 28, 2026 expiry, so it did not span the deterministic 32-DTE entry to final pre-expiry monitoring.
+No strategy performance result is accepted. Earlier data-gate work used a 32-DTE protocol, but that protocol has been removed from the current strategy scope; those artifacts are retained only as infrastructure/history.
 
 ### Composite data path
 The current Phase 2 pipeline:
@@ -49,7 +49,7 @@ Parquet remains the research-native dataset. The CSV is the transfer artifact fo
 
 ### Current acceptance conditions
 Gate 2 cannot pass until:
-- every promoted expiry spans the 32-DTE entry window and the final pre-expiry session;
+- every promoted expiry spans the current strategy's deterministic first-expiry-month-session entry and final pre-expiry session;
 - no expected exchange session is missing inside a promoted cycle;
 - expiry provenance is explicit or resolved from another explicit source;
 - fallback rows retain source-level provenance;
@@ -61,7 +61,7 @@ No performance result is promoted while any of these conditions remain open.
 
 ## Current research status — 2026-10-04
 
-**Phase 2 / Gate 2: NOT PASSED.** The latest successful historical-data run produced only a one-trade validation artifact and was rejected. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step, and the assembly preserves the requested coverage window; a fresh CI run is required before Gate 2 can be reconsidered.
+**Phase 2 / Gate 2: NOT PASSED.** The latest composite remains data-incomplete for the current strategy lifecycle, so no performance result has been promoted. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step, and the assembly preserves the requested coverage window; a fresh CI run and independent tester review are required before Gate 2 can be reconsidered.
 
 ### Historical expansion
 The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate remains the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; rissin is retained for overlap validation, with other free/public candidates retained as documented fallbacks.
