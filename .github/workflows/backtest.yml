@@ -192,7 +192,7 @@ jobs:
           set -o pipefail
           PYTHONPATH=. python scripts/reconcile_composite_csv.py 2>&1 | tee composite-csv-reconciliation.txt
       - name: Upload diagnostics
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backtest-diagnostics
