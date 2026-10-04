@@ -1,12 +1,12 @@
 name: Backtest Strategy
 
 concurrency:
-  group: phase2-backtest-${{ github.ref }}
+  group: strategy-backtest-${{ github.ref }}
   cancel-in-progress: true
 
 on:
   push:
-    branches: [phase-2-data-developer]
+    branches: [phase-2-data-developer, phase-3-robustness-developer]
     paths:
       - ".github/workflows/backtest.yml"
       - "scripts/**"
