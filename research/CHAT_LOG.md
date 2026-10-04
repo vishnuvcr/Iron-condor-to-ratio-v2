@@ -52,3 +52,12 @@ Independent Tester Review 11 identified the use of a BSE session calendar as a p
 
 ## 2026-10-04 — synthetic expiry-gate check
 A sandbox-only synthetic check confirmed that the revised coverage logic detects a deliberately missing expected monthly expiry. An earlier sandbox attempt failed because duckdb was unavailable; it produced no repository side effects and was logged as a tooling limitation.
+
+## 2026-10-04 — tester calendar confirmation
+Independent Tester Review 12 verified the versioned NSE F&O holiday calendar against annual NSE F&O circulars for 2021–2026 and found no date mismatch. Gate 2 remains pending fresh CI and final artifact review.
+
+## 2026-10-04 — cycle-boundary hardening
+Developer replaced the old fixed three-day pre-expiry tolerance with explicit NSE F&O session-calendar logic. This fixes valid Friday-to-Tuesday cycles when Monday is an NSE holiday and permits a 32-DTE target that falls on a holiday, provided the first eligible normal session is covered. Boundary regression tests were added.
+
+## 2026-10-04 — provenance hash standardization
+Developer standardized the primary DuckDB composite source_row_hash to SHA-256 so all composite rows use one hash algorithm. No strategy logic changed.
