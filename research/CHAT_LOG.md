@@ -113,3 +113,7 @@ The first partitioned coverage run built all six partitions but produced 0/69 co
 
 ## 2026-10-05 — Gate 2 Review 19
 The latest partitioned run passed unit tests and all six partition builds, but the assembled composite failed the substantive coverage gate: 0/69 requested calendar months completed the deterministic 32-DTE-to-pre-expiry cycle. TradeMarkk's published dataset documentation states option coverage is partial; 2021 Jan-Apr are not present in the staged monthly set. Alternative acquisition paths are being researched without weakening the gate.
+
+
+## 2026-10-05 — Review 19 remediation
+Tester Review 19 required lead-in windows and cross-partition deduplication. Developer updated the six partition windows with a pre-year lead-in and updated assembly to retain one canonical row per timestamp/expiry/strike/option_type using explicit source priority and provenance tie-breakers. The 32-DTE coverage rule remains unchanged.
