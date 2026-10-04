@@ -280,8 +280,9 @@ def _read_source_file(path: Path):
 
 
 def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
-    con = duckdb.connect()
-    con.execute("SET memory_limit='6GB'")
+    work_db = out / "composite_work.duckdb"
+    con = duckdb.connect(str(work_db))
+    con.execute("SET memory_limit='4GB'")
     con.execute("SET threads=2")
     out.mkdir(parents=True, exist_ok=True)
 
@@ -292,13 +293,17 @@ def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
     overlap_rows = []
     source_stats = []
 
-    # Bulk-load the highest-priority TradeMarkk Parquets in one DuckDB scan.
+    # Ingest primary partitions sequentially into the disk-backed DuckDB table.
+    # This avoids materializing the full multi-year option chain at once.
     primary = sorted(grouped.get("thetrademarkk", []))
-    if primary:
-        primary_revision = revision_by_file.get(str(primary[0]), "unknown")
-        paths = [str(p) for p in primary]
-        con.execute("""
-            CREATE TABLE composite AS
+    calendar = explicit_calendar_from_staged(files)
+
+    for idx, path in enumerate(primary):
+        revision = revision_by_file.get(str(path), "unknown")
+        action = "CREATE TABLE composite AS" if idx == 0 else "INSERT INTO composite"
+        con.execute(
+            f"""
+            {action}
             SELECT
                 timestamp,
                 CAST(expiry AS DATE) AS expiry,
@@ -337,18 +342,24 @@ def build_disk_backed(files, out: Path, manifest: dict, revision_by_file: dict):
                 PARTITION BY timestamp, CAST(expiry AS DATE), strike, UPPER(option_type)
                 ORDER BY filename
             ) = 1
-        """, [primary_revision, paths])
-
-        primary_rows = con.execute("SELECT COUNT(*) FROM composite").fetchone()[0]
-        source_stats.append({
-            "source": "thetrademarkk",
-            "file_count": len(primary),
-            "valid_rows": int(primary_rows),
-            "sha256_files": {str(p): sha256_file(p) for p in primary},
-        })
-        calendar = explicit_calendar_from_staged(files)
-    else:
-        calendar = {}
+            """,
+            [revision, str(path)],
+        )
+        valid_rows = int(
+            con.execute(
+                "SELECT COUNT(*) FROM composite WHERE source_file = ?",
+                [str(path)],
+            ).fetchone()[0]
+        )
+        source_stats.append(
+            {
+                "source": "thetrademarkk",
+                "file": str(path),
+                "valid_rows": valid_rows,
+                "sha256": sha256_file(path),
+                "source_revision": revision,
+            }
+        )
 
     # Lower-priority sources are small enough to normalize one file at a time.
     lower = []
