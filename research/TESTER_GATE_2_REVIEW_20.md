@@ -81,3 +81,31 @@ Developer branch reviewed: phase-2-data-developer
 
 ### Tester instruction to developer
 Run the research-use CI path. When results are produced, independently inspect candidate-status, data-quality, run-manifest and coverage outputs before accepting any conclusion.
+
+## Tester Review 26 — Research-use execution readiness (2026-10-05)
+
+**Role:** Independent tester. Developer implementation branch was inspected read-only; no developer code was copied into the tester branch.
+
+### Checks performed
+1. **Strategy scope:** latest user-defined rules remain the active specification; the obsolete 32-DTE condition is not used as a strategy entry rule.
+2. **Strict Gate 2:** remains CLOSED. The latest completed data coverage run reported 0/69 complete deterministic lifecycle months.
+3. **Research-use tier:** the developer now has a distinct `entry_mode=available` path that can use the first observed expiry-month session while still requiring the final pre-expiry session. This is an explicit research-use deviation, not a relaxation of strict validation.
+4. **No synthetic data:** no interpolation, theoretical option pricing, averaging, or forward-filling was introduced to manufacture missing prices.
+5. **Execution causality:** signals are evaluated from observed completed bars and orders use the next executable open convention already documented in the strategy implementation.
+6. **Costs:** brokerage and adverse slippage remain part of every order.
+7. **Implementation regression:** the new partial-entry regression fixture was corrected after CI identified a test-schema defect; the subsequent CI run passed 38/38 unit tests.
+8. **Composite/transfer integrity:** latest run 37232849676 successfully completed composite assembly, coverage check, CSV export, and Parquet↔CSV reconciliation. The strict coverage result remains a failure by design, but research-use continuation is explicitly labelled.
+9. **Performance gate:** the backtest is still running in CI. No performance metric, trade count, or profitability conclusion is accepted until the run completes and the resulting `candidate_status.csv`, `trade_summary.csv`, `metrics.json`, and `run_manifest.json` are independently inspected.
+
+### Tester decision
+**PASS WITH RESTRICTIONS — implementation and data-transfer prerequisites for research-use execution are acceptable; Gate 2 strict validation remains CLOSED; performance conclusions are NOT YET APPROVED.**
+
+### Required before performance acceptance
+- Inspect actual traded-cycle count and partial-entry fraction.
+- Verify every reported trade has a complete executable order path and scheduled exit.
+- Verify `entry_mode`, brokerage, slippage, reversal threshold, and data provenance in `run_manifest.json`.
+- Confirm no result is described as fully covered historical validation.
+- Quantify availability bias, sparse-strike/liquidity bias, source bias, and changed entry timing in limitations.
+- Require separate reversal sensitivity at 0.80/1.00/1.20/1.30 before robustness conclusions.
+
+**Instructions to developer:** Do not promote performance results or advance to the next research phase until the current backtest artifacts are independently inspected and the tester either passes the performance gate or records a specific remediation. If the run times out, remediate performance without weakening the strategy or data-integrity rules.
