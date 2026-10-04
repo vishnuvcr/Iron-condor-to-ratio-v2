@@ -117,3 +117,5 @@
 
 | 2026-10-05 | 3 | TOOLING | One internal sleep-monitor command was malformed and returned `sleep: missing operand`; no research computation or repository state was affected. | Corrected the command and continued monitoring. |
 | 2026-10-05 | 3 | TOOLING | A direct GitHub Actions job-URL fetch was rejected by the connector allowlist (HTTP 400); the supported workflow-job wrapper was used instead. | No research state was affected; use the supported GitHub workflow job APIs for subsequent monitoring. |
+
+| 2026-10-05 | 3 | CI LOG ACCESS | Live log retrieval for workflow job `111539404198` returned GitHub `404 BlobNotFound` while the backtest step was still running. | Continue monitoring by workflow/job status; do not infer an outcome from missing live logs. |
