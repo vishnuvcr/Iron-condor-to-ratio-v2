@@ -64,8 +64,12 @@ def monthly_expiries(expiries: List[date]) -> List[date]:
 
 
 def lot_size_for_monthly_expiry(expiry: date) -> int:
-    # Production research window begins 2025.
-    # NSE circular: 75 through 2025-12-30 monthly expiry; 65 from 2026-01-27.
+    # Historical NIFTY monthly-expiry regimes used by this research window.
+    # 25: contracts introduced before the Nov-2024 index-derivatives revision.
+    # 75: new monthly contracts from Nov-2024 through Dec-2025.
+    # 65: new contracts from Jan-2026.
+    if expiry <= date(2024, 11, 19):
+        return 25
     if expiry <= date(2025, 12, 30):
         return 75
     return 65
