@@ -7,3 +7,5 @@ matplotlib>=3.8
 huggingface_hub>=0.28
 gdown>=5.2
 requests>=2.32
+
+pytz>=2024.1
