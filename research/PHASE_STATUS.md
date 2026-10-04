@@ -149,3 +149,11 @@ Per user instruction, Phase 2 now has two clearly separated outcomes: (1) strict
 - Regression test added for the partial-entry path.
 - Additional cleanup: stale 32-DTE coverage output removed; continuation branch now uses the configured 0.20 threshold; diagnostics upload is unconditional.
 - No performance conclusion is promoted yet.
+
+
+## 2026-10-05 — Research-use baseline result
+- CI run 37232849676: execution completed successfully through backtest; automatic repository push of the multi-GB result bundle failed with HTTP 500 after creating commit 7a047f5 locally on the runner.
+- Backtest artifact 11315040792 preserves the complete result bundle.
+- Baseline research-use result: 28 traded cycles; net P&L −₹20,455.46; profit factor 0.647; win rate 46.43%; max drawdown −₹41,981.20; Sharpe proxy −0.541.
+- Strict Gate 2: CLOSED; 0/69 deterministic lifecycle months complete.
+- Performance gate: NOT PASSED. Next predefined phase is reversal-threshold sensitivity at 0.80, 1.00, 1.20, 1.30.
