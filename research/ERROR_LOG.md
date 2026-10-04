@@ -29,3 +29,5 @@
 | 2026-10-04 | 2 | TEST ERROR | New expiry-coverage regression test expected 2026-06-29 even though 2026-06-26 is the first date on/after the 32-DTE target for a 2026-07-28 expiry. | Corrected the fixture; no production-code change was required. |
 
 | 2026-10-04 | 2 | RESEARCH TOOL LIMITATION | Zenodo exposes the 311.9 MB NIFTY options ZIP publicly, but the web/file tooling could not download the large binary directly; this is an access limitation, not evidence that the dataset is unavailable. | Record the public DOI/MD5 metadata and validate the archive through a GitHub Actions download/cache step when implementing the free-source harness. |
+
+| 2026-10-04 | 2 | TESTER FINDING | Composite fallback initially allowed expiry to be inferred from the last observed timestamp without explicit provenance. | Added expiry_source tracking and blocked inferred-only composite cycles from production expiry discovery. Added source-contribution coverage and composite loader tests. |
