@@ -13,3 +13,7 @@
 | 8 Manuscript | PLANNED | 8 |
 
 Every phase update must append a dated entry to this file and to the error log where applicable.
+
+
+## 2026-10-04 tester update
+Gate 2 remains NOT PASSED. Independent review confirms the prior one-trade output was invalid because its source partition ended weeks before expiry. Developer added a rejection rule; fresh CI and complete-source evidence are still required.
