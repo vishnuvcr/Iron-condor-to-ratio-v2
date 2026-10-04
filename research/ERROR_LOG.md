@@ -101,3 +101,6 @@
 
 
 | 2026-10-05 | 2 | CI ERROR | CI run 37232241237 successfully assembled all six partitions and passed unit tests, but `export_composite_csv.py` failed because DuckDB interpreted the parameterized COPY paths incorrectly and attempted to read the destination CSV as an input. | Replaced the parameterized COPY path arguments with safely escaped SQL string literals. No data-selection logic changed. |
+
+
+| 2026-10-05 | 2 | CI ERROR | CI run 37232519372 assembled data and exported the CSV successfully, but reconciliation failed because DuckDB's timestamp CSV reader required the missing `pytz` package. | Added `pytz` to requirements and hardened the reconciliation COPY path handling. Backtest was correctly blocked until reconciliation passes. |
