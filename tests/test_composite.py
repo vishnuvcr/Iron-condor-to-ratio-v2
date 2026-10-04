@@ -221,3 +221,18 @@ def test_compose_normalizes_date_and_timestamp_expiry_types():
     ])
     assert len(out) == 1
     assert out.iloc[0]["expiry"] == pd.Timestamp("2025-01-30").date()
+
+
+def test_staged_primary_calendar_ignores_weekly_filename():
+    from pathlib import Path
+    from scripts.composite_data import explicit_calendar_from_staged
+
+    files = [
+        ("thetrademarkk", Path("2026-06-09.parquet")),
+        ("thetrademarkk", Path("2026-06-30.parquet")),
+        ("thetrademarkk", Path("2026-08-04.parquet")),
+        ("thetrademarkk", Path("2026-08-25.parquet")),
+    ]
+    calendar = explicit_calendar_from_staged(files)
+    assert calendar["2026-06"].isoformat() == "2026-06-30"
+    assert calendar["2026-08"].isoformat() == "2026-08-25"
