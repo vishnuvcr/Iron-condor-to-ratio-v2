@@ -54,8 +54,9 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
 
     ts_col = pick("timestamp", "datetime", "date_time")
     strike_col = pick("strike", "strike_price")
-    type_col = pick("option_type", "opt_type", "type")
+    type_col = pick("option_type", "opt_type", "type", "right")
     expiry_col = pick("expiry", "expiry_date", "expiry_dt")
+    symbol_col = pick("symbol", "contract_symbol", "instrument")
     if not all([ts_col, strike_col, type_col]):
         raise ValueError(f"{source}: missing timestamp/strike/option_type in {source_file}")
 
@@ -70,6 +71,16 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
         out["expiry"] = parsed.dt.date
     else:
         out["expiry"] = pd.NaT
+
+    # Some free expired-option CSVs identify the contract in the Symbol field
+    # but do not repeat the expiry. For genuinely expired files, infer the
+    # contract expiry from the last observed timestamp for that exact symbol.
+    if symbol_col:
+        symbols = df[symbol_col].astype(str)
+        inferred = pd.to_datetime(out["timestamp"], errors="coerce").dt.date
+        max_by_symbol = out.assign(_symbol=symbols).groupby("_symbol")["timestamp"].transform("max").dt.date
+        out.loc[out["expiry"].isna(), "expiry"] = max_by_symbol[out["expiry"].isna()]
+
 
     for dest, aliases in {
         "open": ("open",),
@@ -186,7 +197,7 @@ def main():
         "notes": [],
     }
 
-    staged = sorted(Path("data/raw").glob("**/*.parquet")) + sorted(Path("data/raw").glob("**/*.csv"))
+    staged = sorted(Path("data/cache/thetrademarkk").glob("*.parquet")) + sorted(Path("data/cache/cloudtrader").glob("**/*.csv")) + sorted(Path("data/cache/artist23").glob("**/*.parquet"))
     frames = []
     source_stats = []
 
