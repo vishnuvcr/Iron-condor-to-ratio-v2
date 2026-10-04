@@ -84,3 +84,7 @@ Phase 2 remains IN PROGRESS. The 33/34 unit-test result from run 37225959932 was
 
 ## 2026-10-04 — Gate 2 Review 16 remediation
 Phase 2 remains IN PROGRESS. Composite construction was resource-unstable under the previous bulk/in-memory implementation. The primary path is now file-backed DuckDB with sequential monthly-partition ingestion. A separate resolver safeguard excludes weekly-dated primary files from symbol-based expiry inference. Fresh CI and tester review remain required.
+
+
+## 2026-10-04 — CI timeout remediation
+Phase 2 remains IN PROGRESS. The sequential composite build is resource-stable but the hosted runner terminated it at about 4m19s. An explicit 30-minute job timeout has been added; Gate 2 remains closed pending a complete composite build.
