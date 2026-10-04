@@ -157,3 +157,11 @@ Per user instruction, Phase 2 now has two clearly separated outcomes: (1) strict
 - Baseline research-use result: 28 traded cycles; net P&L −₹20,455.46; profit factor 0.647; win rate 46.43%; max drawdown −₹41,981.20; Sharpe proxy −0.541.
 - Strict Gate 2: CLOSED; 0/69 deterministic lifecycle months complete.
 - Performance gate: NOT PASSED. Next predefined phase is reversal-threshold sensitivity at 0.80, 1.00, 1.20, 1.30.
+
+
+## 2026-10-05 — Phase 3 robustness started
+- New isolated developer branch: `phase-3-robustness-developer`.
+- New isolated tester branch: `phase-3-robustness-tester`.
+- Tester Review 27 did not pass strategy promotion; it required only the predefined reversal sensitivity grid.
+- Phase 3 workflow `.github/workflows/sensitivity.yml` is running thresholds 0.80, 1.00, 1.20 and 1.30 with identical research-use data/cost/slippage assumptions.
+- Phase 2 baseline remains frozen and unchanged.
