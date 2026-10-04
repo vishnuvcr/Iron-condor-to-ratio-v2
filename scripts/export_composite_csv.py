@@ -9,10 +9,11 @@ if not src.exists():
     raise SystemExit("Composite parquet not found; run composite_data.py first.")
 
 con = duckdb.connect()
+src_sql = str(src).replace("'", "''")
+dst_sql = str(dst).replace("'", "''")
 con.execute(
-    "COPY (SELECT * FROM read_parquet(?) ORDER BY expiry, timestamp, strike, option_type) TO ? "
-    "(FORMAT CSV, HEADER TRUE)",
-    [str(src), str(dst)],
+    f"COPY (SELECT * FROM read_parquet('{src_sql}') ORDER BY expiry, timestamp, strike, option_type) "
+    f"TO '{dst_sql}' (FORMAT CSV, HEADER TRUE)"
 )
 con.close()
 print(dst)
