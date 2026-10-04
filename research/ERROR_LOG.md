@@ -119,3 +119,6 @@
 | 2026-10-05 | 3 | TOOLING | A direct GitHub Actions job-URL fetch was rejected by the connector allowlist (HTTP 400); the supported workflow-job wrapper was used instead. | No research state was affected; use the supported GitHub workflow job APIs for subsequent monitoring. |
 
 | 2026-10-05 | 3 | CI LOG ACCESS | Live log retrieval for workflow job `111539404198` returned GitHub `404 BlobNotFound` while the backtest step was still running. | Continue monitoring by workflow/job status; do not infer an outcome from missing live logs. |
+
+| 2026-10-05 | 3 | TOOLING | First local compact-artifact inspection assumed a nested results/compact directory, but the downloaded artifact contains the compact files at its root. | Corrected the path; no research data were altered. |
+| 2026-10-05 | 3 | CI RACE | Previous workflow run 37235922082 created a local result commit but push was rejected because newer documentation commits had advanced the remote branch. | Workflow was changed to fetch/rebase before publishing compact result files. |
