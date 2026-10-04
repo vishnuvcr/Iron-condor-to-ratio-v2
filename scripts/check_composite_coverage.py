@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import calendar
 import json
 import re
 import sys
@@ -10,6 +11,15 @@ import duckdb
 import pandas as pd
 
 from scripts.backtest import entry_and_exit_dates
+
+
+def is_monthly_expiry_candidate(expiry: date) -> bool:
+    month_end = date(
+        expiry.year,
+        expiry.month,
+        calendar.monthrange(expiry.year, expiry.month)[1],
+    )
+    return month_end - pd.Timedelta(days=6) <= pd.Timestamp(expiry).date() <= month_end
 
 
 def expected_monthly_candidates(
@@ -106,10 +116,15 @@ def main():
     for expected in expected_months:
         key = expected["month"]
         primary_expiry = expected["primary_expiry"]
-        expiry = primary_expiry or observed_expiry_by_month.get(key)
+        fallback_expiry = observed_expiry_by_month.get(key) if not primary_expiry else None
+        expiry = primary_expiry or fallback_expiry
         primary_available = bool(expected["primary_file_available"])
+        fallback_monthly_ok = (
+            True if primary_expiry is not None
+            else bool(fallback_expiry and is_monthly_expiry_candidate(fallback_expiry))
+        )
         coverage_basis = "PRIMARY_MANIFEST" if primary_expiry else (
-            "FALLBACK_COMPOSITE_MAX_EXPIRY" if expiry else "MISSING"
+            "FALLBACK_COMPOSITE_MAX_EXPIRY" if fallback_expiry else "MISSING"
         )
 
         if expiry is None:
@@ -120,7 +135,38 @@ def main():
                 "expiry": "",
                 "coverage_basis": coverage_basis,
                 "primary_file_available": primary_available,
+                "fallback_monthly_candidate": fallback_monthly_ok,
                 "target_32dte": "",
+                "first_available": "",
+                "last_available": "",
+                "entry_date": "",
+                "exit_date": "",
+                "status": "INCOMPLETE",
+                "rows": 0,
+                "price_rows_primary": 0,
+                "price_rows_cloudtrader": 0,
+                "price_rows_rissin": 0,
+                "price_rows_artist23": 0,
+                "uses_fallback_price_rows": False,
+                "non_explicit_expiry_rows": 0,
+                "expected_sessions": 0,
+                "observed_sessions": 0,
+                "missing_sessions": 0,
+            })
+            continue
+
+        if not fallback_monthly_ok:
+            month_label = f"{key[0]:04d}-{key[1]:02d}"
+            failures.append(
+                f"{month_label}: fallback expiry {expiry} is not a defensible month-end monthly expiry"
+            )
+            rows.append({
+                "calendar_month": month_label,
+                "expiry": expiry.isoformat(),
+                "coverage_basis": coverage_basis,
+                "primary_file_available": primary_available,
+                "fallback_monthly_candidate": False,
+                "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
                 "first_available": "",
                 "last_available": "",
                 "entry_date": "",
@@ -150,6 +196,7 @@ def main():
                 "expiry": expiry.isoformat(),
                 "coverage_basis": coverage_basis,
                 "primary_file_available": primary_available,
+                "fallback_monthly_candidate": fallback_monthly_ok,
                 "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
                 "first_available": "",
                 "last_available": "",
