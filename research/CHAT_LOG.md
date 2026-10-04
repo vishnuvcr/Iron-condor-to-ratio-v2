@@ -39,3 +39,7 @@ User explicitly ordered: “Do not introduce anything into the strategy testing.
 
 ## 2026-10-05 — reversal trigger corrected
 User clarified that the reversal trigger is **1.30**, not a 0.80–1.30 range. All subsequent strategy testing must use fixed 1.30 reversal logic. No threshold sensitivity or alternative reversal interpretation is authorized.
+
+
+## 2026-10-05 — autonomous continuation
+User repeatedly instructed the developer to proceed without intervention and then said “Keep thinking.” Developer continued autonomous execution, preserving the fixed 1.30 strategy scope and logging only concise decisions/status; private chain-of-thought is not copied into repository files.
