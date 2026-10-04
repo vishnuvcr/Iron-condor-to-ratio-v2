@@ -47,7 +47,8 @@ def test_cloudtrader_expiry_is_marked_inferred():
         "Volume": 100, "OI": 1000,
     }])
     out = normalize_frame(raw, "cloudtrader", "sample.csv")
-    assert out.iloc[0]["expiry_source"] == "INFERRED_LAST_OBSERVED"
+    assert out.iloc[0]["expiry_source"] == "SYMBOL_MONTH_HINT_UNRESOLVED"
+    assert out.iloc[0]["expiry_month_key"] == "2025-01"
 
 def test_explicit_expiry_survives_composite_priority():
     primary = pd.DataFrame([{
@@ -90,3 +91,41 @@ def test_inferred_only_expiry_is_not_production_eligible(tmp_path):
     remote = ["COMPOSITE::" + x.date().isoformat() for _, x in df.iterrows()]
     from scripts.backtest import load_expiry_list
     assert load_expiry_list(remote, dt.date(2025, 1, 1), dt.date(2025, 12, 31)) == []
+
+
+def test_symbol_month_resolves_against_explicit_source():
+    cloud = pd.DataFrame([{
+        "Symbol": "NIFTY25JAN24000CE",
+        "Date": "2025-01-02",
+        "Time": "09:20:00",
+        "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
+        "Volume": 100, "OI": 1000,
+    }])
+    explicit = pd.DataFrame([{
+        "timestamp": "2025-01-02T09:20:00+05:30",
+        "expiry": "2025-01-30",
+        "strike": 24000,
+        "option_type": "CE",
+        "open": 10.0, "high": 11.0, "low": 9.0, "close": 10.5,
+        "volume": 100, "open_interest": 1000,
+    }])
+    from scripts.composite_data import normalize_frame, compose
+    cloud_n = normalize_frame(cloud, "cloudtrader", "cloud.csv")
+    explicit_n = normalize_frame(explicit, "thetrademarkk", "explicit.parquet")
+    out, _ = compose([explicit_n, cloud_n])
+    cloud_rows = out[out["price_source"] == "cloudtrader"]
+    assert len(cloud_rows) == 1
+    assert cloud_rows.iloc[0]["expiry"].isoformat() == "2025-01-30"
+    assert cloud_rows.iloc[0]["expiry_source"] == "RESOLVED_FROM_EXPLICIT_SOURCE"
+
+def test_unresolved_symbol_month_does_not_enter_composite_as_production_cycle():
+    from scripts.composite_data import normalize_frame, compose
+    cloud = pd.DataFrame([{
+        "Symbol": "NIFTY25JAN24000CE",
+        "Date": "2025-01-02",
+        "Time": "09:20:00",
+        "Open": 10.0, "High": 11.0, "Low": 9.0, "Close": 10.5,
+        "Volume": 100, "OI": 1000,
+    }])
+    out, _ = compose([normalize_frame(cloud, "cloudtrader", "cloud.csv")])
+    assert out.empty
