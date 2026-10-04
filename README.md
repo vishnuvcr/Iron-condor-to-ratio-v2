@@ -47,6 +47,9 @@ The current Phase 2 pipeline:
 
 Parquet remains the research-native dataset. The CSV is the transfer artifact for Google Drive and future repository reuse.
 
+### Gate 1 implementation convention
+The 0.80–1.30 reversal rule is not given as an exact computational threshold. The baseline research convention is combined absolute delta of the two short ratio legs reaching 1.20, explicitly treated as a modelling convention rather than a user rule. Before any performance conclusion, reversal sensitivity runs must cover 0.80, 1.00, 1.20 and 1.30.
+
 ### Current acceptance conditions
 Gate 2 cannot pass until:
 - every promoted expiry spans the current strategy's deterministic first-expiry-month-session entry and final pre-expiry session;
