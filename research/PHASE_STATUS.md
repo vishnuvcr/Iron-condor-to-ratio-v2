@@ -17,3 +17,7 @@ Every phase update must append a dated entry to this file and to the error log w
 
 ## 2026-10-04 tester update
 Gate 2 remains NOT PASSED. Independent review confirms the prior one-trade output was invalid because its source partition ended weeks before expiry. Developer added a rejection rule; fresh CI and complete-source evidence are still required.
+
+
+## 2026-10-04 tester update
+Gate 2 remains NOT PASSED. Free-source expansion produced credible candidates, but no source has yet demonstrated complete 32-DTE-to-pre-expiry coverage and required strike coverage. See research/TESTER_GATE_2_REVIEW_5.md.
