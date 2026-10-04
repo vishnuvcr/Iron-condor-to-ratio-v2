@@ -98,3 +98,6 @@
 
 
 | 2026-10-05 | 2 | TEST FIX | CI run 37232180287 failed 1/38 tests because the new partial-entry regression fixture returned an empty DataFrame without the option columns required by `select_contract`. | Added the expected empty-schema columns; production code was unchanged. |
+
+
+| 2026-10-05 | 2 | CI ERROR | CI run 37232241237 successfully assembled all six partitions and passed unit tests, but `export_composite_csv.py` failed because DuckDB interpreted the parameterized COPY paths incorrectly and attempted to read the destination CSV as an input. | Replaced the parameterized COPY path arguments with safely escaped SQL string literals. No data-selection logic changed. |
