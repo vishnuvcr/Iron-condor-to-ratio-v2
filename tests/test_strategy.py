@@ -80,3 +80,13 @@ def test_ic_trigger_rule_and_tie_break():
     assert choose_ic_trigger(0.07, 0.09) == "CALL"
     assert choose_ic_trigger(0.09, 0.07) == "PUT"
     assert choose_ic_trigger(0.09, 0.09, prev_call_abs_delta=0.15, prev_put_abs_delta=0.12) == "CALL"
+
+
+def test_timezone_aware_expiry_arithmetic():
+    import pandas as pd
+    from datetime import date
+    expiry_close = pd.Timestamp(date(2025, 1, 27), tz="Asia/Kolkata") + pd.Timedelta(hours=15, minutes=30)
+    ts = pd.Series(pd.to_datetime(["2025-01-02 09:20:00+05:30", "2025-01-27 15:20:00+05:30"]))
+    delta_days = (expiry_close - ts).dt.total_seconds() / 86400.0
+    assert delta_days.iloc[0] > 20
+    assert delta_days.iloc[1] > 0
