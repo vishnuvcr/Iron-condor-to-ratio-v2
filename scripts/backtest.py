@@ -426,13 +426,10 @@ def run_cycle(
     rate: float,
     cost_model: CostModel,
     continuation_delta_threshold: float = 0.20,
-    reversal_delta_threshold: float = 1.20,
     entry_mode: str = "strategy",
 ) -> Optional[CycleResult]:
     if not (0.20 <= continuation_delta_threshold <= 0.20):
         raise ValueError("continuation_delta_threshold must equal the specified approximately-0.20 trigger")
-    if not (0.80 <= reversal_delta_threshold <= 1.30):
-        raise ValueError("reversal_delta_threshold must lie within the stated 0.80–1.30 modelling range")
     dates = trading_dates(df)
     strategy_entry_date, strategy_exit_date = entry_and_exit_dates(expiry, dates)
     if entry_mode == "strategy":
@@ -549,7 +546,8 @@ def run_cycle(
             short_deltas = [position_abs_delta(snap, p, expiry, rate) for p in short_positions]
             if all(np.isfinite(short_deltas)):
                 s = float(sum(short_deltas))
-                if s <= continuation_delta_threshold or s >= reversal_delta_threshold:
+                reversal_trigger = any(0.80 <= float(d) <= 1.30 for d in short_deltas)
+                if s <= continuation_delta_threshold or reversal_trigger:
                     fill_ts = close_positions(positions, ts, df, cycle, cost_model, lot_size, "ratio_reset")
                     if fill_ts is None:
                         return None
@@ -621,7 +619,6 @@ def main():
     ap.add_argument("--brokerage", type=float, default=20.0)
     ap.add_argument("--slippage-ticks", type=int, default=1)
     ap.add_argument("--continuation-delta-threshold", type=float, default=0.20)
-    ap.add_argument("--reversal-delta-threshold", type=float, default=1.20)
     ap.add_argument(
         "--entry-mode",
         choices=["strategy", "available"],
@@ -682,7 +679,6 @@ def main():
                 args.rate,
                 cm,
                 continuation_delta_threshold=args.continuation_delta_threshold,
-                reversal_delta_threshold=args.reversal_delta_threshold,
                 entry_mode=args.entry_mode,
             )
             if cycle is not None:
@@ -773,7 +769,7 @@ def main():
         "brokerage": args.brokerage,
         "slippage_ticks": args.slippage_ticks,
         "continuation_delta_threshold": args.continuation_delta_threshold,
-        "reversal_delta_threshold": args.reversal_delta_threshold,
+        "reversal_delta_range": [0.80, 1.30],
         "entry_mode": args.entry_mode,
         "research_use_partial_data": args.entry_mode == "available",
         "tick": TICK,
