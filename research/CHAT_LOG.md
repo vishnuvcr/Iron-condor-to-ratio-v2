@@ -43,3 +43,6 @@ The GitHub connector returned HTTP 404 when asked for live workflow-job logs whi
 
 ## 2026-10-04 — documentation correction
 The README CSV transfer link was found to use an incorrect root-relative path. Developer corrected it to the repository-relative results/composite/consolidated_options_data.csv path. This was documentation-only and did not affect data or calculations.
+
+## 2026-10-04 — expected-expiry coverage remediation
+Independent Tester Review 10 identified a structural gap: the coverage checker could only validate expiries already present in the composite, so a wholly missing monthly partition could pass unnoticed. Developer changed the checker to derive the expected monthly expiry set from the primary staging manifest and fail any missing expected cycle. Gate 2 remains closed pending fresh CI and tester re-review.
