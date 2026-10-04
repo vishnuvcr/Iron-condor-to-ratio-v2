@@ -36,3 +36,5 @@
 | 2026-10-04 | 2 | CI ERROR | Workflow run 37221737875 failed during Install because requirements.txt temporarily contained literal escape characters instead of real newlines. | Corrected requirements.txt and added subsequent CI validation; no production result was accepted from the failed run. |
 
 | 2026-10-04 | 2 | TEST ERROR | Composite unit tests failed in source_row_hash generation because Pandas row-wise join still encountered numeric objects despite an astype(str) conversion. | Replaced hashing with explicit per-cell map(str) conversion and added a mixed-type regression test. |
+
+| 2026-10-04 | 2 | DATA INTEGRITY | Composite normalization initially parsed naive Date+Time fields with utc=True, which would shift local IST source times by 5:30 hours when converted back to IST. | Changed timestamp parsing to localize naive timestamps directly to Asia/Kolkata and added an exact-time regression test. |
