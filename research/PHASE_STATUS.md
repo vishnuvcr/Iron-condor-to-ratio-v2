@@ -76,3 +76,7 @@ Phase 2 remains IN PROGRESS. Tester Review 14 found that the latest observed exp
 
 ## 2026-10-04 — Gate 2 Review 15 remediation
 Phase 2 remains IN PROGRESS. Review 15 found a dependency-sensitive expiry dtype failure under Pandas 3.x. The developer branch now normalizes composite expiry values to Python dates before source concatenation and includes a regression test. Fresh CI and independent tester review are required.
+
+
+## 2026-10-04 — CI test-fixture and diagnostics remediation
+Phase 2 remains IN PROGRESS. The 33/34 unit-test result from run 37225959932 was traced to a test fixture, not production strategy code. The fixture and dtype regression coverage were corrected. CI diagnostic recording was also changed from git pushes to artifact uploads to eliminate branch-race failures.
