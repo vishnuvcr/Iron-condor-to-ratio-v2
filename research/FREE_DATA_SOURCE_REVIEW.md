@@ -58,3 +58,7 @@ The project now attempts a composite dataset when a free source has invalid or m
 - OptionVault documents a very large Indian derivatives archive with NIFTY options at 1-minute resolution and OHLCV+OI, but its complete archive is licensed; public samples are for evaluation only. It remains useful for schema/overlap validation, not as a confirmed free full-history source.
 - pythonwallahpro/data-lake provides a validated one-minute NIFTY/SENSEX option data-lake architecture with expiry/strike/CE-PE identity and missing-segment tracking, but requires Angel Broking SmartAPI credentials to generate the data. It is a reconstruction route rather than a free pre-existing archive.
 - Open-source Zerodha and Breeze collectors similarly provide 1-minute OHLCV+OI retrieval but require eligible broker/API credentials. They are retained as possible reconstruction fallbacks.
+
+
+## 2026-10-04 builder optimization
+The composite merge was changed from whole-history Pandas concatenation to a disk-backed DuckDB sequential merge. Source rows are validated one file at a time; higher-priority rows remain authoritative, lower-priority exact-key rows fill missing observations, and overlap diagnostics are aggregated by source/file.
