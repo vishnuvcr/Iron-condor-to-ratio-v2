@@ -85,5 +85,6 @@ The pipeline writes [results/composite/consolidated_options_data.csv](results/co
 - [Tester Review 16](research/TESTER_GATE_2_REVIEW_16.md)
 - [Tester Review 17](research/TESTER_GATE_2_REVIEW_17.md)
 - [Tester Review 18](research/TESTER_GATE_2_REVIEW_18.md)
+- [Tester Review 19](research/TESTER_GATE_2_REVIEW_19.md)
 
 No strategy performance conclusion is accepted until Gate 2 is independently approved.
