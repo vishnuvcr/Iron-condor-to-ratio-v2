@@ -4,13 +4,13 @@
 |---|---|---|
 | 0 Foundation | COMPLETE | 0 |
 | 1 Strategy specification | COMPLETE | 1 |
-| 2 Data engineering | IN PROGRESS | 2 |
-| 3 Cost/slippage model | PLANNED | 3 |
-| 4 Engine implementation | PLANNED | 4 |
-| 5 Independent tester gate | PLANNED | 5 |
-| 6 Historical backtest | PLANNED | 6 |
-| 7 Robustness/statistics | PLANNED | 7 |
-| 8 Manuscript | PLANNED | 8 |
+| 2 Data engineering | COMPLETE WITH RESTRICTIONS; strict Gate 2 CLOSED | 2 |
+| 3 Strategy-fidelity/performance validation | COMPLETE WITH RESTRICTIONS | 3 |
+| 4 Engine implementation | COMPLETE | 4 |
+| 5 Independent tester gate | COMPLETE WITH RESTRICTIONS | 5 |
+| 6 Historical research-use backtest | COMPLETE | 6 |
+| 7 Robustness/statistics | COMPLETE AS DESCRIPTIVE/RESEARCH-USE ONLY; no parameter tuning authorized | 7 |
+| 8 Manuscript | COMPLETE | 8 |
 
 Every phase update must append a dated entry to this file and to the error log where applicable.
 
