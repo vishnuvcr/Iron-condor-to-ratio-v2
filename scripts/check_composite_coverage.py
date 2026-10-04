@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -10,7 +11,25 @@ import exchange_calendars as xc
 import pandas as pd
 
 from scripts.backtest import entry_and_exit_dates
-from src.strategy_engine import monthly_expiries
+
+
+def expected_monthly_expiries(manifest_path: Path = Path("results/composite/source_staging_manifest.json")) -> list[date]:
+    if not manifest_path.exists():
+        return []
+    manifest = json.loads(manifest_path.read_text())
+    files = manifest.get("thetrademarkk", {}).get("files", [])
+    by_month: dict[tuple[int, int], date] = {}
+    for value in files:
+        stem = Path(str(value)).stem
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", stem):
+            continue
+        try:
+            expiry = date.fromisoformat(stem)
+        except ValueError:
+            continue
+        key = (expiry.year, expiry.month)
+        by_month[key] = max(by_month.get(key, expiry), expiry)
+    return sorted(by_month.values())
 
 
 def main():
@@ -21,6 +40,14 @@ def main():
             json.dumps({"status": "NO_COMPOSITE"})
         )
         print("NO_COMPOSITE", file=sys.stderr)
+        return 2
+
+    expected_expiries = expected_monthly_expiries()
+    if not expected_expiries:
+        Path("results/composite/cycle_coverage.json").write_text(
+            json.dumps({"status": "NO_EXPECTED_EXPIRIES"})
+        )
+        print("No expected monthly expiries found in staging manifest", file=sys.stderr)
         return 2
 
     con = duckdb.connect()
@@ -45,22 +72,16 @@ def main():
     ).fetchdf()
     con.close()
 
-    if summary.empty:
-        summary.to_csv(out, index=False)
-        print("NO_VALID_EXPIRIES", file=sys.stderr)
-        return 2
-
-    expiries = monthly_expiries([x.date() for x in pd.to_datetime(summary["expiry"])])
     by_expiry = {pd.Timestamp(row["expiry"]).date(): row for _, row in summary.iterrows()}
     cal = xc.get_calendar("XBSE")
 
     rows = []
     failures = []
 
-    for expiry in expiries:
+    for expiry in expected_expiries:
         row = by_expiry.get(expiry)
         if row is None:
-            failures.append(f"{expiry}: missing from composite")
+            failures.append(f"{expiry}: expected monthly expiry missing from composite")
             rows.append({
                 "expiry": expiry.isoformat(),
                 "target_32dte": (expiry - pd.Timedelta(days=32)).isoformat(),
@@ -118,7 +139,7 @@ def main():
             if missing_sessions:
                 status = "INCOMPLETE"
                 failures.append(
-                    f"{expiry}: missing {missing_sessions} expected trading sessions"
+                    f"{expiry}: missing {missing_sessions} expected exchange sessions"
                 )
 
         fallback_rows = int(row["rows"]) - int(row["price_rows_primary"])
@@ -126,11 +147,14 @@ def main():
 
         if non_explicit:
             status = "INCOMPLETE"
-            failures.append(f"{expiry}: {non_explicit} rows lack explicit/resolved expiry provenance")
+            failures.append(
+                f"{expiry}: {non_explicit} rows lack explicit/resolved expiry provenance"
+            )
 
-        if status != "COMPLETE":
-            if not entry or not exit_date:
-                failures.append(f"{expiry}: does not span deterministic 32-DTE entry to pre-expiry exit")
+        if status != "COMPLETE" and (not entry or not exit_date):
+            failures.append(
+                f"{expiry}: does not span deterministic 32-DTE entry to pre-expiry exit"
+            )
 
         rows.append({
             "expiry": expiry.isoformat(),
@@ -156,7 +180,12 @@ def main():
     result.to_csv(out, index=False)
     complete = int((result["status"] == "COMPLETE").sum())
     total = len(result)
-    print(f"cycle_coverage: {complete}/{total} complete")
+    print(f"cycle_coverage: {complete}/{total} expected monthly expiries complete")
+    unexpected = sorted(set(by_expiry) - set(expected_expiries))
+    if unexpected:
+        print(
+            f"Non-monthly/unexpected composite expiries retained for audit: {len(unexpected)}"
+        )
     if failures:
         print("Gate 2 coverage failures:", file=sys.stderr)
         for failure in failures:
