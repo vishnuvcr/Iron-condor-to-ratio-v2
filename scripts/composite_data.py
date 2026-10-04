@@ -53,18 +53,38 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
         return None
 
     ts_col = pick("timestamp", "datetime", "date_time")
+    date_col = pick("date", "trading_date")
+    time_col = pick("time", "trading_time")
     strike_col = pick("strike", "strike_price")
     type_col = pick("option_type", "opt_type", "type", "right")
     expiry_col = pick("expiry", "expiry_date", "expiry_dt")
     symbol_col = pick("symbol", "contract_symbol", "instrument")
-    if not all([ts_col, strike_col, type_col]):
-        raise ValueError(f"{source}: missing timestamp/strike/option_type in {source_file}")
+    if not ts_col and date_col and time_col:
+        ts_values = df[date_col].astype(str).str.strip() + " " + df[time_col].astype(str).str.strip()
+    elif ts_col:
+        ts_values = df[ts_col]
+    else:
+        raise ValueError(f"{source}: missing timestamp or date/time in {source_file}")
 
     out = pd.DataFrame()
-    ts = pd.to_datetime(df[ts_col], errors="coerce", utc=True)
+    ts = pd.to_datetime(ts_values, errors="coerce", utc=True)
     out["timestamp"] = ts.dt.tz_convert(IST)
-    out["strike"] = pd.to_numeric(df[strike_col], errors="coerce")
-    out["option_type"] = df[type_col].map(normalize_option_type)
+
+    symbol_series = df[symbol_col].astype(str) if symbol_col else None
+    if strike_col:
+        out["strike"] = pd.to_numeric(df[strike_col], errors="coerce")
+    elif symbol_series is not None:
+        parsed_strike = symbol_series.str.extract(r"(\\d+(?:\\.\\d+)?)(?:CE|PE)$", expand=False)
+        out["strike"] = pd.to_numeric(parsed_strike, errors="coerce")
+    else:
+        raise ValueError(f"{source}: missing strike and symbol in {source_file}")
+
+    if type_col:
+        out["option_type"] = df[type_col].map(normalize_option_type)
+    elif symbol_series is not None:
+        out["option_type"] = symbol_series.str.extract(r"(CE|PE)$", expand=False).map(normalize_option_type)
+    else:
+        raise ValueError(f"{source}: missing option type and symbol in {source_file}")
 
     if expiry_col:
         parsed = pd.to_datetime(df[expiry_col], errors="coerce")
@@ -77,7 +97,6 @@ def normalize_frame(df: pd.DataFrame, source: str, source_file: str, source_revi
     # contract expiry from the last observed timestamp for that exact symbol.
     if symbol_col:
         symbols = df[symbol_col].astype(str)
-        inferred = pd.to_datetime(out["timestamp"], errors="coerce").dt.date
         max_by_symbol = out.assign(_symbol=symbols).groupby("_symbol")["timestamp"].transform("max").dt.date
         out.loc[out["expiry"].isna(), "expiry"] = max_by_symbol[out["expiry"].isna()]
 
