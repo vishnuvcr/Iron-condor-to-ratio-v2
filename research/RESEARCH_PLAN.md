@@ -34,3 +34,7 @@ Produce tables, charts, appendices, limitations, conclusions, and future researc
 ### Phase-2 extension: composite-source fallback
 When a free source contains a missing contract-minute observation, attempt exact-key recovery from another validated source. Prefer complete OHLCV rows from the highest-priority validated source; use lower-priority sources only for exact-key fallback. Keep source provenance on every row and require independent overlap checks before promotion. This extension does not change the stop rule.\n\n## Stop rule
 The research stops after Phase 8 or earlier if the data are demonstrably insufficient for a defensible backtest. No unbounded data collection is permitted.
+
+
+## Baseline-to-sensitivity gate update — 2026-10-05
+The first research-use baseline has been completed but is negative and availability-biased. Before any strategy-level conclusion, the next bounded robustness phase is the pre-specified reversal-threshold grid **0.80, 1.00, 1.20, 1.30** using identical data, execution, brokerage and slippage assumptions. No additional threshold optimization is permitted unless the research plan is formally amended and independently tested.
