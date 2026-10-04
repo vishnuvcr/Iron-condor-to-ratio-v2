@@ -53,3 +53,8 @@ No performance metrics from incomplete or sample-only cycles may be promoted to 
 
 ## 2026-10-04 composite implementation update
 The project now attempts a composite dataset when a free source has invalid or missing contract-minute rows. Thetrademarkk rows with explicit expiry remain the primary candidate. Cloud Trader/Shoonya rows may supply exact-key fallback observations, but expiry inferred only from the last observed timestamp is marked provisional and cannot make an expiry eligible for production by itself. Prices are never averaged or interpolated across sources.
+
+## 2026-10-04 additional open-source leads
+- OptionVault documents a very large Indian derivatives archive with NIFTY options at 1-minute resolution and OHLCV+OI, but its complete archive is licensed; public samples are for evaluation only. It remains useful for schema/overlap validation, not as a confirmed free full-history source.
+- pythonwallahpro/data-lake provides a validated one-minute NIFTY/SENSEX option data-lake architecture with expiry/strike/CE-PE identity and missing-segment tracking, but requires Angel Broking SmartAPI credentials to generate the data. It is a reconstruction route rather than a free pre-existing archive.
+- Open-source Zerodha and Breeze collectors similarly provide 1-minute OHLCV+OI retrieval but require eligible broker/API credentials. They are retained as possible reconstruction fallbacks.
