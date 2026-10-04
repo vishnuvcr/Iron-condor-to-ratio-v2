@@ -189,15 +189,37 @@ def trading_dates(df: pd.DataFrame) -> List[date]:
 
 
 def entry_and_exit_dates(expiry: date, available_dates: List[date]) -> Tuple[Optional[date], Optional[date]]:
-    target = expiry - timedelta(days=32)
-    if not available_dates or min(available_dates) > target:
+    """
+    Require the source to span the full deterministic cycle.
+
+    The strategy enters on the first available trading date on/after
+    expiry-32 calendar days and exits on the last available trading date
+    before expiry.  A source partition that ends materially before expiry
+    is incomplete and MUST be rejected rather than treated as an early exit.
+    """
+    if not available_dates:
         return None, None
-    entries = [d for d in available_dates if d >= target and d < expiry]
+    dates = sorted(set(available_dates))
+    target = expiry - timedelta(days=32)
+    if dates[0] > target:
+        return None, None
+
+    entries = [d for d in dates if d >= target and d < expiry]
     if not entries:
         return None, None
-    entry_date = entries[0]
-    exit_date = entries[-1]
-    return entry_date, exit_date
+
+    # Require observations through the final trading session immediately
+    # preceding expiry.  A gap of more than three calendar days indicates
+    # that the expiry partition is incomplete (the exact holiday calendar
+    # is not assumed here; the tolerance only permits weekends/holidays).
+    pre_expiry = [d for d in dates if d < expiry]
+    if not pre_expiry:
+        return None, None
+    exit_date = pre_expiry[-1]
+    if (expiry - exit_date).days > 3:
+        return None, None
+
+    return entries[0], exit_date
 
 
 def nearest_bar(df: pd.DataFrame, target_dt: pd.Timestamp) -> Optional[pd.Timestamp]:
