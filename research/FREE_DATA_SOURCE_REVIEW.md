@@ -66,3 +66,7 @@ The composite merge was changed from whole-history Pandas concatenation to a dis
 
 ## 2026-10-04 — rissin composite fallback
 The public rissin dataset is now promoted to the first exact-key fallback for 2024–2026. Its Upstox NIFTY partitions provide explicit expiry, strike, CE/PE, IST timestamp and 1-minute OHLC/volume. Intraday OI is documented as unavailable, which is acceptable for the baseline delta engine because OI is not a strategy signal. The composite will use rissin for missing/invalid price rows and overlap validation, never by interpolating prices. [Dataset evidence](https://huggingface.co/datasets/rissin/nse-options-intraday).
+
+
+## Additional free-source lead — 2026-10-04
+Public research also identified the open-source `fnopy` project, which exposes an NSE historical-data retrieval interface for NIFTY options and examples for specifying expiry, option type, strike and date windows. It is a data-access lead rather than an already-materialized dataset, so it is not promoted as a production source until a cached extract is independently validated for completeness, licensing/availability, and reproducibility.
