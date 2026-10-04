@@ -19,3 +19,7 @@ Tester Review 22 independently rejected implementation acceptance because the re
 
 ## 2026-10-05 — threshold-test fixture correction
 CI run 37231284204 passed 35 tests but failed the new threshold test because its empty DataFrame lacked the production date column. Developer corrected only the test fixture/expectation; invalid thresholds still raise, while a valid threshold with no data returns no cycle.
+
+
+## 2026-10-05 — Gate 2 recheck after strategy reset
+CI run 37231413691 passed unit tests and all six data partitions and assembled the composite successfully, but the current first-session-of-expiry-month to pre-expiry lifecycle gate reported 0/69 complete months. Tester Review 24 independently confirmed the data gate remains closed. A fresh public-source sweep found no free source that completes the full 2021-01 to 2026-09 1-minute NIFTY option lifecycle. No performance result was run.
