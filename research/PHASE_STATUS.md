@@ -22,3 +22,7 @@ Phase 2 remains IN PROGRESS. The 2022-2026 rissin expansion failed the continuit
 
 ## 2026-10-04 update
 Phase 2 remains IN PROGRESS. The latest successful CI run is **not a valid historical backtest**: only one cycle traded, and that cycle used incomplete source data ending July 2 for a July 28 expiry. Developer code now rejects such incomplete expiry partitions. Gate 2 remains CLOSED pending a source with defensible 32-DTE-to-expiry coverage and an independent tester review.
+
+
+## 2026-10-04 — free-source expansion
+Phase 2 remains IN PROGRESS. The developer broadened the search to free/public sources. Cloud Trader Pro/Shoonya free NIFTY samples are the first empirical candidate; Zenodo 2017-2020 is an older-period candidate; thetrademarkk and artist-23 remain free Hugging Face candidates; MoneyTicks and public GitHub/API pipelines remain leads. No paid dataset has been purchased or assumed. Gate 2 remains CLOSED until actual files pass cycle-level coverage, quality, provenance, and independent tester checks.
