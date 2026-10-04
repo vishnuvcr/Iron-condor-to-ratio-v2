@@ -119,3 +119,7 @@ Phase 1 specification is being reset to the latest user-defined strategy only. T
 
 ## 2026-10-05 developer update
 Latest strategy reset implementation is active. CI run 37230721613 failed at unit tests because one month-start test used an incorrect calendar assumption; the engine itself was not implicated. The test was corrected and the error was logged. Gate 1 remains awaiting tester confirmation of the corrected implementation; Gate 2 remains CLOSED.
+
+
+## 2026-10-05 — calendar test fixture correction
+Phase 1 strategy-scope implementation remains under validation. CI run 37231086646 failed because the regression fixture expected the expiry date as the pre-expiry exit. Developer corrected the fixture to an actual NSE holiday boundary in March 2026. Gate 1 remains pending independent tester review; Gate 2 remains CLOSED and is not reopened by this test fix.
