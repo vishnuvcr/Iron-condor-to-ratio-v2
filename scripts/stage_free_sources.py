@@ -58,6 +58,36 @@ def download_hf_monthlies(out: Path, start: date, end: date, manifest: dict):
     return selected
 
 
+
+def download_rissin(out: Path, start: date, end: date, manifest: dict):
+    token = os.getenv("HF_TOKEN")
+    api = HfApi(token=token or None)
+    target = out / "rissin"
+    target.mkdir(parents=True, exist_ok=True)
+    years = sorted(set(range(max(start.year, 2024), end.year + 1)))
+    info = api.dataset_info("rissin/nse-options-intraday", revision="main")
+    revision = str(info.sha)
+    manifest["rissin"] = {"revision": revision, "files": []}
+
+    for year in years:
+        filename = f"upstox_intraday/NIFTY/NIFTY_{year}.parquet"
+        try:
+            local = hf_hub_download(
+                repo_id="rissin/nse-options-intraday",
+                filename=filename,
+                repo_type="dataset",
+                token=token or None,
+                cache_dir=str(out / "hf-cache-rissin"),
+            )
+            dst = target / f"NIFTY_{year}.parquet"
+            shutil.copy2(local, dst)
+            dst.with_suffix(dst.suffix + ".revision").write_text(revision)
+            manifest["rissin"]["files"].append(str(dst))
+        except Exception as exc:
+            manifest["rissin"].setdefault("errors", []).append(
+                {"file": filename, "error": repr(exc)}
+            )
+
 def download_cloudtrader(out: Path, manifest: dict):
     target = out / "cloudtrader"
     target.mkdir(parents=True, exist_ok=True)
@@ -135,6 +165,8 @@ def main():
     except Exception as exc:
         manifest["thetrademarkk"] = {"status": "DOWNLOAD_FAILED", "error": repr(exc)}
 
+    download_rissin(root, start, end, manifest)
+    manifest["sources"].append({"name": "rissin"})
     download_cloudtrader(root, manifest)
     manifest["sources"].append({"name": "cloudtrader"})
 
