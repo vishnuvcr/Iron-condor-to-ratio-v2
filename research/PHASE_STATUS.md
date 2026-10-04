@@ -34,3 +34,7 @@ Phase 2 remains IN PROGRESS. A provenance-aware composite dataset path has been 
 
 ## 2026-10-04 — composite safeguard review
 Developer implemented tester findings F1-F3 from Gate 2 Review 6: expiry provenance is explicit/inferred-tagged, inferred-only cycles are blocked from production expiry discovery, and composite source contribution plus focused loader/provenance tests are recorded. Gate 2 remains CLOSED until fresh CI and independent tester re-review pass.
+
+
+## 2026-10-04 — disk-backed composite merge
+Phase 2 remains IN PROGRESS. The first composite build was too memory-intensive because it concatenated all monthly files in Pandas. Developer replaced it with a sequential DuckDB merge and restored cancellation of superseded code-data CI runs. Gate 2 remains closed pending fresh CI and independent tester review.
