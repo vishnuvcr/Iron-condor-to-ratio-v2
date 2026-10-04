@@ -427,14 +427,23 @@ def run_cycle(
     cost_model: CostModel,
     continuation_delta_threshold: float = 0.20,
     reversal_delta_threshold: float = 1.20,
+    entry_mode: str = "strategy",
 ) -> Optional[CycleResult]:
     if not (0.20 <= continuation_delta_threshold <= 0.20):
         raise ValueError("continuation_delta_threshold must equal the specified approximately-0.20 trigger")
     if not (0.80 <= reversal_delta_threshold <= 1.30):
         raise ValueError("reversal_delta_threshold must lie within the stated 0.80–1.30 modelling range")
     dates = trading_dates(df)
-    entry_date, exit_date = entry_and_exit_dates(expiry, dates)
-    if entry_date is None or exit_date is None:
+    strategy_entry_date, exit_date = entry_and_exit_dates(expiry, dates)
+    if exit_date is None:
+        return None
+    if entry_mode == "strategy":
+        entry_date = strategy_entry_date
+    elif entry_mode == "available":
+        entry_date = next((d for d in dates if d < expiry), None)
+    else:
+        raise ValueError("entry_mode must be 'strategy' or 'available'")
+    if entry_date is None:
         return None
     cycle = CycleResult(expiry=expiry, entry_date=entry_date)
     lot_size = lot_size_for_monthly_expiry(expiry)
@@ -596,6 +605,12 @@ def main():
     ap.add_argument("--slippage-ticks", type=int, default=1)
     ap.add_argument("--continuation-delta-threshold", type=float, default=0.20)
     ap.add_argument("--reversal-delta-threshold", type=float, default=1.20)
+    ap.add_argument(
+        "--entry-mode",
+        choices=["strategy", "available"],
+        default="strategy",
+        help="strategy=first normal expiry-month session; available=first observed session in the expiry month (research-use sensitivity only)",
+    )
     ap.add_argument("--out", default="results")
     args = ap.parse_args()
 
@@ -651,10 +666,17 @@ def main():
                 cm,
                 continuation_delta_threshold=args.continuation_delta_threshold,
                 reversal_delta_threshold=args.reversal_delta_threshold,
+                entry_mode=args.entry_mode,
             )
             if cycle is not None:
                 all_cycles.append(cycle)
-                candidate_status.append({"expiry": str(expiry), "status": "TRADED", "reason": "Complete entry/adjustment/exit execution"})
+                candidate_status.append({
+                    "expiry": str(expiry),
+                    "status": "TRADED",
+                    "reason": "Executable path",
+                    "entry_mode": args.entry_mode,
+                    "research_use_partial_data": args.entry_mode == "available",
+                })
                 for o in cycle.orders:
                     all_orders.append({
                         "expiry": o.cycle_expiry,
@@ -735,6 +757,8 @@ def main():
         "slippage_ticks": args.slippage_ticks,
         "continuation_delta_threshold": args.continuation_delta_threshold,
         "reversal_delta_threshold": args.reversal_delta_threshold,
+        "entry_mode": args.entry_mode,
+        "research_use_partial_data": args.entry_mode == "available",
         "tick": TICK,
         "created_utc": datetime.utcnow().isoformat() + "Z",
         "data_coverage": coverage,
