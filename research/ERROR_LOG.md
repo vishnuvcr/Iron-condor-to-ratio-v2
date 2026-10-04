@@ -25,3 +25,5 @@
 | 2026-10-04 | 2 | ERROR | Historical NIFTY lot-size function incorrectly treated all expiries through Nov-2024 as 25, which is inconsistent with NSE's 50-lot regime before the May-2024 revision. | Added 2021-2026 expiry-boundary regimes and regression tests. |
 
 | 2026-10-04 | 2 | ERROR | Thetrademarkk expiry partitions can end weeks before expiry; the prior engine treated the last available date as the cycle exit, producing an invalid shortened July-2026 trade. | Changed entry/exit validation to require the 32-DTE entry window and data through the final pre-expiry session; incomplete partitions are now rejected. |
+
+| 2026-10-04 | 2 | TEST ERROR | New expiry-coverage regression test expected 2026-06-29 even though 2026-06-26 is the first date on/after the 32-DTE target for a 2026-07-28 expiry. | Corrected the fixture; no production-code change was required. |
