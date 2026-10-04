@@ -37,3 +37,6 @@
 | 2026-10-04 | 2 | DOC ERROR | README CSV link initially used ../results from a root-level README. | Corrected to results/composite/consolidated_options_data.csv; no research-data effect. |
 
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 10 found that deriving expected expiries from observed composite rows allowed an entirely missing monthly expiry to escape the coverage gate. | Coverage checker now derives expected monthly expiries from the staged primary-source manifest and fails any missing expected cycle. |
+
+| 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 11 found that the continuity checker used the XBSE BSE calendar for an NSE F&O study. | Replaced the BSE proxy with a versioned NSE F&O holiday calendar from annual NSE F&O trading-holiday circulars for 2021–2026; added calendar unit tests and removed the unused exchange-calendars dependency. |
+| 2026-10-04 | 2 | TEST TOOLING | Local synthetic testing initially could not import duckdb in the analysis sandbox; no repository code or files were modified by that failed attempt. | Retried the independent expected-expiry logic without duckdb and verified that a deliberately missing monthly expiry is detected; full repository tests remain delegated to GitHub Actions. |
