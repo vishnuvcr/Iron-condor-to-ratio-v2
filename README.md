@@ -62,7 +62,7 @@ No performance result is promoted while any of these conditions remain open.
 
 ## Current research status — 2026-10-04
 
-**Phase 2 / Gate 2: NOT PASSED.** The latest successful historical-data run produced only a one-trade validation artifact and was rejected. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step; a fresh CI run is required before Gate 2 can be reconsidered.
+**Phase 2 / Gate 2: NOT PASSED.** The latest successful historical-data run produced only a one-trade validation artifact and was rejected. The enforcing pipeline has now been updated after independent tester Reviews 9, 10, 11, 12, 13, 14, 15, and 16; unit tests now run before data staging; CI diagnostics are uploaded as artifacts rather than pushed to the developer branch; the composite build is file-backed and partitioned by year with a deterministic assembly step, and the assembly preserves the requested coverage window; a fresh CI run is required before Gate 2 can be reconsidered.
 
 ### Historical expansion
 The multi-year source assessment is recorded in [research/HISTORICAL_DATA_EXPANSION.md](research/HISTORICAL_DATA_EXPANSION.md). The current primary candidate remains the expiry-partitioned TradeMarkk 1-minute NIFTY options dataset covering approximately 2021–2026; rissin is retained for overlap validation, with other free/public candidates retained as documented fallbacks.
@@ -84,5 +84,6 @@ The pipeline writes [results/composite/consolidated_options_data.csv](results/co
 - [Tester Review 15](research/TESTER_GATE_2_REVIEW_15.md)
 - [Tester Review 16](research/TESTER_GATE_2_REVIEW_16.md)
 - [Tester Review 17](research/TESTER_GATE_2_REVIEW_17.md)
+- [Tester Review 18](research/TESTER_GATE_2_REVIEW_18.md)
 
 No strategy performance conclusion is accepted until Gate 2 is independently approved.
