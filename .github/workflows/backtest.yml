@@ -98,23 +98,20 @@ jobs:
           set -o pipefail
           PYTHONPATH=. python scripts/reconcile_composite_csv.py 2>&1 | tee composite-csv-reconciliation.txt
 
-      - name: Record diagnostic output
+      - name: Upload diagnostics
         if: failure()
-        run: |
-          git config user.name "research-bot"
-          git config user.email "research-bot@users.noreply.github.com"
-          git add free-source-staging.txt composite-build.txt composite-coverage.txt composite-csv-export.txt composite-csv-reconciliation.txt ci-test-output.txt 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "Record data-engineering diagnostic output"
-          git push
-
-      - name: Record CI test output
-        if: failure()
-        run: |
-          git config user.name "research-bot"
-          git config user.email "research-bot@users.noreply.github.com"
-          git add ci-test-output.txt
-          git diff --cached --quiet || git commit -m "Record CI test output"
-          git push
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-diagnostics
+          path: |
+            free-source-staging.txt
+            composite-build.txt
+            composite-coverage.txt
+            composite-csv-export.txt
+            composite-csv-reconciliation.txt
+            ci-test-output.txt
+            backtest-output.txt
+          if-no-files-found: ignore
 
       - name: Run backtest
         run: |
@@ -124,15 +121,6 @@ jobs:
             --end "${{ inputs.end || '2026-09-30' }}" \
             --brokerage "${{ inputs.brokerage || '20' }}" \
             --slippage-ticks "${{ inputs.slippage_ticks || '1' }}" 2>&1 | tee backtest-output.txt
-
-      - name: Record backtest output
-        if: failure()
-        run: |
-          git config user.name "research-bot"
-          git config user.email "research-bot@users.noreply.github.com"
-          git add backtest-output.txt
-          git diff --cached --quiet || git commit -m "Record CI backtest output"
-          git push
 
       - name: Upload run artifact
         uses: actions/upload-artifact@v4
