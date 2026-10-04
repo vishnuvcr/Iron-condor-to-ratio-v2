@@ -98,16 +98,12 @@ def main():
     # Re-create the deterministic CSV from the canonical Parquet and compare bytes.
     with tempfile.TemporaryDirectory() as tmp:
         recreated = Path(tmp) / "recreated.csv"
+        parquet_sql = str(PARQUET).replace("'", "''")
+        recreated_sql = str(recreated).replace("'", "''")
         con.execute(
-            """
-            COPY (
-                SELECT *
-                FROM read_parquet(?)
-                ORDER BY expiry, timestamp, strike, option_type
-            )
-            TO ? (FORMAT CSV, HEADER TRUE)
-            """,
-            [str(PARQUET), str(recreated)],
+            f"COPY (SELECT * FROM read_parquet('{parquet_sql}') "
+            f"ORDER BY expiry, timestamp, strike, option_type) "
+            f"TO '{recreated_sql}' (FORMAT CSV, HEADER TRUE)"
         )
         recreated_hash = sha256_file(recreated)
 
