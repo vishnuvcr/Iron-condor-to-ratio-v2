@@ -13,3 +13,6 @@
 | 8 Manuscript | PLANNED | 8 |
 
 Every phase update must append a dated entry to this file and to the error log where applicable.
+
+## 2026-10-04 update
+Phase 2 remains IN PROGRESS. The current 19-expiry sample is explicitly classified as pipeline validation only. Multi-year source expansion and overlap validation are now required before historical performance can be accepted.
