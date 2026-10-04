@@ -137,9 +137,6 @@ def add_forward_and_delta(df: pd.DataFrame, expiry: date, rate: float) -> pd.Dat
     pairs.loc[pairs["forward_i"] <= 0, "forward_i"] = np.nan
     forward = pairs.groupby("timestamp")["forward_i"].median().rename("forward")
     df = df.join(forward, on="timestamp")
-    t = (pd.Timestamp(expiry) + pd.Timedelta(hours=15, minutes=30) - df["timestamp"]).dt.total_seconds() / (365.0 * 86400.0)
-    t = np.maximum(t.values, 1e-6)
-    is_call = df["option_type"].values == "CE"
     in_window = (
         df["forward"].notna()
         & (df["strike"] >= 0.85 * df["forward"])
