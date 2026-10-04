@@ -33,6 +33,7 @@ from src.strategy_engine import (
 
 REPO_ID = "thetrademarkk/india-index-options-1m"
 DATASET_CARD_URL = "https://huggingface.co/datasets/thetrademarkk/india-index-options-1m"
+REVERSAL_DELTA_THRESHOLD = 1.30
 
 
 def download_data(cache_root: Path, start: date, end: date) -> Tuple[List[Path], List[str]]:
@@ -546,7 +547,7 @@ def run_cycle(
             short_deltas = [position_abs_delta(snap, p, expiry, rate) for p in short_positions]
             if all(np.isfinite(short_deltas)):
                 s = float(sum(short_deltas))
-                reversal_trigger = any(float(d) >= 1.30 for d in short_deltas)
+                reversal_trigger = ratio_reversal_trigger(short_deltas)
                 if s <= continuation_delta_threshold or reversal_trigger:
                     fill_ts = close_positions(positions, ts, df, cycle, cost_model, lot_size, "ratio_reset")
                     if fill_ts is None:
@@ -567,6 +568,10 @@ def run_cycle(
                     positions = new_positions
                     direction = new_direction
     return cycle
+
+
+def ratio_reversal_trigger(short_deltas: List[float]) -> bool:
+    return any(np.isfinite(d) and float(d) >= REVERSAL_DELTA_THRESHOLD for d in short_deltas)
 
 
 def summarize(cycles: List[CycleResult]) -> pd.DataFrame:
@@ -769,7 +774,7 @@ def main():
         "brokerage": args.brokerage,
         "slippage_ticks": args.slippage_ticks,
         "continuation_delta_threshold": args.continuation_delta_threshold,
-        "reversal_delta_threshold": 1.30,
+        "reversal_delta_threshold": REVERSAL_DELTA_THRESHOLD,
         "entry_mode": args.entry_mode,
         "research_use_partial_data": args.entry_mode == "available",
         "tick": TICK,
