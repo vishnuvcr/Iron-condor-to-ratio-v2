@@ -49,3 +49,6 @@ A composite may repair missing observations. It may not manufacture continuity b
 ## Promotion rule
 The composite becomes the Phase-2 production dataset only after cycle coverage, contract mapping, overlap consistency, immutable provenance, and independent tester approval all pass.
 No performance result is final before that gate.
+
+## 2026-10-04 implementation update
+The production composite builder is now disk-backed using DuckDB and merges source files sequentially. This avoids holding the complete multi-year chain in a single in-memory Pandas object. The overlap audit is stored as a compact CSV summary to keep the CI artifact bounded while retaining conflict statistics.
