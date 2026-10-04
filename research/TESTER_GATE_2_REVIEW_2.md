@@ -25,3 +25,12 @@ NOT YET PASSED:
 
 ## Tester instruction to developer
 Complete the current automated run. If it passes, inspect the generated data-quality and manifest artifacts and resubmit this gate for final review.
+
+
+# Gate 2 Re-review — Timezone Failure
+
+The canonical run 37212522825 reached the backtest stage only after unit tests passed, then failed because the dataset timestamp was timezone-aware while expiry timestamps were timezone-naive. The developer logged this and changed the engine to normalize timestamps to Asia/Kolkata, matching the dataset card's stated IST timestamp convention. citeturn193338search0
+
+Gate remains **PENDING** until run 37212653706 (or its successor) completes with the backtest itself successful and its artifacts are independently inspected.
+
+Tester instruction to developer: after a green run, provide the exact manifest, data-quality report, trade summary, and order log for independent validation before advancing the phase.
