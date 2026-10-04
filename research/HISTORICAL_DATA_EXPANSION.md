@@ -45,3 +45,8 @@ Prefer a continuous multi-year NIFTY option sample. If the free sources can be v
 ## Research integrity rule
 
 No performance conclusion may be labelled final until the tester has independently approved the source coverage, stitching logic, provenance, and candidate-expiry accounting.
+
+## 2026-10-04 source revalidation
+The thetrademarkk source is useful for pipeline/schema validation but is **not currently sufficient for the baseline strategy**. Its expiry partitions may contain only a short segment of the contract life; the July 28, 2026 partition in the CI run ended July 2. Because the strategy requires entry at expiry minus 32 calendar days and monitoring through the final pre-expiry session, such partitions cannot be used as complete cycles. The backtest engine now rejects incomplete cycles rather than substituting an early exit.
+
+A defensible final dataset must demonstrate, expiry-by-expiry, coverage from the required entry date through the final pre-expiry trading session. Candidate paid full-chain archives and Kaggle/GitHub-derived datasets remain research candidates only until schema, provenance, coverage, and redistribution/access conditions are independently verified.
