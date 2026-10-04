@@ -202,3 +202,10 @@ def test_research_use_available_entry_does_not_require_strict_first_session(monk
     cycle = bt.run_cycle(df, date(2026, 7, 28), 0.0, CostModel(), entry_mode="available")
     assert cycle is None
     assert seen["nearest_bar"] == 1
+
+def test_reversal_trigger_is_fixed_at_1_30():
+    from scripts.backtest import REVERSAL_DELTA_THRESHOLD, ratio_reversal_trigger
+    assert REVERSAL_DELTA_THRESHOLD == 1.30
+    assert ratio_reversal_trigger([1.29, 0.05]) is False
+    assert ratio_reversal_trigger([1.30, 0.05]) is True
+    assert ratio_reversal_trigger([1.31, 0.05]) is True
