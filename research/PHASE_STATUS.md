@@ -3,8 +3,8 @@
 | Phase | Status | Gate |
 |---|---|---|
 | 0 Foundation | COMPLETE | 0 |
-| 1 Strategy specification | IN PROGRESS | 1 |
-| 2 Data engineering | PLANNED | 2 |
+| 1 Strategy specification | COMPLETE | 1 |
+| 2 Data engineering | IN PROGRESS | 2 |
 | 3 Cost/slippage model | PLANNED | 3 |
 | 4 Engine implementation | PLANNED | 4 |
 | 5 Independent tester gate | PLANNED | 5 |
