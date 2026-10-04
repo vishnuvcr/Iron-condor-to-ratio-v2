@@ -9,3 +9,6 @@
 | 2026-10-04 | 2 | ERROR | 2025 monthly entry coverage was incomplete without December 2024 intraday data. | Add 2024 partition and reject uncovered cycles. |
 | 2026-10-04 | 2 | ERROR | Exit-fill logic mixed timestamps with prices from earlier bars. | Redesign common fill timestamp logic. |
 | 2026-10-04 | 2 | ERROR | IC trigger logic keyed deltas only by option type, so the 0.10-delta hedge could overwrite the 0.30-delta short leg. | Changed trigger monitoring to use short positions only; removed dead selection loop. |
+| 2026-10-04 | 2 | ERROR | Black-76 function named implied_vol_black76 returned delta instead of implied volatility, causing the regression test to interpret 0.5114 as IV. | Split IV solver from price-to-delta conversion and added regression tests. |
+| 2026-10-04 | 2 | ERROR | Full backtest failed after unit tests passed; the initial workflow did not capture backtest stdout/stderr. | Hardened workflow to tee backtest output into a committed diagnostic file on failure. |
+| 2026-10-04 | 2 | INFO | A second semantic issue was found in IC trigger monitoring: both short and long legs share option_type keys. | Added a deterministic choose_ic_trigger helper and short-leg-only state tracking. |
