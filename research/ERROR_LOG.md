@@ -62,3 +62,5 @@
 | 2026-10-04 | 2 | CI INFRASTRUCTURE | Sequential composite run 37226364257 passed 35 unit tests and source staging but the hosted runner shut down at ~4m19s during composite construction; no later commit or concurrency cancellation caused the shutdown. | Added an explicit 30-minute job timeout and retained the bounded-memory sequential build. The run produced no accepted data output. |
 
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 17 found the monolithic sequential composite build remained in-progress beyond eight minutes and was not compatible with the project's bounded execution requirement. | Replaced the single composite job with six bounded year partitions plus a deterministic assembly job; Gate 2 checks now run only after assembly. |
+
+| 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 18 found the partitioned assembly produced the Parquet but omitted the requested start/end contract required by the coverage gate. | Assembly now accepts start/end and writes both `composite_manifest.json` and `source_staging_manifest.json`; the workflow passes the requested window explicitly. |
