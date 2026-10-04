@@ -11,6 +11,7 @@ on:
       - "results/**"
       - "research/PHASE_STATUS.md"
       - "research/ERROR_LOG.md"
+      - "ci-test-output.txt"
   workflow_dispatch:
     inputs:
       start:
@@ -59,7 +60,18 @@ jobs:
         run: pip install -r requirements.txt pytest
 
       - name: Unit tests
-        run: python -m pytest -q
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python -m pytest -q 2>&1 | tee ci-test-output.txt
+
+      - name: Record CI test output
+        if: failure()
+        run: |
+          git config user.name "research-bot"
+          git config user.email "research-bot@users.noreply.github.com"
+          git add ci-test-output.txt
+          git diff --cached --quiet || git commit -m "Record CI test output"
+          git push
 
       - name: Run backtest
         run: |
