@@ -18,7 +18,7 @@ on:
       start:
         description: "Start date"
         required: false
-        default: "2025-01-01"
+        default: "2022-01-01"
       end:
         description: "End date"
         required: false
@@ -54,7 +54,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: hf-nifty-options-v2-${{ runner.os }}-2024-2026
+          key: hf-nifty-options-v2-${{ runner.os }}-2022-2026
           restore-keys: |
             hf-nifty-options-v2-${{ runner.os }}-
 
@@ -79,7 +79,7 @@ jobs:
         run: |
           set -o pipefail
           PYTHONPATH=. python scripts/backtest.py \
-            --start "${{ inputs.start || '2025-01-01' }}" \
+            --start "${{ inputs.start || '2022-01-01' }}" \
             --end "${{ inputs.end || '2026-09-30' }}" \
             --brokerage "${{ inputs.brokerage || '20' }}" \
             --slippage-ticks "${{ inputs.slippage_ticks || '1' }}" 2>&1 | tee backtest-output.txt
