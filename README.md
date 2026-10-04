@@ -1,6 +1,6 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Phase 3 — bounded robustness + scientific research expansion in progress.**
+Research status: **Phase 3 — YouTube-strategy fidelity validation in progress.**
 
 **Scope reset (2026-10-05):** the initial transcript is non-authoritative and the 32-DTE constraint is removed. No prior 32-DTE result is a result for the current strategy.
 
