@@ -25,6 +25,11 @@ def test_direction_mapping():
 
 
 def test_lot_sizes():
+    assert lot_size_for_monthly_expiry(date(2021, 6, 24)) == 75
+    assert lot_size_for_monthly_expiry(date(2021, 7, 29)) == 50
+    assert lot_size_for_monthly_expiry(date(2024, 4, 25)) == 50
+    assert lot_size_for_monthly_expiry(date(2024, 5, 30)) == 25
+    assert lot_size_for_monthly_expiry(date(2024, 11, 28)) == 75
     assert lot_size_for_monthly_expiry(date(2025, 12, 30)) == 75
     assert lot_size_for_monthly_expiry(date(2026, 1, 27)) == 65
 
