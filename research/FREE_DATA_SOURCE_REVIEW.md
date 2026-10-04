@@ -49,3 +49,7 @@ Download/inspect the free Cloud Trader sample first. If its sample expiries cont
 ## Integrity rule
 
 No performance metrics from incomplete or sample-only cycles may be promoted to research results. No paid source will be purchased without explicit user authorization.
+
+
+## 2026-10-04 composite implementation update
+The project now attempts a composite dataset when a free source has invalid or missing contract-minute rows. Thetrademarkk rows with explicit expiry remain the primary candidate. Cloud Trader/Shoonya rows may supply exact-key fallback observations, but expiry inferred only from the last observed timestamp is marked provisional and cannot make an expiry eligible for production by itself. Prices are never averaged or interpolated across sources.
