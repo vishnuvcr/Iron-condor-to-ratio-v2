@@ -1,19 +1,62 @@
-...........F                                                             [100%]
+..F............                                                          [100%]
 =================================== FAILURES ===================================
-____________ test_complete_expiry_partition_uses_pre_expiry_session ____________
+_______________ test_cloudtrader_symbol_date_time_normalization ________________
 
-    def test_complete_expiry_partition_uses_pre_expiry_session():
-        from datetime import date
-        from scripts.backtest import entry_and_exit_dates
+    def test_cloudtrader_symbol_date_time_normalization():
+        raw = pd.DataFrame([{
+            "Symbol": "NIFTY25JAN24000CE",
+            "Date": "2025-01-02",
+            "Time": "09:20:00",
+            "Open": 10.0,
+            "High": 11.0,
+            "Low": 9.0,
+            "Close": 10.5,
+            "Volume": 100,
+            "Open Interest": 1000,
+        }])
+        # Normalize the schema names exactly as the public provider documents them.
+        raw = raw.rename(columns={"Open Interest": "Open Interest"})
+>       out = normalize_frame(raw, "cloudtrader", "sample.csv")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_composite.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/composite_data.py:121: in normalize_frame
+    .astype(str).agg("|".join, axis=1)
+                 ^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12048: in aggregate
+    result = op.agg()
+             ^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1036: in agg
+    result = self.obj.apply(self.func, axis, args=self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py:12437: in apply
+    return op.apply().__finalize__(self, method="apply")
+           ^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1015: in apply
+    return self.apply_standard()
+           ^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1167: in apply_standard
+    results, res_index = self.apply_series_generator()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameColumnApply object at 0x7fc610190800>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.func)
     
-        dates = [date(2026, 6, 26), date(2026, 6, 29), date(2026, 7, 24), date(2026, 7, 27)]
-        entry, exit_date = entry_and_exit_dates(date(2026, 7, 28), dates)
->       assert entry == date(2026, 6, 29)
-E       AssertionError: assert datetime.date(2026, 6, 26) == datetime.date(2026, 6, 29)
-E        +  where datetime.date(2026, 6, 29) = <class 'datetime.date'>(2026, 6, 29)
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        for i, v in enumerate(series_gen):
+>           results[i] = self.func(v, *self.args, **self.kwargs)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: sequence item 2: expected str instance, float found
 
-tests/test_strategy.py:143: AssertionError
+/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/apply.py:1183: TypeError
 =========================== short test summary info ============================
-FAILED tests/test_strategy.py::test_complete_expiry_partition_uses_pre_expiry_session - AssertionError: assert datetime.date(2026, 6, 26) == datetime.date(2026, 6, 29)
- +  where datetime.date(2026, 6, 29) = <class 'datetime.date'>(2026, 6, 29)
-1 failed, 11 passed in 2.83s
+FAILED tests/test_composite.py::test_cloudtrader_symbol_date_time_normalization - TypeError: sequence item 2: expected str instance, float found
+1 failed, 14 passed in 2.64s
