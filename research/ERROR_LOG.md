@@ -58,3 +58,5 @@
 
 | 2026-10-04 | 2 | TESTER FINDING | Gate 2 Review 16 found the composite build was terminated during bulk primary ingestion after unit tests and source staging passed. | Replaced the in-memory/bulk primary scan with a file-backed DuckDB database and one-partition-at-a-time ingestion; lowered the working memory cap to 4GB while preserving validation and provenance. |
 | 2026-10-04 | 2 | DATA INTEGRITY | Primary staging contains weekly-dated files in June/August 2026 (2026-06-09, 2026-08-04); the symbol-expiry resolver could have used those as the month calendar. | The staged primary calendar resolver now ignores filenames outside the final six calendar days of their month; added regression coverage for the 2026 weekly/monthly distinction. |
+
+| 2026-10-04 | 2 | CI INFRASTRUCTURE | Sequential composite run 37226364257 passed 35 unit tests and source staging but the hosted runner shut down at ~4m19s during composite construction; no later commit or concurrency cancellation caused the shutdown. | Added an explicit 30-minute job timeout and retained the bounded-memory sequential build. The run produced no accepted data output. |
