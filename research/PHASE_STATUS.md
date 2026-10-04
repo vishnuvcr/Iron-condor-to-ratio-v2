@@ -30,3 +30,7 @@ Phase 2 remains IN PROGRESS. The developer broadened the search to free/public s
 
 ## 2026-10-04 — composite fallback extension
 Phase 2 remains IN PROGRESS. A provenance-aware composite dataset path has been added. The composite may replace invalid/missing whole contract-minute rows using exact timestamp+expiry+strike+option-type matches from lower-priority free sources; it may not interpolate, forward-fill, average, or synthesize option prices. The free-source staging workflow now targets monthly thetrademarkk files, Cloud Trader/Shoonya free samples, and optional Zenodo archival data. Gate 2 remains CLOSED until composite cycle coverage and overlap consistency are independently approved.
+
+
+## 2026-10-04 — composite safeguard review
+Developer implemented tester findings F1-F3 from Gate 2 Review 6: expiry provenance is explicit/inferred-tagged, inferred-only cycles are blocked from production expiry discovery, and composite source contribution plus focused loader/provenance tests are recorded. Gate 2 remains CLOSED until fresh CI and independent tester re-review pass.
