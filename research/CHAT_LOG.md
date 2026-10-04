@@ -65,3 +65,7 @@ Developer standardized the primary DuckDB composite source_row_hash to SHA-256 s
 
 ## 2026-10-04 — CI infrastructure retry
 Hardened CI run 37225146663 completed source staging, then the GitHub-hosted runner shut down during composite construction and exited 143. No research output was accepted. Failed jobs were automatically re-run as attempt 2.
+
+
+## 2026-10-04 — requested-window coverage hardening
+Tester Review 13 identified five absent calendar months in the requested 2021-01 to 2026-09 range: staging selected 64 primary monthly files for 69 requested months. Developer changed the coverage gate to derive expected months from the requested range, while allowing explicit fallback data to satisfy a missing primary partition. No gate decision is made until the fresh run completes.
