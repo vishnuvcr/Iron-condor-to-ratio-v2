@@ -82,6 +82,11 @@ jobs:
           set -o pipefail
           PYTHONPATH=. python scripts/check_composite_coverage.py 2>&1 | tee composite-coverage.txt
 
+      - name: Export consolidated options CSV
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python scripts/export_composite_csv.py 2>&1 | tee composite-csv-export.txt
+
       - name: Unit tests
         run: |
           set -o pipefail
@@ -127,7 +132,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backtest-results
-          path: results/
+          path: |
+            results/
+            composite-csv-export.txt
 
       - name: Commit results
         run: |
