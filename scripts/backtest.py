@@ -330,9 +330,6 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
     if entry_signal is None:
         return None
     entry_snapshot = snapshot_at(df, entry_signal)
-    legs = []
-    for opt, target in [("CE", 0.30), ("PE", 0.30), ("CE", 0.10), ("PE", 0.10)]:
-        pass
     sc = select_contract(entry_snapshot, "CE", 0.30)
     sp = select_contract(entry_snapshot, "PE", 0.30)
     hc = select_contract(entry_snapshot, "CE", 0.10)
@@ -386,8 +383,9 @@ def run_cycle(df: pd.DataFrame, expiry: date, rate: float, cost_model: CostModel
             return cycle
 
         if state == "IC_ACTIVE":
+            short_positions = [p for p in positions if p.lots < 0]
             deltas = {}
-            for p in positions:
+            for p in short_positions:
                 row = snap[(snap["strike"] == p.strike) & (snap["option_type"] == p.option_type)]
                 if row.empty or pd.isna(row.iloc[0]["delta"]):
                     deltas[p.option_type] = np.nan
