@@ -134,3 +134,12 @@
 - **DOCUMENTATION:** README, cost model, manuscript, phase status and conversation log updated. Strategy remains fixed at reversal trigger 1.30; no threshold optimization or alternate rule introduced.
 
 Tester review: `research/PHASE_3_TESTER_REVIEW_30.md` on the isolated tester branch.
+
+## 2026-10-05 — REVERSAL SEMANTICS AUDIT BLOCKER
+
+The developer's fixed-1.30 implementation applies the reversal threshold to the absolute delta of one individual short option. Under the published Black-76 implementation with non-negative discounting (the run uses rate=0.0), an individual option absolute delta is bounded by 1.00, so a single-leg threshold of 1.30 is mathematically unreachable. The final run consequently recorded zero reversal events by construction, not as evidence that no reversal occurred in the market.
+
+This creates a material strategy-fidelity question because the user's statement was only that reversal is 1.30; the repository's wording that this means one individual short-leg delta was not independently established from the video. A possible alternative interpretation is a combined quantity across the two short ratio legs, but that must NOT be invented or substituted without source confirmation.
+
+Action: withdraw confidence in the current performance conclusion as a faithful YouTube-strategy replication; keep Gate 2 CLOSED; do not alter the strategy code or introduce a new interpretation until the reversal semantics are independently resolved and tester-reviewed. Also audit the entry/exit timing convention against the manual backtest because the automated run uses a first-observed-session / pre-expiry-session modelling convention that the video did not explicitly specify.
+
