@@ -33,3 +33,9 @@ Independent tester accepted the developer's implementation of the user clarifica
 
 Previous negative performance remains superseded. CI and fresh backtest are now required.
 
+## 2026-10-05 — Tester Review 34
+
+Tester independently verified the corrected 29-cycle artifact and found it materially different from the superseded run: gross +₹8,294, net −₹8,791.92, 24 two-lot reversal rebuilds and 13 continuation rebuilds.
+
+Tester blocked final acceptance because the coverage diagnostic still calls the old entry-date API and the research-use metadata is stale.
+
