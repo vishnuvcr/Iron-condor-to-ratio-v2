@@ -107,7 +107,12 @@ def load_expiry_list(remote_files: List[str], start: date, end: date) -> List[da
     return monthly_expiries(expiries)
 
 
-def load_cycle_data(paths: List[Path], expiry: date, start_date: date, end_date: date) -> pd.DataFrame:
+def load_cycle_data(
+    paths: List[Path],
+    expiry: date,
+    start_date: date,
+    end_date: date,
+) -> pd.DataFrame:
     if len(paths) == 1 and paths[0].name == "nifty_options_composite.parquet":
         matching = paths
         con = duckdb.connect()
@@ -212,30 +217,32 @@ def trading_dates(df: pd.DataFrame) -> List[date]:
     return sorted(df["date"].unique())
 
 
-def entry_and_exit_dates(expiry: date, available_dates: List[date]) -> Tuple[Optional[date], Optional[date]]:
+def entry_and_exit_dates(
+    expiry: date,
+    previous_expiry: date,
+    available_dates: List[date],
+) -> Tuple[Optional[date], Optional[date]]:
     """
-    Define the latest user-specified strategy cycle without a DTE rule.
+    User-defined cycle timing without a DTE rule.
 
-    Entry convention: first normal NSE F&O session of the expiry month.
-    This is a modelling convention because the user did not specify an
-    exact entry date/time. Exit: final normal NSE F&O session before expiry.
-    No 32-DTE condition is used anywhere in the cycle boundary.
+    Entry: earliest normal NSE F&O session after the previous monthly expiry.
+    Exit: final normal NSE F&O session before the target monthly expiry.
     """
     if not available_dates:
         return None, None
 
     dates = sorted(set(available_dates))
-    month_start = date(expiry.year, expiry.month, 1)
-    expected_sessions = nse_fno_sessions(month_start, expiry - timedelta(days=1))
-    if not expected_sessions:
+    expected_entry_sessions = nse_fno_sessions(
+        previous_expiry + timedelta(days=1),
+        expiry - timedelta(days=1),
+    )
+    if not expected_entry_sessions:
         return None, None
 
-    first_expected = expected_sessions[0]
-    final_expected = expected_sessions[-1]
+    first_expected = expected_entry_sessions[0]
+    final_expected = expected_entry_sessions[-1]
 
-    if dates[0] > first_expected or first_expected not in dates:
-        return None, None
-    if final_expected not in dates:
+    if first_expected not in dates or final_expected not in dates:
         return None, None
 
     return first_expected, final_expected
@@ -428,21 +435,25 @@ def run_cycle(
     cost_model: CostModel,
     continuation_delta_threshold: float = 0.20,
     entry_mode: str = "strategy",
+    previous_expiry: Optional[date] = None,
 ) -> Optional[CycleResult]:
     if not (0.20 <= continuation_delta_threshold <= 0.20):
         raise ValueError("continuation_delta_threshold must equal the specified approximately-0.20 trigger")
+    if previous_expiry is None:
+        return None
     dates = trading_dates(df)
-    strategy_entry_date, strategy_exit_date = entry_and_exit_dates(expiry, dates)
+    strategy_entry_date, strategy_exit_date = entry_and_exit_dates(
+        expiry, previous_expiry, dates
+    )
     if entry_mode == "strategy":
         if strategy_entry_date is None or strategy_exit_date is None:
             return None
         entry_date = strategy_entry_date
         exit_date = strategy_exit_date
     elif entry_mode == "available":
-        # Research-use tier: preserve the same pre-expiry exit requirement,
-        # but permit the first observed session in the expiry month when the
-        # deterministic first session is absent. This is not a production
-        # validation path and is recorded in the run manifest.
+        # Research-use tier: preserve the earliest-after-previous-expiry intent,
+        # but permit the earliest observed session after the previous expiry
+        # when the exact first session is missing from the partial dataset.
         expected_sessions = nse_fno_sessions(
             date(expiry.year, expiry.month, 1),
             expiry - timedelta(days=1),
@@ -452,8 +463,10 @@ def run_cycle(
         exit_date = expected_sessions[-1]
         if exit_date not in dates:
             return None
+        if previous_expiry is None:
+            return None
         entry_date = next(
-            (d for d in dates if d.year == expiry.year and d.month == expiry.month and d < expiry),
+            (d for d in dates if d > previous_expiry and d < expiry),
             None,
         )
     else:
@@ -462,7 +475,9 @@ def run_cycle(
         return None
     cycle = CycleResult(expiry=expiry, entry_date=entry_date)
     lot_size = lot_size_for_monthly_expiry(expiry)
-    entry_target = pd.Timestamp(entry_date, tz="Asia/Kolkata") + pd.Timedelta(hours=9, minutes=20)
+    # First available completed minute after market open; execute on the next
+    # common executable bar to avoid look-ahead.
+    entry_target = pd.Timestamp(entry_date, tz="Asia/Kolkata") + pd.Timedelta(hours=9, minutes=15)
     entry_signal = nearest_bar(df, entry_target)
     if entry_signal is None:
         return None
@@ -546,7 +561,9 @@ def run_cycle(
             short_positions = [p for p in positions if p.lots < 0]
             short_deltas = [position_abs_delta(snap, p, expiry, rate) for p in short_positions]
             if all(np.isfinite(short_deltas)):
-                s = float(sum(short_deltas))
+                # The ratio has two short contracts. "Combined delta" therefore
+                # counts the delta of both contracts, not just the option object.
+                s = float(sum(abs(p.lots) * d for p, d in zip(short_positions, short_deltas)))
                 reversal_trigger = ratio_reversal_trigger(short_deltas)
                 if s <= continuation_delta_threshold or reversal_trigger:
                     fill_ts = close_positions(positions, ts, df, cycle, cost_model, lot_size, "ratio_reset")
@@ -571,7 +588,10 @@ def run_cycle(
 
 
 def ratio_reversal_trigger(short_deltas: List[float]) -> bool:
-    return any(np.isfinite(d) and float(d) >= REVERSAL_DELTA_THRESHOLD for d in short_deltas)
+    # User clarification: 1.30 is the combined delta of the two short
+    # contracts, so an individual short-option absolute delta of 0.65
+    # reaches the reversal trigger.
+    return any(np.isfinite(d) and 2.0 * float(d) >= REVERSAL_DELTA_THRESHOLD for d in short_deltas)
 
 
 def summarize(cycles: List[CycleResult]) -> pd.DataFrame:
@@ -628,7 +648,7 @@ def main():
         "--entry-mode",
         choices=["strategy", "available"],
         default="strategy",
-        help="strategy=first normal expiry-month session; available=first observed session in the expiry month (research-use sensitivity only)",
+        help="strategy=earliest normal NSE F&O session after previous monthly expiry; available=earliest observed session after previous monthly expiry (research-use only)",
     )
     ap.add_argument("--out", default="results")
     args = ap.parse_args()
@@ -649,9 +669,24 @@ def main():
     coverage = []
     candidate_status = []
 
-    for expiry in expiry_list:
-        entry_start = date(expiry.year, expiry.month, 1)
-        df = load_cycle_data(paths, expiry, entry_start, expiry - timedelta(days=1))
+    for i, expiry in enumerate(expiry_list):
+        previous_expiry = expiry_list[i - 1] if i > 0 else None
+        if previous_expiry is None:
+            candidate_status.append({
+                "expiry": str(expiry),
+                "status": "SKIPPED_NO_PREVIOUS_MONTHLY_EXPIRY",
+                "reason": "No prior monthly expiry is available inside the loaded study universe",
+            })
+            quality.append({"expiry": str(expiry), "status": "NO_PREVIOUS_EXPIRY"})
+            continue
+
+        entry_start = previous_expiry + timedelta(days=1)
+        df = load_cycle_data(
+            paths,
+            expiry,
+            entry_start,
+            expiry - timedelta(days=1),
+        )
         if df.empty:
             candidate_status.append({"expiry": str(expiry), "status": "SKIPPED_EMPTY_DATA", "reason": "No contract rows in cycle window"})
             quality.append({"expiry": str(expiry), "status": "EMPTY"})
@@ -685,6 +720,7 @@ def main():
                 cm,
                 continuation_delta_threshold=args.continuation_delta_threshold,
                 entry_mode=args.entry_mode,
+                previous_expiry=previous_expiry,
             )
             if cycle is not None:
                 all_cycles.append(cycle)
