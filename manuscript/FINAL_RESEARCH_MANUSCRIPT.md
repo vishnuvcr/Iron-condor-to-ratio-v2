@@ -151,13 +151,13 @@ The research run uses:
 | Paytm Money brokerage | ₹20/order |
 | Adverse option slippage | 1 tick |
 | Option tick | ₹0.05 |
-| NSE transaction charge | date-aware model |
-| SEBI fee | date-aware model |
-| STT | date-aware model |
-| Stamp duty | buyer-side model |
+| NSE transaction charge | ₹3,553/crore current-rate retail baseline |
+| SEBI fee | ₹10/crore |
+| STT | 0.10% through 2026-03-31; 0.15% from 2026-04-01 |
+| Stamp duty | 0.003% buyer-side |
 | GST | 18% on applicable broker/service charges |
 
-The project cost model notes that Paytm Money tariffs can differ by account cohort and historical period; ₹20/order is therefore a stated research baseline rather than a claim about every historical account.
+The project cost model explicitly labels ₹20/order as a modern Paytm Money research baseline. The exchange/statutory component is also a consistent modern retail baseline, not an exact year-by-year historical broker invoice reconstruction.
 
 ### 5.6 Data integrity
 
@@ -197,7 +197,7 @@ Thus:
 - traded / requested months = **28 / 69 = 40.58%**;
 - strict complete lifecycle coverage = **0 / 69**.
 
-The strict production gate is therefore **CLOSED**.
+The strict production gate is therefore **CLOSED**. The 28-cycle result is numerically reproducible but is not a complete historical validation.
 
 The research-use tier allows the first observed expiry-month session when the deterministic first expiry-month session is unavailable, while retaining the mandatory pre-expiry exit. This is an explicit modelling deviation, not a silent relaxation of the strategy.
 
@@ -227,15 +227,17 @@ The independent tester recomputed every metric above from the compact trade-leve
 
 ### 7.2 Cost drag
 
-Total transaction costs were **₹16,633.96** across 620 orders.
+Total modeled transaction costs were **₹16,633.96** across 620 orders.
 
-That is approximately:
+The published baseline includes one adverse ₹0.05 tick per executed order. Independently reversing exactly that one-tick adjustment from the stored order log gives:
 
-- ₹26.83 per order, including the full modeled statutory/service/slippage effects;
-- ₹594.07 per traded cycle;
-- 4.35 times the absolute size of the gross P&L loss.
+- baseline gross P&L after slippage: **−₹3,821.50**;
+- one-tick slippage drag: **₹1,950.00**;
+- gross P&L before slippage and before transaction costs: **−₹1,871.50**.
 
-Importantly, gross P&L was already negative at **−₹3,821.50** before transaction costs. The negative result therefore cannot be attributed solely to brokerage and slippage.
+Thus the negative gross result persists even with zero slippage. Transaction costs materially deepen the loss, but they are not the sole explanation.
+
+The exchange-cost baseline is a consistent modern retail execution-cost assumption rather than a year-by-year historical broker invoice reconstruction.
 
 ### 7.3 Trade and state transitions
 
@@ -526,6 +528,7 @@ Key run assumptions from `run_manifest.json`:
 - continuation delta: 0.20
 - reversal delta: **1.30**
 - entry mode: research-use `available`
+- cost regime: consistent modern retail execution-cost baseline
 - research-use partial data: true
 - composite Parquet SHA-256: `ae907488c242f12a0ff9a468ff4f2e20e7d834a110292647a42c4a92314db388`
 - consolidated CSV SHA-256: `d5038187532d6418edee64786b803d3c7dc466325b075d560af62904588108b8`
