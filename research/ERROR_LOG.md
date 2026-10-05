@@ -154,3 +154,12 @@ Implementation audit additionally found that the previous continuation check did
 ## 2026-10-05 — REVIEW 34 REMEDIATION
 
 Tester Review 34 found that the corrected backtest succeeded, but the coverage validator still called the superseded entry-date API and research-use metadata described the old target-month entry convention. Developer corrected both audit-layer defects. Strategy logic remains unchanged.
+
+
+## 2026-10-05 — TESTER REVIEW 35 / clean corrected run
+
+The clean corrected workflow 37253416839 passed all execution stages, including the previously blocked coverage validation and CSV/Parquet reconciliation. Independent Tester Review 35 accepted the numerical result and audit layer with restrictions.
+
+Independent checks reproduced 29 cycles, 628 orders, 314 BUY/314 SELL, gross +₹8,294.00, costs ₹17,085.92, net −₹8,791.92, 44.83% win rate, profit factor 0.833656, maximum drawdown −₹30,811.11, P05 −₹5,669.63, P95 ₹4,289.12, and Sharpe proxy −0.23854. The order log contains 760 absolute lots, implying ₹1,900 of one-tick slippage drag at ₹0.05 and 50-unit lot size.
+
+Coverage remains 0/69 strict complete cycles, so this is not a complete historical validation. No strategy change was introduced.
