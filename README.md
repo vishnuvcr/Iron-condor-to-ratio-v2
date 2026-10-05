@@ -50,7 +50,12 @@ The independent tester reproduced the reported metrics exactly from the compact 
 
 Strict lifecycle coverage remains **0/69 requested months**; the result is therefore a research-use partial-data conclusion, not a fully covered historical validation.
 
-See [manuscript/FINAL_RESEARCH_MANUSCRIPT.md](manuscript/FINAL_RESEARCH_MANUSCRIPT.md) and [research/VERIFIED_RESULTS_2026-10-05.md](research/VERIFIED_RESULTS_2026-10-05.md).
+### Independent doubt audit
+An independent audit of the stored compact outputs reproduced every headline metric and the full 620-order reconciliation. Removing the one-tick slippage from the stored fills gives gross P&L of **−₹1,871.50 before slippage and before transaction costs**, so the negative direction is not caused by brokerage or the one-tick slippage assumption.
+
+The final cost methodology is explicitly a **consistent modern retail execution-cost baseline** (Paytm Money ₹20/order plus current-rate NSE/statutory assumptions) applied across the historical price path. It is not represented as a year-by-year historical broker invoice reconstruction.
+
+See [research/PHASE_3_TESTER_REVIEW_30.md](https://github.com/vishnuvcr/Iron-condor-to-ratio-v2/blob/phase-3-robustness-tester/research/PHASE_3_TESTER_REVIEW_30.md), [manuscript/FINAL_RESEARCH_MANUSCRIPT.md](manuscript/FINAL_RESEARCH_MANUSCRIPT.md), and [research/VERIFIED_RESULTS_2026-10-05.md](research/VERIFIED_RESULTS_2026-10-05.md).
 
 ## Scientific research expansion
 
