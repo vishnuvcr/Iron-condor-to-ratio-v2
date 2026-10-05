@@ -96,3 +96,9 @@ Developer completed workflow 37253416839 after Review 34 remediation. Tester ind
 The strict lifecycle gate remains 0/69 complete months, so the result is research-use partial-data evidence only. The fixed 1.30 two-short-contract reversal rule, 0.20 two-short-contract continuation rule, and earliest-post-previous-expiry entry convention remain unchanged. No optimization or alternate strategy rule was introduced.
 
 Tester Review 35 is stored on the isolated tester branch at research/PHASE_3_TESTER_REVIEW_35.md.
+
+## 2026-10-05 — user doubt audit / Tester Review 37
+
+User requested a falsification audit because the reported result remained doubtful. Developer downloaded and independently inspected the clean compact artifact. The tester-side audit found a concrete implementation flaw: two initial ratio builds used the same CE strike for both the 0.50-delta long and 0.40-delta short.
+
+This is a strategy-fidelity defect, not a cosmetic issue. The current result is now marked **PROVISIONAL / NOT ACCEPTED**. Tester Review 37 is stored on the isolated tester branch. Required next step is a developer fix that rejects malformed ratio construction without changing any strategy rule, followed by a clean rerun and independent tester review.
