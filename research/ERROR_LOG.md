@@ -22,3 +22,9 @@ Independent tester found that the production reversal check applies fixed 1.30 t
 
 Tester decision: strategy-fidelity gate FAIL / BLOCKED. Do not change 1.30 into another threshold or silently reinterpret it as a combined delta. Source-accurate reversal semantics and a matched manual-vs-automated trade reconciliation are required before performance re-acceptance.
 
+## 2026-10-05 — TESTER REVIEW 33
+
+Tester accepted the user clarification that reversal 1.30 applies across the two short contracts (2 × individual delta) and confirmed that continuation combined delta must also count both short contracts. Tester also accepted earliest-post-previous-expiry entry, with strict mode requiring the exact first session and research-use mode permitting earliest observed post-expiry entry with explicit disclosure.
+
+Verdict: PASS WITH RESTRICTIONS. CI and a fresh backtest are required; prior performance is superseded.
+
