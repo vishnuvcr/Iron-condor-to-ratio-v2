@@ -39,3 +39,7 @@ Independent tester **rejected strategy-fidelity acceptance** because the fixed 1
 
 Strategy-fidelity blocker from Review 32 is remediated. Review 33 **PASS WITH RESTRICTIONS** accepts the user's two-lot 1.30 reversal semantics, two-contract continuation delta accounting, and earliest-post-previous-expiry entry convention. Phase 3 performance rerun is permitted only after CI passes. Strict Gate 2 remains CLOSED.
 
+## 2026-10-05 — Tester Review 34
+
+Independent tester BLOCKED final performance acceptance. The corrected strategy/backtest arithmetic is reproducible, but the strict coverage diagnostic failed due to an old entry-date API call, and research-use metadata still describes the superseded target-month entry convention. Developer remediation and a fresh CI/backtest are required. Strict Gate 2 remains CLOSED.
+
