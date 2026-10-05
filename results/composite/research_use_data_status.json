@@ -6,8 +6,8 @@
   "complete_cycles": 0,
   "failure_count": 69,
   "limitations": [
-    "The strict first-session-of-expiry-month lifecycle gate is not satisfied.",
-    "The research-use backtest may start at the first observed session available in the expiry month.",
+    "The strict earliest-post-previous-monthly-expiry lifecycle gate is not satisfied for all requested months.",
+    "Research-use mode may start at the earliest observed session after the actual previous monthly expiry when the exact first session is unavailable.",
     "Results must not be presented as a fully covered historical validation."
   ]
 }

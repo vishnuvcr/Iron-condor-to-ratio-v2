@@ -1,6 +1,6 @@
 {
   "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
-  "code_commit_sha": "a5cb95ebf4b2e2a3bae689fa2e935c8e92b20410",
+  "code_commit_sha": "d7b1bc03da8fed525b26ee4c3a6d433c12ed3487",
   "data_repository": "composite_free_sources",
   "dataset_revision": "composite:ae907488c242f12a0ff9a468ff4f2e20e7d834a110292647a42c4a92314db388",
   "dataset_card_url": "composite/composite_manifest.json",
@@ -86,11 +86,15 @@
   "brokerage": 20.0,
   "slippage_ticks": 1,
   "continuation_delta_threshold": 0.2,
+  "continuation_delta_definition": "combined absolute delta across both short contracts; both short lots counted",
   "reversal_delta_threshold": 1.3,
+  "reversal_delta_definition": "1.30 across two short contracts = 2 * individual short-option absolute delta",
   "entry_mode": "available",
+  "entry_rule": "earliest normal NSE F&O session after the actual previous NIFTY monthly expiry; research-use mode uses earliest observed post-expiry session if exact session data are unavailable",
+  "previous_expiry_rule": "actual previous calendar NIFTY monthly expiry derived from the NSE expiry-day regime",
   "research_use_partial_data": true,
   "tick": 0.05,
-  "created_utc": "2026-10-05T01:52:04.861718Z",
+  "created_utc": "2026-10-05T02:05:47.591698Z",
   "data_coverage": [
     {
       "expiry": "2021-05-27",
