@@ -19,3 +19,8 @@ Independent tester verified the fixed 1.30 strategy output from the compact arti
 ## 2026-10-05 — Tester Review 31
 
 Independent tester confirmed developer remediation after the doubt audit. The cost model is now explicitly described as a consistent modern retail execution-cost baseline; the manuscript documents the zero-slippage audit; no strategy-code changes were made after the published run. Fixed 1.30 remains unchanged and Gate 2 remains CLOSED.
+
+## 2026-10-05 — Tester Review 32
+
+Tester independently reviewed the developer's reversal implementation after the user's trust concern. Review 32 failed the strategy-fidelity gate: an individual option delta cannot reach 1.30 under the published Black-76 model, so the reversal path is unreachable. The tester did not assume a combined-delta interpretation and requires source-accurate semantics plus manual-vs-automated reconciliation before any rerun.
+
