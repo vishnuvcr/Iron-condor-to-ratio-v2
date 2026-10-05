@@ -30,3 +30,8 @@ Phase 3 strategy-fidelity and numerical verification: **PASS WITH RESTRICTIONS**
 ## 2026-10-05 — Tester Review 31 confirmation
 
 Phase 3 strategy-fidelity/numerical review: **PASS WITH RESTRICTIONS**. Developer remediation accepted. No strategy rule changed. Strict Gate 2 remains CLOSED at 0/69 months. Research-use result remains reproducible but not a full historical validation.
+
+## 2026-10-05 — Tester Review 32
+
+Independent tester **rejected strategy-fidelity acceptance** because the fixed 1.30 reversal check is applied to one individual option delta, which cannot reach 1.30 under the published Black-76 implementation. The zero-reversal count is therefore not a valid empirical result. Performance acceptance is blocked pending authoritative reversal-semantics resolution and manual-vs-automated trade reconciliation. Strict Gate 2 remains CLOSED.
+
