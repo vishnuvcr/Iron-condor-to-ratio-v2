@@ -46,3 +46,19 @@ User repeatedly instructed the developer to proceed without intervention and the
 
 ## 2026-10-05 — final fixed-1.30 conclusion
 Tester Review 29 independently reproduced the fixed-1.30 research-use metrics from the compact artifact. The strategy is negative in the tested sample and is not promoted. The final manuscript records the data limitations, zero reversal events, cost drag, and future research requirements. No parameter tuning was introduced.
+
+
+## 2026-10-05 — User doubt audit / Tester Review 30
+
+User stated that the reported fixed-1.30 result was doubtful.
+
+Developer response:
+- Independently recomputed all headline metrics from stored `trade_summary.csv` and `order_log.csv`.
+- Independently reconciled 620 orders and 66 lifecycle transitions.
+- Reconstructed zero-slippage gross P&L of −₹1,871.50 from the stored fills.
+- Confirmed the fixed 1.30 reversal branch was present and no reversal event occurred.
+- Identified that strict coverage is 0/69 months and that the final result is research-use only.
+- Identified a documentation/code mismatch in the historical-cost-rate requirement and explicitly reframed the published baseline as a consistent modern retail execution-cost assumption.
+- No strategy threshold, optimization, or new trading rule was introduced.
+
+Tester report: `research/PHASE_3_TESTER_REVIEW_30.md` on `phase-3-robustness-tester`.
