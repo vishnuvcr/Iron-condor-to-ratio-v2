@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from huggingface_hub import HfApi, hf_hub_download
 
-from src.nse_calendar import nse_fno_sessions
+from src.nse_calendar import nse_fno_sessions, previous_nifty_monthly_expiry
 from src.strategy_engine import (
     CostModel,
     CycleResult,
@@ -669,17 +669,8 @@ def main():
     coverage = []
     candidate_status = []
 
-    for i, expiry in enumerate(expiry_list):
-        previous_expiry = expiry_list[i - 1] if i > 0 else None
-        if previous_expiry is None:
-            candidate_status.append({
-                "expiry": str(expiry),
-                "status": "SKIPPED_NO_PREVIOUS_MONTHLY_EXPIRY",
-                "reason": "No prior monthly expiry is available inside the loaded study universe",
-            })
-            quality.append({"expiry": str(expiry), "status": "NO_PREVIOUS_EXPIRY"})
-            continue
-
+    for expiry in expiry_list:
+        previous_expiry = previous_nifty_monthly_expiry(expiry)
         entry_start = previous_expiry + timedelta(days=1)
         df = load_cycle_data(
             paths,
