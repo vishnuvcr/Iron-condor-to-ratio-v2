@@ -175,3 +175,9 @@ Affected cycles:
 Their combined net contribution is approximately +₹4,742.99. The current −₹8,791.92 result is therefore provisional and cannot be accepted as an exact ratio-strategy replication.
 
 Required remediation: enforce distinct contract identities or, if the target structure cannot be represented by available data, reject that build/cycle rather than inventing a replacement strike. Add regression tests and rerun the complete workflow. No strategy rule may be changed.
+
+## 2026-10-05 — DEVELOPER REMEDIATION AFTER TESTER REVIEW 37
+
+Added `ratio_contracts_are_distinct()` validation to reject malformed ratio builds where multiple legs resolve to the same contract. Added a regression test. The remediation does not select substitute strikes and does not alter any user-specified delta, reversal, continuation, entry, or cost rule.
+
+Fresh CI/backtest and independent tester review are required.
