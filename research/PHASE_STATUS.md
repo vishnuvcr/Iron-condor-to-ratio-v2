@@ -195,3 +195,10 @@ Phase 3 numerical output remains **COMPLETE WITH RESTRICTIONS**. Independent rec
 The study remains research-use only because strict lifecycle coverage is **0/69 requested months**. The cost methodology is now explicitly described as a consistent modern retail execution-cost baseline rather than a year-by-year historical broker invoice reconstruction.
 
 No strategy rule changed. Fixed reversal trigger remains **1.30**. Strategy promotion remains prohibited.
+
+## 2026-10-05 — Phase 3 re-opened for reversal-semantics audit
+
+The user reported that manual backtesting was profitable, creating a substantive reconciliation requirement. Code audit found that the published reversal check applies a 1.30 threshold to a single option's absolute delta. With the published Black-76 implementation and rate=0.0, an individual option absolute delta is bounded by 1.00; therefore the reversal branch is unreachable in the actual backtest. The prior zero-reversal count is consequently not a valid empirical finding about market reversals.
+
+Phase 3 performance acceptance is therefore **REOPENED / BLOCKED** for strategy-fidelity review. The existing negative 28-cycle result is treated as a provisional arithmetic result of the stored implementation, not as a trustworthy replication of the YouTube strategy. Gate 2 remains CLOSED. No strategy-code interpretation or new threshold will be introduced until the reversal semantics are resolved from the authoritative source and independently tester-reviewed.
+
