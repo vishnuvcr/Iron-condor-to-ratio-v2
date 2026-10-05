@@ -1,123 +1,94 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Phase 8 — final manuscript completed; strategy not promoted.**
+Research status: **Phase 8 — manuscript complete; corrected research-use backtest independently accepted with restrictions; strategy not promoted.**
 
-**Scope reset (2026-10-05):** the initial transcript is non-authoritative and the 32-DTE constraint is removed. No prior 32-DTE result is a result for the current strategy.
-
-
-> **Important audit status (2026-10-05):** The previously reported negative 28-cycle performance result is **provisional and not currently accepted as a faithful strategy replication**. Code audit found that the fixed 1.30 reversal threshold is being applied to one individual option delta, but the implemented Black-76 delta is bounded by 1.00, making that reversal branch unreachable. The zero-reversal count is therefore not an empirical finding. Phase 3 has been reopened for an independent reversal-semantics and manual-vs-automated reconciliation. Strict Gate 2 remains CLOSED and no strategy rule or new threshold has been introduced.
-
-> **Superseded performance result:** The earlier 28-cycle result is no longer accepted because the reversal quantity and entry-timing semantics were clarified by the user after that run. The current implementation has been corrected to use 1.30 across two short contracts (2 × individual delta) and earliest entry after the previous monthly expiry; a fresh tester review and backtest are required.
+**Scope reset (2026-10-05):** testing follows only the latest user-defined strategy. The earlier 32-DTE protocol and earlier 28-cycle result are superseded.
 
 ## Navigation
-- research/RESEARCH_PLAN.md
-- research/STRATEGY_SPEC.md
-- research/PHASE_STATUS.md
-- research/LITERATURE_REVIEW_2026-10-05.md
-- research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md
-- research/FREE_DATA_SOURCE_REVIEW.md
-- research/COMPOSITE_DATA_PROTOCOL.md
-- research/COST_MODEL.md
-- research/ERROR_LOG.md
-- research/CHAT_LOG.md
-- research/ROLES_AND_GATES.md
+- [Research plan](research/RESEARCH_PLAN.md)
+- [Strategy specification](research/STRATEGY_SPEC.md)
+- [Phase status](research/PHASE_STATUS.md)
+- [Literature review](research/LITERATURE_REVIEW_2026-10-05.md)
+- [Research questions and methodology](research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md)
+- [Free data-source review](research/FREE_DATA_SOURCE_REVIEW.md)
+- [Composite data protocol](research/COMPOSITE_DATA_PROTOCOL.md)
+- [Cost model](research/COST_MODEL.md)
+- [Error log](research/ERROR_LOG.md)
+- [Chat log](research/CHAT_LOG.md)
+- [Roles and gates](research/ROLES_AND_GATES.md)
+- [Tester Review 35](https://github.com/vishnuvcr/Iron-condor-to-ratio-v2/blob/phase-3-robustness-tester/research/PHASE_3_TESTER_REVIEW_35.md)
 
 ## Roles and branches
-- developer: `phase-3-robustness-developer`
-- tester: `phase-3-robustness-tester`
-- Phase 2 branches remain frozen historical implementation/review environments.
+- Developer: `phase-3-robustness-developer`
+- Independent tester: `phase-3-robustness-tester`
 
-Developer and tester are isolated. Tester approval is required before strategy promotion.
+The branches remain isolated. Developer progression requires tester review.
 
-## Current gate status
+## Gate status
 
-**Strict Gate 2: CLOSED. Research-use partial-data analysis: ENABLED.**
+**Strict Gate 2: CLOSED.**
 
-The current composite does not establish complete deterministic lifecycle coverage for all 69 requested months. This is disclosed rather than hidden.
+A separate **research-use partial-data** tier is enabled because the user requested the best usable real data with explicit limitations. No missing option prices are interpolated, forward-filled, averaged, or theoretically synthesized.
 
-## Final verified result
+## Current verified research-use result
 
-The exact user-defined strategy was tested with a **fixed 1.30 short-leg delta reversal trigger**. No reversal-threshold sensitivity testing or parameter optimization was performed.
+Clean GitHub Actions workflow: **37253416839**  
+Developer commit: `d7b1bc03da8fed525b26ee4c3a6d433c12ed3487`
 
-Verified research-use result (workflow 37237347768):
-- 28 traded cycles
-- gross P&L: **−₹3,821.50**
-- transaction costs: **₹16,633.96**
-- net P&L: **−₹20,455.46**
-- win rate: **46.43%**
-- profit factor: **0.6468**
-- max drawdown: **−₹41,981.20**
-- annualized monthly Sharpe proxy: **−0.5414**
-- 38 continuation resets
-- **0 observed 1.30 reversal events**
+Independent Tester Review 35: **PASS WITH RESTRICTIONS**.
 
-The independent tester reproduced the reported metrics exactly from the compact trade/order outputs. The strategy is **not promoted**.
+| Metric | Result |
+|---|---:|
+| Traded cycles | 29 |
+| Orders | 628 |
+| BUY / SELL | 314 / 314 |
+| Gross P&L | +₹8,294.00 |
+| Transaction costs | ₹17,085.92 |
+| Net P&L | **−₹8,791.92** |
+| Win rate | 44.83% |
+| Profit factor | 0.833656 |
+| Maximum drawdown | −₹30,811.11 |
+| P05 | −₹5,669.63 |
+| P95 | ₹4,289.12 |
+| Annualized monthly Sharpe proxy | −0.23854 |
+| State transitions | 66 |
+| Continuation rebuilds | 13 |
+| Reversal rebuilds | 24 |
 
-Strict lifecycle coverage remains **0/69 requested months**; the result is therefore a research-use partial-data conclusion, not a fully covered historical validation.
+The order log contains 760 absolute lots. At one adverse ₹0.05 tick per lot and a 50-unit lot size, independently reconstructed slippage drag is **₹1,900**. This is separate from total transaction costs.
 
-### Independent doubt audit
-An independent audit of the stored compact outputs reproduced every headline metric and the full 620-order reconciliation. Removing the one-tick slippage from the stored fills gives gross P&L of **−₹1,871.50 before slippage and before transaction costs**, so the negative direction is not caused by brokerage or the one-tick slippage assumption.
+**Interpretation:** this is research-use partial-data evidence, not complete historical validation and not a live-trading recommendation.
 
-The final cost methodology is explicitly a **consistent modern retail execution-cost baseline** (Paytm Money ₹20/order plus current-rate NSE/statutory assumptions) applied across the historical price path. It is not represented as a year-by-year historical broker invoice reconstruction.
+## Coverage limitation
 
-See [research/PHASE_3_TESTER_REVIEW_30.md](https://github.com/vishnuvcr/Iron-condor-to-ratio-v2/blob/phase-3-robustness-tester/research/PHASE_3_TESTER_REVIEW_30.md), [manuscript/FINAL_RESEARCH_MANUSCRIPT.md](manuscript/FINAL_RESEARCH_MANUSCRIPT.md), and [research/VERIFIED_RESULTS_2026-10-05.md](research/VERIFIED_RESULTS_2026-10-05.md).
+Requested window: **2021-01-01 through 2026-09-30 = 69 months**.
 
-## Scientific research expansion
+Clean run status:
+- strict complete cycles: **0/69**
+- strict Gate 2: **FAILED/CLOSED**
+- research-use partial mode: **TRUE**
 
-The research now includes:
-- literature review on iron condors, ratio spreads and skew;
-- Indian option-market volatility/efficiency research;
-- volatility-risk-premium evidence;
-- FII/implied-volatility relationships;
-- Indian derivatives-market structural changes;
-- predefined volatility/skew/regime hypotheses;
-- bootstrap and distributional analysis plans;
-- static-IC benchmark comparison;
-- cost-drag decomposition.
+The composite and consolidated CSV reconcile exactly at **18,064,638 rows** with identical canonical SHA-256.
 
-See [research/LITERATURE_REVIEW_2026-10-05.md](research/LITERATURE_REVIEW_2026-10-05.md) and [research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md](research/RESEARCH_QUESTIONS_AND_METHODOLOGY.md).
+## Exact strategy fidelity
 
-NSE's current option-chain infrastructure exposes OI, volume, IV, bid/ask and LTP fields, while NSE contract specifications document expiry conventions and tick sizes. NSE also publishes participant-wise/FII derivatives statistics and daily F&O reports. These are important external reference streams for later regime and market-structure analysis. urlNSE Option Chainhttps://www.nseindia.com/option-chain?symbol=NIFTY urlNSE Contract Specificationshttps://www.nseindia.com/static/products-services/equity-derivatives-contract-specifications urlNSE F&O Reportshttps://www.nseindia.com/all-reports-derivatives
+- Initial Iron Condor: sell 0.30-delta CE/PE; buy 0.10-delta CE/PE.
+- IC trigger: either original short reaches 0.10 absolute delta.
+- Directional ratio: buy 0.50 delta; sell 0.40 delta ×2; buy 0.10 delta hedge.
+- Continuation: combined absolute delta of **both** short contracts reaches 0.20; rebuild 0.40 long / 0.30 short ×2 / 0.08 hedge.
+- Reversal: **1.30 across the two short contracts = 2 × individual absolute short-option delta**. No sensitivity testing or alternate threshold.
+- Entry: earliest normal NSE F&O session after the actual previous monthly expiry; research-use mode uses the earliest observed post-expiry session when the exact first session is unavailable.
+- Execution economics include the stated brokerage/slippage/statutory-cost baseline.
+- No strategy optimization has been introduced.
 
-The project will explicitly account for the 2024–2025 Indian derivatives-market changes when interpreting time stability. NSE changed NIFTY expiry conventions effective April 2025, and SEBI introduced several index-derivatives measures from November 2024 onward. These structural breaks make pooled pre/post-reform performance comparisons important. 
+## Research framework
 
-## Data and CSV
+The project contains the predefined research questions, literature review, scientific methodology, statistical analysis plan, data provenance, cost model, strengths/limitations, discussion, conclusion, future research, appendices and reproducibility records.
 
-The canonical research dataset is Parquet. The consolidated CSV is the transfer artifact for Google Drive/future reuse:
+The final manuscript is retained under `manuscript/`. The research stops at the predefined phases; no endless parameter search is permitted.
 
-`results/composite/consolidated_options_data.csv`
+## Decision
 
-The pipeline never interpolates, forward-fills, averages or theoretically reconstructs missing option prices.
+The corrected strategy run is **accepted as research-use evidence with strict data-coverage restrictions**.
 
-## Baseline research-use result
-
-The first research-use baseline (from the earlier pre-correction run) produced:
-- 28 traded cycles
-- net P&L: **−₹20,455.46**
-- profit factor: **0.647**
-- win rate: **46.43%**
-- max drawdown: **−₹41,981.20**
-- monthly-Sharpe proxy: **−0.541**
-
-This result is exploratory and **not authoritative for the corrected fixed-1.30 implementation**. Strict lifecycle coverage remains 0/69.
-
-## Final research objective
-
-The research will stop at the predefined phases. The final deliverable will be a structured manuscript containing:
-1. research questions and hypotheses;
-2. literature review;
-3. data/provenance methodology;
-4. strategy specification;
-5. statistical methodology;
-6. benchmark and robustness results;
-7. regime/skew/cost analysis where data permit;
-8. discussion;
-9. strengths and limitations;
-10. conclusion;
-11. future research;
-12. tables, figures, appendices and reproducibility supplements.
-
-No endless parameter search is permitted.
-
-
-**Fixed reversal trigger:** 1.30 short-leg delta. No reversal-threshold sensitivity testing is authorized.
+**The strategy is NOT promoted to live trading.**
