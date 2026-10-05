@@ -1,6 +1,6 @@
 # Iron Condor -> Ratio Spread v2
 
-Research status: **Phase 8 — manuscript complete; corrected research-use backtest independently accepted with restrictions; strategy not promoted.**
+Research status: **Phase 8 — manuscript complete; corrected research-use backtest **PROVISIONAL / BLOCKED pending falsification remediation**; strategy not promoted.**
 
 **Scope reset (2026-10-05):** testing follows only the latest user-defined strategy. The earlier 32-DTE protocol and earlier 28-cycle result are superseded.
 
@@ -35,7 +35,7 @@ A separate **research-use partial-data** tier is enabled because the user reques
 Clean GitHub Actions workflow: **37253416839**  
 Developer commit: `d7b1bc03da8fed525b26ee4c3a6d433c12ed3487`
 
-Independent Tester Review 35: **PASS WITH RESTRICTIONS**.
+Independent Tester Review 37: **BLOCKED** — malformed ratio construction found. Tester Review 35 is superseded for performance acceptance.
 
 | Metric | Result |
 |---|---:|
@@ -89,6 +89,10 @@ The final manuscript is retained under `manuscript/`. The research stops at the 
 
 ## Decision
 
-The corrected strategy run is **accepted as research-use evidence with strict data-coverage restrictions**.
+The corrected strategy run is **PROVISIONAL and NOT ACCEPTED**. Tester Review 37 found two malformed ratio builds in which the 0.50-delta long and 0.40-delta short used the same contract. A corrected rerun and independent tester review are required.
 
 **The strategy is NOT promoted to live trading.**
+
+
+## 2026-10-05 falsification audit
+Tester Review 37 found a material strategy-fidelity defect: 2/53 ratio builds used the same CE contract for both the 0.50-delta long and 0.40-delta short. The current −₹8,791.92 result is therefore provisional and not accepted. The strict Gate 2 remains CLOSED.
