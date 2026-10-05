@@ -231,3 +231,11 @@ Verified research-use metrics:
 - Order-log arithmetic independently reconstructs ₹1,900 of one-tick slippage drag (760 absolute lots × ₹0.05 × 50).
 
 Strict Gate 2 remains CLOSED: requested months 69, strict complete cycles 0. The result is research-use partial-data evidence only and must not be promoted to live trading. No strategy parameter, optimization, sensitivity grid, or alternate threshold was introduced.
+
+## 2026-10-05 — Tester Review 37 / falsification blocker
+
+Independent Tester Review 37 blocked performance acceptance. The compact artifact is internally reproducible, but the tester found **2 malformed initial ratio builds out of 53** in which the 0.50-delta long and 0.40-delta short used the same option contract: CE 15700 for 2021-07-29 and CE 26100 for 2025-11-25. The current selector chooses each target independently and does not enforce distinct contract identities.
+
+The affected cycles contribute approximately +₹4,742.99 net to the current result. This does not explain the user's doubt by itself, but it means the −₹8,791.92 result is not yet a faithful implementation result.
+
+**Performance acceptance is BLOCKED. Strict Gate 2 remains CLOSED. The current result is PROVISIONAL.** Developer remediation must reject malformed ratio construction without changing strategy parameters, rerun the workflow, and obtain a new independent tester report.
