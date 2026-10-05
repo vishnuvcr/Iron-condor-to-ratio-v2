@@ -4,6 +4,9 @@ Research status: **Phase 8 — final manuscript completed; strategy not promoted
 
 **Scope reset (2026-10-05):** the initial transcript is non-authoritative and the 32-DTE constraint is removed. No prior 32-DTE result is a result for the current strategy.
 
+
+> **Important audit status (2026-10-05):** The previously reported negative 28-cycle performance result is **provisional and not currently accepted as a faithful strategy replication**. Code audit found that the fixed 1.30 reversal threshold is being applied to one individual option delta, but the implemented Black-76 delta is bounded by 1.00, making that reversal branch unreachable. The zero-reversal count is therefore not an empirical finding. Phase 3 has been reopened for an independent reversal-semantics and manual-vs-automated reconciliation. Strict Gate 2 remains CLOSED and no strategy rule or new threshold has been introduced.
+
 ## Navigation
 - research/RESEARCH_PLAN.md
 - research/STRATEGY_SPEC.md
