@@ -35,3 +35,7 @@ Phase 3 strategy-fidelity/numerical review: **PASS WITH RESTRICTIONS**. Develope
 
 Independent tester **rejected strategy-fidelity acceptance** because the fixed 1.30 reversal check is applied to one individual option delta, which cannot reach 1.30 under the published Black-76 implementation. The zero-reversal count is therefore not a valid empirical result. Performance acceptance is blocked pending authoritative reversal-semantics resolution and manual-vs-automated trade reconciliation. Strict Gate 2 remains CLOSED.
 
+## 2026-10-05 — Tester Review 33
+
+Strategy-fidelity blocker from Review 32 is remediated. Review 33 **PASS WITH RESTRICTIONS** accepts the user's two-lot 1.30 reversal semantics, two-contract continuation delta accounting, and earliest-post-previous-expiry entry convention. Phase 3 performance rerun is permitted only after CI passes. Strict Gate 2 remains CLOSED.
+
