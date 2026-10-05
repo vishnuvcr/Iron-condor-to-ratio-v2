@@ -84,3 +84,6 @@ Developer response:
 - Kept fixed 1.30; no optimization or alternate threshold introduced.
 - The prior 28-cycle performance result is superseded and must not be used for the next conclusion.
 
+## 2026-10-05 — Review 34 remediation
+
+Developer corrected the stale coverage-validation API and research-use entry-convention metadata identified by the tester. The strategy remains fixed at 1.30 across two short lots, continuation counts both short contracts, and entry starts after the actual previous monthly expiry. A fresh CI/backtest will provide the final audited artifact.
