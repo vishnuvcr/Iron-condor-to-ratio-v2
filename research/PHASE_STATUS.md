@@ -202,3 +202,14 @@ The user reported that manual backtesting was profitable, creating a substantive
 
 Phase 3 performance acceptance is therefore **REOPENED / BLOCKED** for strategy-fidelity review. The existing negative 28-cycle result is treated as a provisional arithmetic result of the stored implementation, not as a trustworthy replication of the YouTube strategy. Gate 2 remains CLOSED. No strategy-code interpretation or new threshold will be introduced until the reversal semantics are resolved from the authoritative source and independently tester-reviewed.
 
+## 2026-10-05 — reversal/entry clarification implementation
+
+The user clarified that the reversal trigger of 1.30 applies to the **two-lot short leg**, so reversal occurs when 2 × the individual short-option absolute delta reaches 1.30. The user also instructed that the initial Iron Condor be entered as early as possible after the previous monthly expiry.
+
+Developer corrected:
+- reversal calculation to 2 × individual short delta;
+- continuation combined-delta calculation to count both short contracts;
+- entry timing to the earliest normal NSE F&O session after the previous monthly expiry.
+
+All previous performance outputs based on the single-leg 1.30 interpretation and first-target-month entry convention are **superseded**. Phase 3 remains blocked pending tester review of these corrections. Strict Gate 2 remains CLOSED.
+
