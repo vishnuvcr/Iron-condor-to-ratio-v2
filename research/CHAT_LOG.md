@@ -71,3 +71,16 @@ Developer independently inspected the published strategy/backtest code and found
 
 No correction has been made yet because changing 1.30 to a combined short-leg delta would be inventing an interpretation. The next gate is an independent strategy-semantics audit against the user's video/source and a reconciliation of the automated execution conventions against the profitable manual backtest. Until then, the negative performance result is treated as provisional and not as a trustworthy conclusion about the strategy.
 
+## 2026-10-05 — user clarification resolves reversal and entry semantics
+
+User clarified:
+1. The 1.30 reversal threshold is for the **two short lots** of the ratio short leg, i.e. 2 × individual short-option absolute delta reaches 1.30.
+2. The initial Iron Condor should be entered **as early as possible after the previous monthly expiry**, then ratios/continuations/reversals should follow the supplied strategy.
+
+Developer response:
+- Corrected reversal logic to use 2 × the individual short-option absolute delta.
+- Corrected continuation combined-delta accounting to count both short contracts.
+- Changed the exact strategy entry convention from first session of the target expiry month to the earliest normal NSE F&O session after the previous monthly expiry.
+- Kept fixed 1.30; no optimization or alternate threshold introduced.
+- The prior 28-cycle performance result is superseded and must not be used for the next conclusion.
+
