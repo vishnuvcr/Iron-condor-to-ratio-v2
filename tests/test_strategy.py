@@ -229,3 +229,20 @@ def test_previous_monthly_expiry_calendar_rules():
     assert previous_nifty_monthly_expiry(date(2026, 7, 28)) == date(2026, 6, 30)
     # September 2025 follows August 2025's Thursday monthly expiry.
     assert previous_nifty_monthly_expiry(date(2025, 9, 30)) == date(2025, 8, 28)
+
+
+def test_ratio_contract_identity_rejects_collision():
+    from scripts.backtest import ratio_contracts_are_distinct
+
+    valid = [
+        (100.0, "CE", 1, "BUY", "initial_long"),
+        (105.0, "CE", 2, "SELL", "initial_short"),
+        (110.0, "CE", 1, "BUY", "initial_hedge"),
+    ]
+    collision = [
+        (100.0, "CE", 1, "BUY", "initial_long"),
+        (100.0, "CE", 2, "SELL", "initial_short"),
+        (110.0, "CE", 1, "BUY", "initial_hedge"),
+    ]
+    assert ratio_contracts_are_distinct(valid) is True
+    assert ratio_contracts_are_distinct(collision) is False
