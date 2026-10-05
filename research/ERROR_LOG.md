@@ -15,3 +15,10 @@
 ## 2026-10-05 — TESTER REVIEW 31
 
 Tester independently rechecked developer remediation. Cost-methodology wording now matches the published implementation; README, phase status, error log and chat log are updated; no strategy-code changes occurred after the published run code commit. Fixed 1.30 remains unchanged. Gate 2 remains CLOSED and the strategy remains unpromoted.
+
+## 2026-10-05 — TESTER REVIEW 32 / reversal reachability blocker
+
+Independent tester found that the production reversal check applies fixed 1.30 to a single option's absolute delta. Under the published Black-76 implementation at rate=0.0, individual option absolute delta is bounded by 1.00, so the reversal branch is unreachable. The unit test only feeds an arbitrary 1.30 value into the helper and does not test production reachability.
+
+Tester decision: strategy-fidelity gate FAIL / BLOCKED. Do not change 1.30 into another threshold or silently reinterpret it as a combined delta. Source-accurate reversal semantics and a matched manual-vs-automated trade reconciliation are required before performance re-acceptance.
+
