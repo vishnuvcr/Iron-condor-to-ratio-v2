@@ -11,6 +11,7 @@ import duckdb
 import pandas as pd
 
 from scripts.backtest import entry_and_exit_dates
+from src.nse_calendar import previous_nifty_monthly_expiry
 
 
 def is_monthly_expiry_candidate(expiry: date) -> bool:
@@ -260,7 +261,10 @@ def main():
 
         first = pd.Timestamp(row["first_available"]).date()
         last = pd.Timestamp(row["last_available"]).date()
-        entry, exit_date = entry_and_exit_dates(expiry, [first, last])
+        previous_expiry = previous_nifty_monthly_expiry(expiry)
+        entry, exit_date = entry_and_exit_dates(
+            expiry, previous_expiry, [first, last]
+        )
 
         status = "COMPLETE" if entry and exit_date else "INCOMPLETE"
         expected_sessions = 0
@@ -304,7 +308,7 @@ def main():
 
         if status != "COMPLETE" and (not entry or not exit_date):
             failures.append(
-                f"{expiry}: does not span deterministic first-session-of-expiry-month entry to pre-expiry exit"
+                f"{expiry}: does not span deterministic earliest-post-previous-expiry entry to pre-expiry exit"
             )
 
         rows.append({
@@ -357,8 +361,8 @@ def main():
                 "complete_cycles": complete,
                 "failure_count": len(failures),
                 "limitations": [
-                    "The strict first-session-of-expiry-month lifecycle gate is not satisfied.",
-                    "The research-use backtest may start at the first observed session available in the expiry month.",
+                    "The strict earliest-post-previous-monthly-expiry lifecycle gate is not satisfied for all requested months.",
+                    "Research-use mode may start at the earliest observed session after the actual previous monthly expiry when the exact first session is unavailable.",
                     "Results must not be presented as a fully covered historical validation."
                 ]
             }, indent=2))
