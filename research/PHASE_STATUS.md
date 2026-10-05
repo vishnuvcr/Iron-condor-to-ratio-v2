@@ -239,3 +239,9 @@ Independent Tester Review 37 blocked performance acceptance. The compact artifac
 The affected cycles contribute approximately +₹4,742.99 net to the current result. This does not explain the user's doubt by itself, but it means the −₹8,791.92 result is not yet a faithful implementation result.
 
 **Performance acceptance is BLOCKED. Strict Gate 2 remains CLOSED. The current result is PROVISIONAL.** Developer remediation must reject malformed ratio construction without changing strategy parameters, rerun the workflow, and obtain a new independent tester report.
+
+## 2026-10-05 — Developer remediation after Tester Review 37
+
+Developer added a narrow contract-identity validation to ratio construction. A requested ratio build is now rejected if its long, short or hedge legs resolve to the same option contract identity. No alternate strike is substituted and no strategy parameter is changed. A regression test was added.
+
+A fresh GitHub Actions run is required before performance acceptance can be reconsidered. Tester Review 37 remains the controlling blocker; Strict Gate 2 remains CLOSED.
