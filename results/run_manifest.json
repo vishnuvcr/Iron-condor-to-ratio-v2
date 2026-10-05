@@ -1,6 +1,6 @@
 {
   "repository": "vishnuvcr/Iron-condor-to-ratio-v2",
-  "code_commit_sha": "d7b1bc03da8fed525b26ee4c3a6d433c12ed3487",
+  "code_commit_sha": "40d54d0bc9baf942f314e90db5911220a15f06f7",
   "data_repository": "composite_free_sources",
   "dataset_revision": "composite:ae907488c242f12a0ff9a468ff4f2e20e7d834a110292647a42c4a92314db388",
   "dataset_card_url": "composite/composite_manifest.json",
@@ -94,7 +94,7 @@
   "previous_expiry_rule": "actual previous calendar NIFTY monthly expiry derived from the NSE expiry-day regime",
   "research_use_partial_data": true,
   "tick": 0.05,
-  "created_utc": "2026-10-05T02:05:47.591698Z",
+  "created_utc": "2026-10-05T02:33:08.836323Z",
   "data_coverage": [
     {
       "expiry": "2021-05-27",

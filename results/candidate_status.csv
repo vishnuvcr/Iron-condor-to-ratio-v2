@@ -1,7 +1,7 @@
 expiry,previous_monthly_expiry,status,reason,entry_mode,entry_date,exit_date,research_use_partial_data
 2021-05-27,2021-04-29,TRADED,Executable path,available,2021-05-07,2021-05-26,True
 2021-06-24,2021-05-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,available,,,
-2021-07-29,2021-06-24,TRADED,Executable path,available,2021-07-19,2021-07-28,True
+2021-07-29,2021-06-24,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,available,,,
 2021-08-26,2021-07-29,TRADED,Executable path,available,2021-08-16,2021-08-25,True
 2021-09-30,2021-08-26,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,available,,,
 2021-10-28,2021-09-30,TRADED,Executable path,available,2021-10-18,2021-10-27,True
@@ -43,7 +43,7 @@ expiry,previous_monthly_expiry,status,reason,entry_mode,entry_date,exit_date,res
 2025-08-28,2025-07-31,TRADED,Executable path,available,2025-08-18,2025-08-26,True
 2025-09-30,2025-08-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,available,,,
 2025-10-28,2025-09-30,TRADED,Executable path,available,2025-10-20,2025-10-27,True
-2025-11-25,2025-10-28,TRADED,Executable path,available,2025-11-17,2025-11-24,True
+2025-11-25,2025-10-28,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,available,,,
 2025-12-30,2025-11-25,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,available,,,
 2026-01-27,2025-12-30,TRADED,Executable path,available,2026-01-19,2026-01-23,True
 2026-02-24,2026-01-27,TRADED,Executable path,available,2026-02-16,2026-02-23,True
