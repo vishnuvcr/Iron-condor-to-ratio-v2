@@ -1,7 +1,7 @@
 # Research Plan
 
 ## Research question
-Does the latest user-defined NIFTY strategy — monthly 0.30/0.10 Iron Condor, 0.10-delta breakout transition, directional ratio spread, 0.20 continuation reset, and fixed 1.30 short-leg-delta reversal trigger — produce robust risk-adjusted returns after realistic Indian option-trading costs and slippage?
+Does the latest user-defined NIFTY strategy — monthly 0.30/0.10 Iron Condor entered as early as possible after the previous monthly expiry, 0.10-delta breakout transition, directional ratio spread, 0.20 combined delta reset across the two short contracts, and fixed 1.30 two-lot-short-leg reversal trigger — produce robust risk-adjusted returns after realistic Indian option-trading costs and slippage?
 
 ## Secondary questions
 1. How often does the initial Iron Condor reach the transition trigger?
@@ -36,5 +36,5 @@ When a free source contains a missing contract-minute observation, attempt exact
 The research stops after Phase 8 or earlier if the data are demonstrably insufficient for a defensible backtest. No unbounded data collection is permitted.
 
 
-## 2026-10-05 scope correction
-The reversal rule is fixed at a **1.30 short-leg delta trigger**. The previously drafted 0.80/1.00/1.20/1.30 sensitivity grid was unauthorized and is excluded from the research. No alternative reversal threshold, combined-delta reversal rule, optimization, or tuning is permitted unless the user/video explicitly changes the strategy.
+## 2026-10-05 user clarification correction
+The reversal rule is fixed at **1.30 for the two short contracts**, meaning 2 × the individual absolute delta reaches 1.30 (individual trigger = 0.65). The initial Iron Condor is entered **as early as possible after the previous monthly expiry** at the earliest normal NSE F&O session available. The continuation trigger is also the stated **0.20 combined delta of the two short contracts**, so the quantity of both short contracts must be counted. The earlier single-leg 1.30 interpretation and first-expiry-month entry convention are superseded. No alternative threshold, reversal formula, optimization, or tuning is permitted.
