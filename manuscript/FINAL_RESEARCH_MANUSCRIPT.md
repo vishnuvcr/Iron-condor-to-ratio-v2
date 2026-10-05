@@ -7,7 +7,7 @@
 **Tester branch:** `phase-3-robustness-tester`  
 **Verified workflow:** 37253416839  
 **Developer commit:** `d7b1bc03da8fed525b26ee4c3a6d433c12ed3487`  
-**Independent tester review:** `research/PHASE_3_TESTER_REVIEW_35.md`
+**Independent tester review:** `research/PHASE_3_TESTER_REVIEW_37.md` — BLOCKED
 
 ---
 
@@ -19,7 +19,7 @@ A provenance-aware composite of free/public option data was used. Strict lifecyc
 
 The clean research-use run produced 29 traded cycles, 628 orders, gross P&L of +₹8,294.00, modeled transaction costs of ₹17,085.92, and net P&L of **−₹8,791.92**. Win rate was 44.83%, profit factor 0.833656, maximum drawdown −₹30,811.11, and the annualized monthly Sharpe proxy −0.23854. There were 13 continuation rebuilds and 24 reversal rebuilds. Independent Tester Review 35 reproduced the principal arithmetic and accepted the result with restrictions.
 
-The result is **not a fully covered historical validation and does not justify live-trading promotion**.
+The result is **not a fully covered historical validation and is currently PROVISIONAL because Tester Review 37 found malformed ratio construction. It must not be treated as a final strategy conclusion.**
 
 ---
 
@@ -311,7 +311,7 @@ No claim is made that the strategy is universally unprofitable. The correct conc
 
 ---
 
-## 12. Conclusion
+## 12. Provisional conclusion
 
 Under the exact clarified strategy rules and the current research-use dataset, the clean run produced:
 
@@ -319,11 +319,11 @@ Under the exact clarified strategy rules and the current research-use dataset, t
 **Costs: ₹17,085.92**  
 **Net P&L: −₹8,791.92**
 
-The strategy therefore **does not pass a net-profitability acceptance criterion in the available research-use sample**.
+The strategy **cannot yet be judged** on this result because the implementation contained two malformed ratio builds. The current P&L is retained only as an audit artifact pending remediation.
 
-The result is not sufficient to claim universal failure because strict historical coverage is incomplete. The scientifically defensible conclusion is that the available evidence does not demonstrate a positive net trading edge after modeled execution costs.
+The result is not sufficient to claim universal failure because strict historical coverage is incomplete. The scientifically defensible conclusion is currently that the automated result is **not yet validated**. A corrected rerun is required before drawing a profitability conclusion.
 
-**Live-trading promotion is rejected.**
+**Live-trading promotion is rejected. Performance acceptance is blocked.**
 
 ---
 
@@ -379,3 +379,7 @@ Tester Review 35: **PASS WITH RESTRICTIONS**.
 
 The tester independently verified the clean run's arithmetic, execution counts, transition structure, coverage status and cost/slippage methodology. The tester specifically required that the strict Gate 2 CLOSED status remain visible.
 
+
+
+## Appendix D — Falsification audit update
+Tester Review 37 found two malformed initial ratio builds where the same option contract was used for both the 0.50-delta long and 0.40-delta short. The current result of −₹8,791.92 is therefore provisional. The remediation is to reject malformed ratio construction rather than invent a replacement strike, followed by a complete rerun and independent review.
