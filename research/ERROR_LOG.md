@@ -151,3 +151,6 @@ User also clarified that the initial Iron Condor should be entered **as early as
 
 Implementation audit additionally found that the previous continuation check did not multiply the short option delta by its 2-contract quantity, despite the strategy specifying the combined delta of the two short legs. This has been corrected to count both short contracts. No new strategy rule was introduced.
 
+## 2026-10-05 — REVIEW 34 REMEDIATION
+
+Tester Review 34 found that the corrected backtest succeeded, but the coverage validator still called the superseded entry-date API and research-use metadata described the old target-month entry convention. Developer corrected both audit-layer defects. Strategy logic remains unchanged.
