@@ -127,13 +127,13 @@ def test_early_entry_after_previous_monthly_expiry():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    dates = [date(2026, 6, 26), date(2026, 6, 29), date(2026, 7, 27)]
+    dates = [date(2026, 7, 1), date(2026, 7, 2), date(2026, 7, 27)]
     entry, exit_date = entry_and_exit_dates(
         date(2026, 7, 28),
-        date(2026, 6, 25),
+        date(2026, 6, 30),
         dates,
     )
-    assert entry == date(2026, 6, 26)
+    assert entry == date(2026, 7, 1)
     assert exit_date == date(2026, 7, 27)
 
 
@@ -141,10 +141,10 @@ def test_early_entry_rejects_missing_first_post_expiry_session():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    dates = [date(2026, 6, 29), date(2026, 7, 27)]
+    dates = [date(2026, 7, 2), date(2026, 7, 27)]
     assert entry_and_exit_dates(
         date(2026, 7, 28),
-        date(2026, 6, 25),
+        date(2026, 6, 30),
         dates,
     ) == (None, None)
 
@@ -153,13 +153,13 @@ def test_early_entry_uses_nse_calendar():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    dates = [date(2026, 6, 29), date(2026, 7, 27)]
+    dates = [date(2026, 7, 1), date(2026, 7, 27)]
     entry, exit_date = entry_and_exit_dates(
         date(2026, 7, 28),
-        date(2026, 6, 26),
+        date(2026, 6, 30),
         dates,
     )
-    assert entry == date(2026, 6, 29)
+    assert entry == date(2026, 7, 1)
     assert exit_date == date(2026, 7, 27)
 
 def test_partial_data_entry_mode_is_explicit():
@@ -198,7 +198,7 @@ def test_research_use_available_entry_does_not_require_strict_first_session(monk
         0.0,
         CostModel(),
         entry_mode="available",
-        previous_expiry=date(2026, 6, 25),
+        previous_expiry=date(2026, 6, 30),
     )
     assert cycle is None
     assert seen["nearest_bar"] == 1
@@ -219,3 +219,13 @@ def test_continuation_counts_both_short_contracts():
     combined = sum(abs(l) * x for l, x in zip(lots, d))
     assert math.isclose(combined, 0.20, abs_tol=1e-9)
 
+
+
+def test_previous_monthly_expiry_calendar_rules():
+    from datetime import date
+    from src.nse_calendar import previous_nifty_monthly_expiry
+
+    # July 2026 follows June 2026's Tuesday monthly expiry.
+    assert previous_nifty_monthly_expiry(date(2026, 7, 28)) == date(2026, 6, 30)
+    # September 2025 follows August 2025's Thursday monthly expiry.
+    assert previous_nifty_monthly_expiry(date(2025, 9, 30)) == date(2025, 8, 28)
