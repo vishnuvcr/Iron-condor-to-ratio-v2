@@ -24,3 +24,12 @@ Independent tester confirmed developer remediation after the doubt audit. The co
 
 Tester independently reviewed the developer's reversal implementation after the user's trust concern. Review 32 failed the strategy-fidelity gate: an individual option delta cannot reach 1.30 under the published Black-76 model, so the reversal path is unreachable. The tester did not assume a combined-delta interpretation and requires source-accurate semantics plus manual-vs-automated reconciliation before any rerun.
 
+## 2026-10-05 — Tester Review 33
+
+Independent tester accepted the developer's implementation of the user clarification:
+- reversal = 2 × individual short-option delta reaching 1.30;
+- continuation = combined delta of both short contracts reaching 0.20;
+- initial IC entry = earliest normal session after the actual previous monthly expiry.
+
+Previous negative performance remains superseded. CI and fresh backtest are now required.
+
