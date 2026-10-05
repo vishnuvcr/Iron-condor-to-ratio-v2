@@ -216,3 +216,18 @@ All previous performance outputs based on the single-leg 1.30 interpretation and
 ## 2026-10-05 — Review 34 remediation applied
 
 Developer corrected the coverage validator to use the actual previous NIFTY monthly expiry and the earliest-post-previous-expiry entry convention. Research-use metadata wording was corrected, and fresh run manifests/candidate status will record previous monthly expiry plus entry/exit dates. No strategy rule, threshold, or execution economics were changed.
+
+
+## 2026-10-05 — Tester Review 35 / clean corrected run accepted with restrictions
+
+Workflow 37253416839 completed successfully across unit tests, six partition builds, composite assembly, coverage validation, consolidated CSV export, CSV/Parquet reconciliation, backtest, and result publication. Independent Tester Review 35 on the isolated tester branch passed the corrected arithmetic and audit layer WITH RESTRICTIONS.
+
+Verified research-use metrics:
+- 29 traded cycles; 628 orders; 314 BUY / 314 SELL.
+- Gross P&L +₹8,294.00; costs ₹17,085.92; net P&L −₹8,791.92.
+- Win rate 44.83%; profit factor 0.833656.
+- Maximum drawdown −₹30,811.11; P05 −₹5,669.63; P95 ₹4,289.12; annualized monthly Sharpe proxy −0.23854.
+- 66 state transitions; 13 continuation rebuilds; 24 reversal rebuilds.
+- Order-log arithmetic independently reconstructs ₹1,900 of one-tick slippage drag (760 absolute lots × ₹0.05 × 50).
+
+Strict Gate 2 remains CLOSED: requested months 69, strict complete cycles 0. The result is research-use partial-data evidence only and must not be promoted to live trading. No strategy parameter, optimization, sensitivity grid, or alternate threshold was introduced.
