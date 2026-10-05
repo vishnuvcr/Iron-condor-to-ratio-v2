@@ -28,3 +28,11 @@ Tester accepted the user clarification that reversal 1.30 applies across the two
 
 Verdict: PASS WITH RESTRICTIONS. CI and a fresh backtest are required; prior performance is superseded.
 
+## 2026-10-05 — TESTER REVIEW 34
+
+The corrected performance artifact is numerically reproducible: 29 cycles, +₹8,294 gross, ₹17,085.92 costs, −₹8,791.92 net, 13 continuation rebuilds, 24 reversal rebuilds, 628 orders.
+
+However, the workflow coverage diagnostic failed because scripts/check_composite_coverage.py still calls entry_and_exit_dates with the old signature. The step is tolerated by continue-on-error, so the backtest completed, but coverage evidence is invalid until remediated. research_use_data_status.json also contains stale old entry-convention wording.
+
+Final performance acceptance is blocked.
+
