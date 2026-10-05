@@ -25,3 +25,8 @@ Gate 2 remains NOT PASSED. Free-source expansion produced credible candidates, b
 
 ## 2026-10-05 — Tester Review 29
 Phase 3 strategy-fidelity and numerical verification: **PASS WITH RESTRICTIONS**. The fixed 1.30 reversal implementation and the completed 28-cycle research-use output were independently reconciled from trade and order files. Strategy promotion is NOT approved. Strict Gate 2 remains CLOSED at 0/69 requested calendar months. The next permitted step is manuscript/conclusion work without strategy modification.
+
+
+## 2026-10-05 — Tester Review 31 confirmation
+
+Phase 3 strategy-fidelity/numerical review: **PASS WITH RESTRICTIONS**. Developer remediation accepted. No strategy rule changed. Strict Gate 2 remains CLOSED at 0/69 months. Research-use result remains reproducible but not a full historical validation.
