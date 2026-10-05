@@ -389,6 +389,14 @@ def build_ratio(
         if r is None:
             return None
         selections.append((float(r["strike"]), opt, lots, action, reason))
+
+    # The specified ratio is a three-leg structure. If the available chain
+    # cannot represent the requested target legs with distinct contracts,
+    # reject the build rather than silently creating offsetting long/short
+    # positions in the same contract or inventing a replacement strike.
+    if not ratio_contracts_are_distinct(selections):
+        return None
+
     common = common_next_open(df, signal_ts, [(s, o) for s, o, *_ in selections])
     if common is None:
         return None
@@ -405,6 +413,11 @@ def build_ratio(
         add_order(cycle, expiry, pos, action, fill_ts, ref_price, cost_model, lot_size, reason, lots_override=lots)
         out.append(pos)
     return out, fill_ts
+
+def ratio_contracts_are_distinct(selections: List[Tuple[float, str, int, str, str]]) -> bool:
+    identities = [(float(strike), option_type) for strike, option_type, *_ in selections]
+    return len(identities) == len(set(identities))
+
 
 def close_positions(
     positions: List[Position],
