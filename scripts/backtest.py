@@ -717,9 +717,12 @@ def main():
                 all_cycles.append(cycle)
                 candidate_status.append({
                     "expiry": str(expiry),
+                    "previous_monthly_expiry": str(previous_expiry),
                     "status": "TRADED",
                     "reason": "Executable path",
                     "entry_mode": args.entry_mode,
+                    "entry_date": str(cycle.entry_date),
+                    "exit_date": str(cycle.orders[-1].timestamp.date()) if cycle.orders else "",
                     "research_use_partial_data": args.entry_mode == "available",
                 })
                 for o in cycle.orders:
@@ -736,7 +739,13 @@ def main():
                         "reason": o.reason,
                     })
             else:
-                candidate_status.append({"expiry": str(expiry), "status": "SKIPPED_NO_COMPLETE_EXECUTION", "reason": "Cycle did not have a complete executable path"})
+                candidate_status.append({
+                    "expiry": str(expiry),
+                    "previous_monthly_expiry": str(previous_expiry),
+                    "status": "SKIPPED_NO_COMPLETE_EXECUTION",
+                    "reason": "Cycle did not have a complete executable path",
+                    "entry_mode": args.entry_mode,
+                })
         except Exception as exc:
             candidate_status.append({"expiry": str(expiry), "status": "ERROR", "reason": repr(exc)})
             quality.append({"expiry": str(expiry), "status": "ERROR", "error": repr(exc)})
@@ -801,8 +810,12 @@ def main():
         "brokerage": args.brokerage,
         "slippage_ticks": args.slippage_ticks,
         "continuation_delta_threshold": args.continuation_delta_threshold,
+        "continuation_delta_definition": "combined absolute delta across both short contracts; both short lots counted",
         "reversal_delta_threshold": REVERSAL_DELTA_THRESHOLD,
+        "reversal_delta_definition": "1.30 across two short contracts = 2 * individual short-option absolute delta",
         "entry_mode": args.entry_mode,
+        "entry_rule": "earliest normal NSE F&O session after the actual previous NIFTY monthly expiry; research-use mode uses earliest observed post-expiry session if exact session data are unavailable",
+        "previous_expiry_rule": "actual previous calendar NIFTY monthly expiry derived from the NSE expiry-day regime",
         "research_use_partial_data": args.entry_mode == "available",
         "tick": TICK,
         "created_utc": datetime.utcnow().isoformat() + "Z",
