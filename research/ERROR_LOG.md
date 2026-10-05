@@ -122,3 +122,15 @@
 
 | 2026-10-05 | 3 | TOOLING | First local compact-artifact inspection assumed a nested results/compact directory, but the downloaded artifact contains the compact files at its root. | Corrected the path; no research data were altered. |
 | 2026-10-05 | 3 | CI RACE | Previous workflow run 37235922082 created a local result commit but push was rejected because newer documentation commits had advanced the remote branch. | Workflow was changed to fetch/rebase before publishing compact result files. |
+
+
+## 2026-10-05 — TESTER REVIEW 30 / independent doubt audit
+
+- **NUMERICAL RECONCILIATION:** PASS. The compact trade/order outputs independently reproduce 28 cycles, 620 orders, −₹3,821.50 gross P&L, ₹16,633.96 costs, −₹20,455.46 net P&L, 46.43% win rate, 0.6468 profit factor, −₹41,981.20 maximum drawdown, and −0.5414 Sharpe proxy.
+- **ZERO-SLIPPAGE AUDIT:** Removing the recorded one-tick adverse slippage from the stored order fills gives gross P&L of −₹1,871.50 before slippage and before transaction costs. The negative direction is therefore not created by the one-tick slippage assumption or brokerage.
+- **DATA VALIDITY:** Strict lifecycle coverage remains 0/69 requested months; the result is valid only as a research-use partial-data finding.
+- **COST-METHODOLOGY FINDING:** The repository requirement for year-by-year historical charges was not matched by the final code's single ₹3,553/crore exchange-rate constant. The study methodology is therefore explicitly reframed to a consistent modern retail execution-cost baseline across the historical price path; no strategy rule changed.
+- **SLIPPAGE REPORTING:** Zero-slippage was independently reconstructed from the order log; the final manuscript now records this audit.
+- **DOCUMENTATION:** README, cost model, manuscript, phase status and conversation log updated. Strategy remains fixed at reversal trigger 1.30; no threshold optimization or alternate rule introduced.
+
+Tester review: `research/PHASE_3_TESTER_REVIEW_30.md` on the isolated tester branch.
