@@ -62,3 +62,12 @@ Developer response:
 - No strategy threshold, optimization, or new trading rule was introduced.
 
 Tester report: `research/PHASE_3_TESTER_REVIEW_30.md` on `phase-3-robustness-tester`.
+
+## 2026-10-05 — user trust concern and reversal audit
+
+User stated that the automated result is difficult to trust because their manual backtesting was profitable.
+
+Developer independently inspected the published strategy/backtest code and found a material fidelity issue: ratio_reversal_trigger() checks whether any individual active short option delta is >= 1.30. The same repository calculates individual Black-76 option deltas, whose absolute value cannot exceed 1.00 under the published run assumptions. Therefore the reversal branch is unreachable in the actual backtest, which explains the observed zero reversal events by construction rather than by market observation.
+
+No correction has been made yet because changing 1.30 to a combined short-leg delta would be inventing an interpretation. The next gate is an independent strategy-semantics audit against the user's video/source and a reconciliation of the automated execution conventions against the profitable manual backtest. Until then, the negative performance result is treated as provisional and not as a trustworthy conclusion about the strategy.
+
