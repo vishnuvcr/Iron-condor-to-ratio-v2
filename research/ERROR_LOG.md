@@ -143,3 +143,11 @@ This creates a material strategy-fidelity question because the user's statement 
 
 Action: withdraw confidence in the current performance conclusion as a faithful YouTube-strategy replication; keep Gate 2 CLOSED; do not alter the strategy code or introduce a new interpretation until the reversal semantics are independently resolved and tester-reviewed. Also audit the entry/exit timing convention against the manual backtest because the automated run uses a first-observed-session / pre-expiry-session modelling convention that the video did not explicitly specify.
 
+## 2026-10-05 — USER CLARIFICATION / REVERSAL AND ENTRY TIMING
+
+User clarified that the fixed **1.30 reversal trigger applies to the two short contracts**, so the relevant quantity is 2 × the individual absolute delta of the short option. Therefore the individual short-option trigger is 0.65, while the user-facing strategy threshold remains 1.30.
+
+User also clarified that the initial Iron Condor should be entered **as early as possible after the previous monthly expiry**. The prior first-session-of-target-expiry-month convention is superseded.
+
+Implementation audit additionally found that the previous continuation check did not multiply the short option delta by its 2-contract quantity, despite the strategy specifying the combined delta of the two short legs. This has been corrected to count both short contracts. No new strategy rule was introduced.
+
