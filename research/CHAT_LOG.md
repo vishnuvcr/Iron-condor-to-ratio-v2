@@ -102,3 +102,7 @@ Tester Review 35 is stored on the isolated tester branch at research/PHASE_3_TES
 User requested a falsification audit because the reported result remained doubtful. Developer downloaded and independently inspected the clean compact artifact. The tester-side audit found a concrete implementation flaw: two initial ratio builds used the same CE strike for both the 0.50-delta long and 0.40-delta short.
 
 This is a strategy-fidelity defect, not a cosmetic issue. The current result is now marked **PROVISIONAL / NOT ACCEPTED**. Tester Review 37 is stored on the isolated tester branch. Required next step is a developer fix that rejects malformed ratio construction without changing any strategy rule, followed by a clean rerun and independent tester review.
+
+## 2026-10-05 — malformed ratio remediation
+
+Following Tester Review 37, developer corrected the implementation so a ratio build cannot contain the same option contract as multiple legs. If the available chain cannot represent the requested three distinct legs, the build is rejected rather than replaced with an invented strike.
