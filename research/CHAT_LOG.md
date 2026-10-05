@@ -87,3 +87,12 @@ Developer response:
 ## 2026-10-05 — Review 34 remediation
 
 Developer corrected the stale coverage-validation API and research-use entry-convention metadata identified by the tester. The strategy remains fixed at 1.30 across two short lots, continuation counts both short contracts, and entry starts after the actual previous monthly expiry. A fresh CI/backtest will provide the final audited artifact.
+
+
+## 2026-10-05 — Tester Review 35 / clean corrected run
+
+Developer completed workflow 37253416839 after Review 34 remediation. Tester independently checked the clean artifact and accepted it WITH RESTRICTIONS. The corrected 29-cycle result is gross +₹8,294.00, costs ₹17,085.92, net −₹8,791.92, with 628 orders and 66 transitions. The tester independently reconstructed ₹1,900 of one-tick slippage drag from 760 absolute lots.
+
+The strict lifecycle gate remains 0/69 complete months, so the result is research-use partial-data evidence only. The fixed 1.30 two-short-contract reversal rule, 0.20 two-short-contract continuation rule, and earliest-post-previous-expiry entry convention remain unchanged. No optimization or alternate strategy rule was introduced.
+
+Tester Review 35 is stored on the isolated tester branch at research/PHASE_3_TESTER_REVIEW_35.md.
