@@ -163,3 +163,15 @@ The clean corrected workflow 37253416839 passed all execution stages, including 
 Independent checks reproduced 29 cycles, 628 orders, 314 BUY/314 SELL, gross +₹8,294.00, costs ₹17,085.92, net −₹8,791.92, 44.83% win rate, profit factor 0.833656, maximum drawdown −₹30,811.11, P05 −₹5,669.63, P95 ₹4,289.12, and Sharpe proxy −0.23854. The order log contains 760 absolute lots, implying ₹1,900 of one-tick slippage drag at ₹0.05 and 50-unit lot size.
 
 Coverage remains 0/69 strict complete cycles, so this is not a complete historical validation. No strategy change was introduced.
+
+## 2026-10-05 — TESTER REVIEW 37 / MALFORMED RATIO BLOCKER
+
+Independent falsification audit found that 2 of 53 ratio builds used the same CE contract as both the 0.50-delta long and 0.40-delta two-lot short. This occurs because ratio target selection is performed independently without a distinct-contract validity check.
+
+Affected cycles:
+- 2021-07-29: CE 15700 long and short.
+- 2025-11-25: CE 26100 long and short.
+
+Their combined net contribution is approximately +₹4,742.99. The current −₹8,791.92 result is therefore provisional and cannot be accepted as an exact ratio-strategy replication.
+
+Required remediation: enforce distinct contract identities or, if the target structure cannot be represented by available data, reject that build/cycle rather than inventing a replacement strike. Add regression tests and rerun the complete workflow. No strategy rule may be changed.
