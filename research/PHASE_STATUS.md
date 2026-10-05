@@ -186,3 +186,12 @@ An attempt to retrieve live logs for workflow job `111535265912` returned GitHub
 
 ## 2026-10-05 — Phase 3 research-use performance conclusion
 Tester Review 29 independently verified the fixed-1.30 research-use result from workflow 37237347768. Phase 3 strategy-fidelity and numerical verification are **COMPLETE WITH RESTRICTIONS**. The result is negative: 28 traded cycles, net P&L -₹20,455.46, profit factor 0.6468, max drawdown -₹41,981.20, Sharpe proxy -0.5414. Gross P&L is already negative before costs. Zero 1.30 reversal events occurred; 38 continuation resets occurred. Strategy promotion is rejected. Strict Gate 2 remains CLOSED at 0/69 months. Phase 8 manuscript has been produced and the research stop rule is satisfied.
+
+
+## 2026-10-05 — Tester Review 30 / doubt audit
+
+Phase 3 numerical output remains **COMPLETE WITH RESTRICTIONS**. Independent recomputation confirms the published 28-cycle result exactly. A zero-slippage reconstruction gives gross P&L of −₹1,871.50 before transaction costs, confirming that the negative direction is not created by the one-tick slippage assumption.
+
+The study remains research-use only because strict lifecycle coverage is **0/69 requested months**. The cost methodology is now explicitly described as a consistent modern retail execution-cost baseline rather than a year-by-year historical broker invoice reconstruction.
+
+No strategy rule changed. Fixed reversal trigger remains **1.30**. Strategy promotion remains prohibited.
