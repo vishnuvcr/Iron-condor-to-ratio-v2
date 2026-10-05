@@ -1,13 +1,13 @@
 {
-  "trades": 28,
-  "total_net_pnl": -20455.45845257999,
-  "avg_net_pnl": -730.5520875921426,
-  "median_net_pnl": -433.7957710915002,
-  "win_rate": 0.4642857142857143,
-  "profit_factor": 0.6467776114292938,
-  "max_drawdown": -41981.19832637999,
-  "p05_pnl": -10542.678993359124,
-  "p95_pnl": 4464.945640244499,
-  "roi_on_1L_capital": -0.20455458452579992,
-  "annualized_monthly_sharpe_proxy": -0.5413647919708302
+  "trades": 29,
+  "total_net_pnl": -8791.922785478011,
+  "avg_net_pnl": -303.1697512233797,
+  "median_net_pnl": -801.4718949249993,
+  "win_rate": 0.4482758620689655,
+  "profit_factor": 0.8336564468796931,
+  "max_drawdown": -30811.11285156301,
+  "p05_pnl": -5669.625886940501,
+  "p95_pnl": 4289.119899918001,
+  "roi_on_1L_capital": -0.08791922785478011,
+  "annualized_monthly_sharpe_proxy": -0.23853766291416026
 }

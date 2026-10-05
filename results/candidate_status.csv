@@ -1,5 +1,5 @@
 expiry,status,reason,entry_mode,research_use_partial_data
-2021-05-27,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,,
+2021-05-27,TRADED,Executable path,available,True
 2021-06-24,SKIPPED_NO_COMPLETE_EXECUTION,Cycle did not have a complete executable path,,
 2021-07-29,TRADED,Executable path,available,True
 2021-08-26,TRADED,Executable path,available,True
