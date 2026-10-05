@@ -213,3 +213,6 @@ Developer corrected:
 
 All previous performance outputs based on the single-leg 1.30 interpretation and first-target-month entry convention are **superseded**. Phase 3 remains blocked pending tester review of these corrections. Strict Gate 2 remains CLOSED.
 
+## 2026-10-05 — Review 34 remediation applied
+
+Developer corrected the coverage validator to use the actual previous NIFTY monthly expiry and the earliest-post-previous-expiry entry convention. Research-use metadata wording was corrected, and fresh run manifests/candidate status will record previous monthly expiry plus entry/exit dates. No strategy rule, threshold, or execution economics were changed.
