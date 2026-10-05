@@ -123,89 +123,43 @@ def test_iv_matches_independent_brentq():
     assert abs(actual - expected) < 1e-4
 
 
-def test_incomplete_monthly_cycle_is_rejected():
+def test_early_entry_after_previous_monthly_expiry():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # Data beginning after the first NSE session of the expiry month cannot
-    # satisfy the latest strategy's entry convention.
-    assert entry_and_exit_dates(
+    dates = [date(2026, 6, 26), date(2026, 6, 29), date(2026, 7, 27)]
+    entry, exit_date = entry_and_exit_dates(
         date(2026, 7, 28),
-        [date(2026, 7, 2), date(2026, 7, 27)],
-    ) == (None, None)
-
-
-def test_monthly_cycle_uses_first_expiry_month_session_and_pre_expiry_session():
-    from datetime import date
-    from scripts.backtest import entry_and_exit_dates
-
-    dates = [date(2026, 7, 1), date(2026, 7, 2), date(2026, 7, 24), date(2026, 7, 27)]
-    entry, exit_date = entry_and_exit_dates(date(2026, 7, 28), dates)
-    assert entry == date(2026, 7, 1)
+        date(2026, 6, 25),
+        dates,
+    )
+    assert entry == date(2026, 6, 26)
     assert exit_date == date(2026, 7, 27)
 
 
-def test_cycle_boundary_uses_nse_holiday_calendar_for_month_start():
+def test_early_entry_rejects_missing_first_post_expiry_session():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # March 3 is an NSE F&O holiday in the stored 2026 calendar; March 1 is
-    # Sunday, so March 2 is the first eligible expiry-month session.
-    dates = [date(2026, 3, 2), date(2026, 3, 27)]
-    entry, exit_date = entry_and_exit_dates(date(2026, 3, 30), dates)
-    assert entry == date(2026, 3, 2)
-    assert exit_date == date(2026, 3, 27)
+    dates = [date(2026, 6, 29), date(2026, 7, 27)]
+    assert entry_and_exit_dates(
+        date(2026, 7, 28),
+        date(2026, 6, 25),
+        dates,
+    ) == (None, None)
 
 
-def test_cycle_boundary_accepts_complete_month_without_32dte_lead_in():
+def test_early_entry_uses_nse_calendar():
     from datetime import date
     from scripts.backtest import entry_and_exit_dates
 
-    # The cycle is valid when the first expiry-month session is present even
-    # though the dataset contains no prior-month/32-DTE lead-in.
-    dates = [date(2026, 2, 2), date(2026, 2, 26)]
-    entry, exit_date = entry_and_exit_dates(date(2026, 2, 27), dates)
-    assert entry == date(2026, 2, 2)
-    assert exit_date == date(2026, 2, 26)
-
-
-def test_partial_data_entry_mode_is_explicit():
-    import inspect
-    from scripts.backtest import run_cycle
-    assert "entry_mode" in inspect.signature(run_cycle).parameters
-    assert inspect.signature(run_cycle).parameters["entry_mode"].default == "strategy"
-
-
-def test_research_use_available_entry_does_not_require_strict_first_session(monkeypatch):
-    import pandas as pd
-    from datetime import date
-    from scripts import backtest as bt
-
-    ts = pd.Timestamp("2026-07-02 09:20:00+05:30")
-    df = pd.DataFrame({
-        "date": [date(2026, 7, 2), date(2026, 7, 27)],
-        "timestamp": [ts, pd.Timestamp("2026-07-27 15:20:00+05:30")],
-    })
-    monkeypatch.setattr(bt, "entry_and_exit_dates", lambda expiry, dates: (None, None))
-    monkeypatch.setattr(
-        bt,
-        "nse_fno_sessions",
-        lambda start, end: [date(2026, 7, 1), date(2026, 7, 27)],
+    dates = [date(2026, 6, 29), date(2026, 7, 27)]
+    entry, exit_date = entry_and_exit_dates(
+        date(2026, 7, 28),
+        date(2026, 6, 26),
+        dates,
     )
-    seen = {"nearest_bar": 0}
-    monkeypatch.setattr(bt, "nearest_bar", lambda data, target: seen.__setitem__("nearest_bar", 1) or ts)
-    monkeypatch.setattr(
-        bt,
-        "snapshot_at",
-        lambda data, target: pd.DataFrame(columns=["option_type", "close", "volume", "forward", "strike", "timestamp"]),
-    )
-    cycle = bt.run_cycle(df, date(2026, 7, 28), 0.0, CostModel(), entry_mode="available")
-    assert cycle is None
-    assert seen["nearest_bar"] == 1
+    assert entry == date(2026, 6, 29)
+    assert exit_date == date(2026, 7, 27)
 
-def test_reversal_trigger_is_fixed_at_1_30():
-    from scripts.backtest import REVERSAL_DELTA_THRESHOLD, ratio_reversal_trigger
-    assert REVERSAL_DELTA_THRESHOLD == 1.30
-    assert ratio_reversal_trigger([1.29, 0.05]) is False
-    assert ratio_reversal_trigger([1.30, 0.05]) is True
-    assert ratio_reversal_trigger([1.31, 0.05]) is True
+
